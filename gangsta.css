@@ -1,0 +1,1096 @@
+/**
+ *------
+ * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
+ * Gangsta implementation : © Benoit Ragoen <benoit.ragoen@gmail.com>
+ *
+ * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
+ * See http://en.boardgamearena.com/#!doc/Studio for more information.
+ * -----
+ *
+ * gangsta.css
+ *
+ * Gangsta stylesheet
+ *
+ */
+
+/*
+    This is the CSS stylesheet of your game User Interface.
+
+    Styles defined on this file will be applied to the HTML elements you define in your
+    HTML template (gangsta_gangsta.tpl), and to HTML elements you create dynamically
+    (in gangsta.js).
+
+    Usually, you are using CSS to:
+
+    1°) define the overall layout of your game
+        (ex: place the board on the top left, place player's hand beside, place the deck on the right, ...).
+
+    2°) create your CSS-sprites:
+        All images of your games should be gathered into a small number of image files. Then, using
+        background-image and background-position CSS properties, you create HTML blocks that can
+        display these images correctly (see example below).
+
+    3°) ... anything else:
+        It is really easy to add and remove CSS classes dynamically from your Javascript with
+        dojo.addClass and dojo.removeClass. It is also easy to check if an element has a class
+        (dojo.hasClass) or to get all elements with a specific class (dojo.query). This is why,
+        very often, using CSS classes for the logic of your user interface allow you to do complex
+        thing easily.
+
+
+     Note: on the production platform, this file will be compressed and comments will be removed.
+           Consequently, don't hesitate to put as many comments as necessary.
+*/
+
+
+/* Note: you must not use any @import directive */
+
+
+/********* You can start writing your CSS below this line: **********/
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap');
+
+
+html {
+    padding: 0;
+    margin: 0;
+    background: none;
+    background: #837970 url('img/gangsta_bg.jpg');
+    background-size: cover;
+    background-attachment: fixed;
+}
+:root {
+    --scale: 1.0;
+    --element-scale: 1.0;
+    --reward-spritesheet-width: 600px;
+    --reward-spritesheet-height: 300px;
+    --reward-spritesheet-columns: 10;
+    --reward-spritesheet-rows: 5;
+    --reward-spritesheet-scale: 1;
+    --reward-width: calc(var(--reward-spritesheet-width)/var(--reward-spritesheet-columns)*var(--reward-spritesheet-scale));
+    --reward-height: calc(var(--reward-spritesheet-height)/var(--reward-spritesheet-rows)*var(--reward-spritesheet-scale));
+    --reward-small-scale: calc(0.8*var(--scale));
+    --reward-small-width: calc(var(--reward-width)*var(--reward-small-scale));
+    --reward-small-height: calc(var(--reward-height)*var(--reward-small-scale));
+    --reward-smaller-scale: calc(0.5*var(--scale));
+    --reward-smaller-width: calc(var(--reward-width)*var(--reward-smaller-scale));
+    --reward-smaller-height: calc(var(--reward-height)*var(--reward-smaller-scale));
+    --reward-smallest-scale: calc(0.3*var(--scale));
+    --reward-smallest-width: calc(var(--reward-width)*var(--reward-smallest-scale));
+    --reward-smallest-height: calc(var(--reward-height)*var(--reward-smallest-scale));
+}
+div.tableWindow table {
+    margin-left: auto;
+    margin-right: auto;
+}
+#avdecks {
+    display: grid;
+    grid-template-columns: 7fr 3fr;
+    margin: 50px 0;
+}
+#snitches {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    font-family: 'Roboto Condensed', Helvetica, Arial, sans-serif;
+}
+#snitches .snitch-item {
+    border-radius: 6px;
+    display: inline-block;
+}
+#snitches h2 {
+    margin-top: 0;
+    text-align: center;
+    font-size: 1.2em;
+}
+#snitches p {
+    margin-top: 15px;
+    text-align: center;
+}
+#snitches .cardlist_wrapper {
+    margin-left: 0 !important;
+}
+#snitchlist {
+    height: 108px !important;
+    display: flex;
+    justify-content: center;
+}
+#snitchlist .stockitem {
+    position: relative;
+    top: 0 !important;
+    left: 0 !important;
+    width: 77px !important;
+    height: 108px !important;
+    background-size: 693px;
+}
+#snitchlist .stockitem:nth-of-type(1) {
+    margin-left: 0;
+}
+#snitchlist .stockitem:nth-of-type(2) {
+    margin-left: 4px;
+}
+#snitchlist .stockitem:nth-of-type(3) {
+    margin-left: 4px;
+}
+#heists.whiteblock, #gangsters.whiteblock {
+    background-image: none;
+}
+#heists.whiteblock {
+    margin-bottom: 0;
+}
+#gangsters.whiteblock {
+    margin-top: 0;
+}
+.displaynone{
+    display: none !important;
+}
+.card_sized {
+    width: 110px;
+    height: 154px;
+}
+.cardTip {
+    width:220px;
+    height:308px;
+}
+.gtip{
+    background-size:1760px 1848px;
+    background-image: url('img/gangsters_sprite.jpg');
+}
+.htip.genesis {
+    background: url('img/heist_sprite_chap1.jpg');
+    background-size:1980px 1232px;    
+}
+.htip.gangwars {
+    background: url('img/heist_sprite_chap2.jpg');
+    background-size:1980px 1540px;    
+}
+.htip.domination {
+    background: url('img/heist_sprite_chap3.jpg');
+    background-size:1980px 1232px;    
+}
+.gangster {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-image: url('img/gangsters_sprite.jpg');
+    background-size: 880px 924px;    
+    border-radius: 6px;
+}
+.gangster.selectable {
+    animation: animateSelected 2s ease infinite;
+}
+@keyframes animateSelected {
+    0%,100% {
+        box-shadow: 0 0 0 0 rgb(243,156,18) inset,
+                    0 0 4px 0 rgb(230,126,34);
+        -webkit-box-shadowbox-shadow: 0 0 0 0 rgb(243,156,18) inset,
+                    0 0 4px 0 rgb(230,126,34);
+        -moz-box-shadowbox-shadow: 0 0 0 0 	rgb(243,156,18) inset,
+                    0 0 4px 0px rgb(230,126,34);
+    }
+    50% {
+        box-shadow: 0 0 0 2px rgb(243,156,18) inset,
+                    0 0 8px 0 rgb(230,126,34);
+        -webkit-box-shadow: 0 0 0 2px rgb(243,156,18) inset,
+                    0 0 8px 0 rgb(230,126,34);
+        -moz-box-shadow: 0 0 0 2px rgb(243,156,18) inset,
+                    0 0 8px 0 rgb(230,126,34);
+    }
+}
+.gangster.mobilized {
+    opacity: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.gangster.mobilized:after {
+    /* orange */
+    content: '';
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url('img/sprite_rewards.png');
+    background-position: -300px 0;
+    width: 60px;
+    height: 60px;
+    animation: animateMobilized 2s ease infinite;
+}
+.gangster.selected {
+    opacity: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    box-shadow: 0 0 0 2px rgb(124,252,0) inset;
+}
+.gangster.selected:after {
+    /* green */
+    content: '';
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url('img/sprite_rewards.png');
+    background-position: -240px 0;
+    width: 60px;
+    height: 60px;
+    animation: animateMobilized 2s ease infinite;
+}
+.gangster.dead {
+    opacity: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.gangster.dead:after {
+    content: '';
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url('img/sprite_rewards.png');
+    background-position: -420px 0;
+    width: 60px;
+    height: 60px;
+    animation: animateMobilized 2s ease infinite;
+}
+.gangster.mobilized:before, .gangster.selected:before, .gangster.dead:before  {
+    content: '';
+    position: absolute;
+    top: 1%;
+    left: 1%;
+    bottom: 0;
+    right: 1%;
+    width: 98%;
+    height: 98%;
+    border-radius: 6px 6px 6px 6px;
+    background-color: #131219;
+    opacity: 0.7;
+    box-shadow: 0 25px 25px 0px rgb(0 0 0 / 75%) inset;
+    -webkit-box-shadow: 0px 25px 25px 0px rgba(0,0,0,0.75) inset;
+    -moz-box-shadow: 0 25px 25px 0px rgba(0,0,0,0.75) inset;
+}
+.gangster.selectable:hover,
+.gangster.selected:hover {
+    cursor: pointer;
+}
+@keyframes animateMobilized {
+    0%,100% {opacity: 0.6;}
+    50% {opacity: 0.9;}
+}
+.current_player .whiteblock, .opposing_player .whiteblock, #snitches .whiteblock {
+    background-image: url('img/rounded_b.png');
+    padding-top: 15px;
+    padding-bottom: 34px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+    -webkit-box-shadow: 0 5px 15px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+    -moz-box-shadow: 0 5px 15px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+}
+.current_player .whiteblock, .opposing_player .whiteblock {
+    background: rgb(199 186 176 / 50%) url('img/chapters-separator.png') no-repeat !important;
+    padding-left: 20px;
+    padding-bottom: 10px;
+}
+#snitches .whiteblock {
+    border-radius: 6px;
+    padding-bottom: 20px;
+    min-width: 100px;
+    position: relative;
+}
+#snitches .whiteblock:before {
+    content: "";
+    width: 60px;
+    height: 60px;
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    margin-top: -15px;
+    margin-left: -30px;
+    display: block;
+    background: url('img/sprite_rewards.png');
+    border-radius: 8px;
+    background-size: 600px;
+    background-position: -240px -120px;
+    filter: grayscale(1);
+    opacity: 0.15;
+}
+
+/*.card.heist {
+    background-image: url('img/heist_sprite.png');
+}*/
+.card_wrap {
+    position: relative;
+    display: inline-block;
+    margin-right: 10px;
+    margin-bottom: 30px;
+}
+/*.card_wrap:first-of-type {
+    margin-left: 10px;
+}*/
+#gangstersdeck {
+    background-image: url(img/gangsters_sprite.jpg);
+    background-size: 880px 924px;
+    background-position: -110px 0px;
+}
+/*#heistsdeck {
+    background-image: url('img/heist_sprite.png');
+}*/
+#avdecks .cardlist_wrapper {
+    margin-left: 150px;
+}
+.money {
+    /*width: 34px;
+    height: 20px;
+    background-image: url('img/money.jpg');
+    background-size: 34px 20px;*/
+    width: 34px;
+    height: 20px;
+    background: url('img/sprite_rewards.png') no-repeat;
+    background-size: 420px 252px;
+    background-position: -340px -11px;
+}
+.player_title {
+    position: relative;
+    top: -8px;
+    /*margin-left: 10px;*/
+    font-family: 'Roboto Condensed', Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+}
+.player_title .money {
+    display: inline-block;
+    position: relative;
+    top: 4px;
+    margin-left: 25px;
+}
+.player-board .player-name {
+    font-family: 'Roboto Condensed', Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+}
+.genesis .deck {
+    background: url('img/heist_sprite_chap1.jpg');
+    background-size: 990px 616px;
+}
+.gangwar .deck {
+    background: url('img/heist_sprite_chap2.jpg');
+    background-size: 990px 770px;
+}
+.domination .deck {
+    background: url('img/heist_sprite_chap3.jpg');
+    background-size: 990px 616px;
+}
+.deck {
+    float: left;
+    width: 110px;
+    height: 154px;
+    background-color: rgba(0, 0, 0, 0.1);
+    position: relative;
+    margin-left: 10px;
+    border-radius: 6px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+    -webkit-box-shadow: 0 5px 15px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+    -moz-box-shadow: 0 5px 15px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+}
+.deck:after {    
+    content: "";
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    width: 0;
+    height: 0;
+    border-width: 12px 8px 12px 8px;
+    border-style: solid;
+    border-color: transparent transparent transparent #000;
+    margin-top: -12px;
+}
+/* .deck.gangwar {
+    background-position: 0% -400%;
+}
+.deck.domination {
+    background-position: 0% -800%;
+} */
+
+#heists .stockitem {
+    background-size: 990px 616px;
+}
+#heists.gangwar .stockitem {
+    background-size: 990px 770px;
+}
+#gangsters .stockitem{
+    background-size: 880px 924px;
+}
+.stockitem {
+    border-radius: 6px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+    -webkit-box-shadow: 0 5px 15px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+    -moz-box-shadow: 0 5px 15px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+}
+.stockitem {
+    border: 0 solid rgb(124,252,0);
+    cursor: pointer;
+    position: absolute;
+}
+.stockitem_selected {
+	border: 3px solid red ! important;
+}
+.player-board {
+    background-color: #c7bab0;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+.skill {
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+    background-image: url('img/sprite_rewards.png');
+    background-size: 300px 180px;
+    position: relative;
+    top: 8px;
+}
+.skill.leader{
+    background-position: 0% -200%;
+}
+.skill.hacker{
+    background-position: -100% -200%;
+}
+.skill.mercenary{
+    background-position: -500% -200%;
+}
+.skill.informant{
+    background-position: -400% -200%;
+}
+.skill.sniper{
+    background-position: -300% -200%;
+}
+.skill.brawler{
+    background-position: -200% -200%;
+}
+#skillcounter {
+    padding: 0 5px;
+    background-color: rgba(255,255,255, 0.6);
+    margin-bottom: 15px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* .gangster.extra_skill {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+} */
+.extra_skill .contain_skill {
+    width: 50%;
+    height: 26px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    background-color: #000;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    position: absolute;
+    bottom: -24px;
+    left: 50%;
+    margin-left: -25%;
+}
+.contain_skill .skill {
+    top: 0 !important;
+    width: 20px;
+    height: 20px;
+    background-size: 200px 120px;
+}
+.extra_skill .contain_skill .skill.leader{
+    background-position: 0% -200%;
+}
+.extra_skill .contain_skill .skill.hacker{
+    background-position: -100% -200%;
+}
+.extra_skill .contain_skill .skill.mercenary{
+    background-position: -500% -200%;
+}
+.extra_skill .contain_skill .skill.informant{
+    background-position: -400% -200%;
+}
+.extra_skill .contain_skill .skill.sniper{
+    background-position: -300% -200%;
+}
+.extra_skill .contain_skill .skill.brawler{
+    background-position: -200% -200%;
+}
+.mobilized.extra_skill .skill, .selected.extra_skill .skill {
+    opacity: 0.5;
+}
+
+/* .gangster.extra_skill:before {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+.extra_skill.selected {
+    box-shadow: 0 1px 1px 1px rgb(124 252 0) inset
+}
+.gangster.selected .contain_skill {
+    box-shadow: 0 -1px 1px 1px rgb(124 252 0) inset;
+}*/
+.player-items {
+    padding: 10px 5px 0 5px;
+    display: grid;
+    grid-template-columns: 100%;
+}
+.board-skills {
+    display: flex;
+    flex-wrap: wrap;
+}
+.skill-container {
+    display: flex;
+    align-items: center;
+    margin-right: 4px;
+    margin-bottom: 5px;
+}
+.board-skills .skill {
+    width: 21px;
+    height: 21px;
+    display: inline-block;
+    background-image: url('img/sprite_rewards.png');
+    background-size: 210px 126px;
+    position: relative;
+    top: 0;
+    margin-right: 3px;
+}
+.board-family {
+    display: flex;
+    flex-wrap: wrap;
+    border-top: 1px solid rgba(0, 0, 0, 0.2);
+    margin-top: 8px;
+    padding-top: 8px;
+}
+.family-container {
+    display: flex;
+    align-items: center;
+    margin-right: 4px;
+    margin-bottom: 5px;
+}
+.board-family .family {
+    width: 21px;
+    height: 21px;
+    display: inline-block;
+    background-image: url('img/sprite_rewards.png');
+    background-size: 210px 126px;
+    position: relative;
+    top: 0;
+    margin-right: 3px;
+}
+.family.bratva{
+    background-position: 0% -500%;
+}
+.family.mafia{
+    background-position: -100% -500%;
+}
+.family.triads{
+    background-position: -200% -500%;
+}
+.family.cartel{
+    background-position: -300% -500%;
+}
+.family.ghetto{
+    background-position: -400% -500%;
+}
+.player_cash {
+    border-top: 1px solid rgba(0, 0, 0, 0.2);
+    margin-top: 6px;
+    margin-bottom: 5px;
+    padding-top: 8px;
+    display: flex;
+    align-items: center;
+}
+.player_points {
+    font-size: 14px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+.player_points .boardValue {
+    font-weight: 700;
+    font-size: 16px;
+}
+.player_points .playerheist {
+    display: inline-block;
+}
+.total_influence {
+    width: 35px;
+    height: 35px;
+    text-align: center;
+    font-size: 15px;
+    color: #000;
+    font-weight: bold;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    border-radius: 17.5px;
+    -webkit-box-shadow: 0px 6px 13px -7px black;
+    box-shadow: 0px 6px 13px -7px black;
+    background: url('img/pastilles.png') no-repeat;
+    margin-right: 10px;
+}
+.team {
+    background-image: url('img/sprite_rewards.png');
+    background-position: -144px 0;
+    width: 18px;
+    height: 24px;
+    background-size: 240px 144px;
+    margin-left: 5px;
+}
+
+/* -------------------- TOOLTIPS -------------------- */
+
+.tundra #dijit__MasterTooltip_0.dijitTooltipBelow .dijitTooltipConnector {
+    background: url('img/tooltipConnectorUp-1.png') no-repeat 0 0 !important;
+    left: 10px !important;
+}
+.tundra #dijit__MasterTooltip_0.dijitTooltipAbove .dijitTooltipConnector {
+    background: url('img/tooltipConnectorDown-1.png') no-repeat 0 0 !important;
+}
+.tundra #dijit__MasterTooltip_0.dijitTooltipLeft .dijitTooltipConnector {
+    background: url('img/tooltipConnectorRight-1.png') no-repeat 0 0 !important;
+}
+.tundra #dijit__MasterTooltip_0.dijitTooltipRight .dijitTooltipConnector {
+    background: url('img/tooltipConnectorLeft-1.png') no-repeat 0 0 !important;
+}
+.tundra #dijit__MasterTooltip_0.dijitTooltip  .dijitTooltipContainer {
+    -webkit-box-shadow: 0px 6px 13px -7px black !important;
+    box-shadow: 0px 6px 13px -7px black !important;
+    border-radius: 6px !important;
+    border: 0 !important;
+    background: #d2cbc6 !important;
+}
+.cardTip {
+    border-radius: 6px !important;
+}
+
+.tooltip_gangsta {
+    background-color: #e9e5e2;
+    border-radius: 4px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+    -webkit-box-shadow: 0 5px 15px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+    -moz-box-shadow: 0 5px 15px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+    font-size: 12px;
+    line-height: 125%;
+    overflow: hidden;
+    font-family: Roboto,Arial,sans-serif;
+}
+.tooltip_help {
+    width: 550px;
+    height: auto;
+}
+.tooltip_help .help_header {
+    background-color: #77706a;
+    padding: 8px 10px;
+}
+.tooltip_help .help_header h3 {
+    margin: 0;
+    color: #fff;
+    text-transform: uppercase;
+    font-size: 11px;
+    line-height: 100%;
+    font-weight: normal;
+}
+.tooltip_help .table_container {
+    padding: 8px 10px 10px 10px;
+}
+.tooltip_help table {
+    width: 100%;
+}
+.tooltip_help table img {
+    border-radius: 4px;
+}
+.tooltip_help table tbody tr th, .tooltip_help table tbody tr td {
+    text-align: left;
+    padding: 8px 0;
+    border-bottom: 1px solid #fff;
+}
+.tooltip_help table tbody tr:last-child th, .tooltip_help table tbody tr:last-child td {
+    border-bottom: 0;
+    padding-bottom: 0;
+}
+.tooltip_help table tbody tr:first-child th, .tooltip_help table tbody tr:first-child td {
+    padding-top: 0;
+}
+.tooltip_help table tbody tr th {
+    padding-right: 15px;
+}
+.tooltip_help table tbody tr.top_aligned th, .tooltip_help table tbody tr.top_aligned td {
+    vertical-align: top;
+}
+.tooltip_gangsta hr {
+    border-width: 0;
+    clear: both;
+}
+.tooltip_heist {
+    width: 400px;
+    height: auto;
+    padding: 15px 10px;
+    border: 1px solid #c7bab0;
+    border-radius: 6px;
+}
+.tooltip_heist h3 {
+    margin-top: 0;
+    font-size: 14px;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #c7bab0;
+}
+.tooltip_heist .tooltip-content {
+    display: flex;
+    align-items: flex-start;
+}
+.heist_info {
+    width: 60%;
+    display: inline-block;
+    margin-right: 4%;
+    padding-right: 6%;
+}
+.heist_info .skills_area {
+    margin-bottom: 10px;
+}
+.heist_info .skills_area .reward {
+    margin-right: 5px;
+}
+.heist_info .reward_area .reward {
+    margin-right: 10px;
+}
+.heist_info p {
+    margin: 0 0 5px 0;
+}
+.heist_info .reward_area p {
+    margin: 0;
+    line-height: 125%;
+}
+.heist_art {
+    width: 25%;
+    text-align: right;
+}
+.reward {
+    content: "";
+    background-image: url('img/sprite_rewards.png');
+    background-position: 0 0;
+    width: var(--reward-width);
+    height: var(--reward-height);
+    background-size: calc(var(--reward-width)*var(--reward-spritesheet-columns)*var(--reward-scale)) calc(var(--reward-height)*var(--reward-spritesheet-rows)*var(--reward-scale));
+    display: inline-block;
+}
+.scale_80 {
+    width: var(--reward-small-width);
+    height: var(--reward-small-height);
+    background-size: calc(var(--reward-width)*var(--reward-spritesheet-columns)*var(--reward-small-scale)) calc(var(--reward-height)*var(--reward-spritesheet-rows)*var(--reward-small-scale));
+}
+.scale_50 {
+    width: var(--reward-smaller-width);
+    height: var(--reward-smaller-height);
+    background-size: calc(var(--reward-width)*var(--reward-spritesheet-columns)*var(--reward-smaller-scale)) calc(var(--reward-height)*var(--reward-spritesheet-rows)*var(--reward-smaller-scale));
+}
+.scale_30 {
+    width: var(--reward-smallest-width);
+    height: var(--reward-smallest-height);
+    background-size: calc(var(--reward-width)*var(--reward-spritesheet-columns)*var(--reward-smallest-scale)) calc(var(--reward-height)*var(--reward-spritesheet-rows)*var(--reward-smallest-scale));
+}
+.cash_1 {
+    background-position: 0 calc(var(--scale)+25%);
+}
+.cash_2 {
+    background-position: calc(var(--scale)+11.1%) calc(var(--scale)+25%);
+}
+.cash_3 {
+    background-position: calc(var(--scale)+22.2%) calc(var(--scale)+25%);
+}
+.cash_4 {
+    background-position: calc(var(--scale)+33.3%) calc(var(--scale)+25%);
+}
+.cash_5 {
+    background-position: calc(var(--scale)+44.4%) calc(var(--scale)+25%);
+}
+.cash_6 {
+    background-position: calc(var(--scale)+55.5%) calc(var(--scale)+25%);
+}
+.pv_1 {
+    background-position: 0 0;
+}
+.pv_2 {
+    background-position: calc(var(--scale)+11.1%) 0;
+}
+.pv_3 {
+    background-position: calc(var(--scale)+22.2%) 0;
+}
+.pv_4 {
+    background-position: calc(var(--scale)+33.3%) 0;
+}
+.fx_recruit {
+    background-position: 0 calc(var(--scale)+100%);
+}
+.fx_replay {
+    background-position: calc(var(--scale)+11.1%) calc(var(--scale)+100%);
+}
+.fx_tap_2 {
+    background-position: calc(var(--scale)+22.2%) calc(var(--scale)+100%);
+}
+.fx_tap_3 {
+    background-position: calc(var(--scale)+33.3%) calc(var(--scale)+100%);
+}
+.fx_untap {
+    background-position: calc(var(--scale)+44.4%) calc(var(--scale)+100%);
+}
+.fx_kill {
+    background-position: calc(var(--scale)+55.5%) calc(var(--scale)+100%);
+}
+.fx_coop {
+    background-position: calc(var(--scale)+66.7%) calc(var(--scale)+100%);
+}
+.fx_theft_1 {
+    background-position: 0  calc(var(--scale)+75%);
+}
+.fx_theft_2 {
+    background-position: calc(var(--scale)+11.1%)  calc(var(--scale)+75%);
+}
+.fx_theft_3 {
+    background-position: calc(var(--scale)+22.2%)  calc(var(--scale)+75%);
+}
+.fx_theft_4 {
+    background-position: calc(var(--scale)+33.3%)  calc(var(--scale)+75%);
+}
+.fx_learn_leader {
+    background-position: 0  calc(var(--scale)+50%);
+}
+.fx_learn_hacker {
+    background-position: calc(var(--scale)+11.1%)  calc(var(--scale)+50%);
+}
+.fx_learn_fist {
+    background-position: calc(var(--scale)+22.2%)  calc(var(--scale)+50%);
+}
+.fx_learn_sniper {
+    background-position: calc(var(--scale)+33.3%)  calc(var(--scale)+50%);
+}
+.fx_learn_info {
+    background-position: calc(var(--scale)+44.4%)  calc(var(--scale)+50%);
+}
+.fx_learn_guns {
+    background-position: calc(var(--scale)+55.5%)  calc(var(--scale)+50%);
+}
+
+/* -------------------- GAME HELP -------------------- */
+
+#game-help {
+    width: 600px;
+    margin: 0 auto;
+    background-color: #eeeae7;
+    padding: 0.75rem;
+    font-family: 'Roboto Condensed', Helvetica, Arial, sans-serif;
+    -webkit-box-shadow: 0px 5px 9px 0px rgba(0,0,0,0.35); 
+    box-shadow: 0px 5px 9px 0px rgba(0,0,0,0.35);
+    border-radius: 5px;
+}
+#game-help table {
+    width: 100%;
+    border: none;
+    font-size: 15px;
+}
+#game-help table thead tr td {
+    background-color: #c7bab0;
+    padding: 8px 10px;
+    font-size: 1.2em;
+    text-align: center;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1;
+    border-radius: 5px;
+}
+#game-help table tbody tr td {
+    padding: 8px 10px;
+    vertical-align: top;
+    border-bottom: 1px solid #fff;
+}
+#game-help table tbody tr:first-child td {
+    padding-top: 15px;
+}
+#game-help table tbody tr:last-child td {
+    padding-top: 15px;
+    border-bottom: 0;
+}
+#game-help table tbody tr th {
+    padding: 8px 0;
+    vertical-align: top;
+    width: 60px;
+}
+#game-help h3 {
+    margin-top: 0;
+    margin-bottom: 0;
+    font-size: 1.2em;
+}
+#game-help p {
+    margin-top: 0;
+    margin-bottom: 0;
+    font-size: 1em;
+    line-height: 1.4;
+}
+#game-help .reward-icon {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    background: transparent url('img/sprite_rewards.png') no-repeat;
+    border-radius: 50px;
+    background-size: 400px;
+}
+#game-help .reward-icon.reward-income {
+    background-position: 0 -40px;
+}
+#game-help .reward-icon.reward-influence {
+    background-position: 0 0;
+}
+#game-help .reward-icon.reward-recruitement {
+    background-position: 0 -160px;
+}
+#game-help .reward-icon.reward-play {
+    background-position: -40px -160px;
+}
+#game-help .reward-icon.reward-theft {
+    background-position: 0 -120px;
+}
+#game-help .reward-icon.reward-diversion {
+    background-position: -80px -160px;
+}
+#game-help .reward-icon.reward-assassination {
+    background-position: -200px -160px;
+}
+#game-help .reward-icon.reward-rallying {
+    background-position: -160px -160px;
+}
+#game-help .reward-icon.reward-coop {
+    background-position: -240px -160px;
+}
+#game-help .reward-learning {
+    width: 20px;
+    height: 20px;
+    border-radius: 0;
+    background-size: 200px;
+}
+#game-help .reward-learning.learning-leader {
+    background-position: 0 -40px;
+}
+#game-help .reward-learning.learning-hacker {
+    background-position: -20px -40px;
+}
+#game-help .reward-learning.learning-brawler {
+    background-position: -40px -40px;
+}
+#game-help .reward-learning.learning-sniper {
+    background-position: -60px -40px;
+}
+#game-help .reward-learning.learning-informant {
+    background-position: -80px -40px;
+}
+#game-help .reward-learning.learning-mercenary {
+    background-position: -100px -40px;
+}
+
+/* -------------------- MOBILE -------------------- */
+
+@media only screen and (max-width: 1440px) {
+    #avdecks {
+        grid-template-columns: 8fr 2fr;
+    }
+}
+
+@media only screen and (max-width: 1230px) {
+    #avdecks {
+        display: block;
+        margin: 30px 0;
+    }
+    #snitches {
+        justify-content: center;
+    }
+}
+
+@media only screen and (max-width: 996px) {
+    .skill-container {
+        flex-direction: column;
+    }
+    .board-skills .skill {
+        margin-bottom: 4px;
+        width: 28px;
+        height: 28px;
+        background-image: url('img/sprite_rewards.png');
+        background-size: 280px 168px;
+        margin-right: 4px;
+    }
+    /*.board-family {
+        display: flex;
+        flex-wrap: wrap;
+        border-top: 1px solid rgba(0, 0, 0, 0.2);
+        margin-top: 8px;
+        padding-top: 8px;
+    }*/
+    .family-container {
+        flex-direction: column;
+    }
+    .board-family .family {
+        width: 28px;
+        height: 28px;
+        display: inline-block;
+        background-image: url('img/sprite_rewards.png');
+        background-size: 280px 168px;
+        margin-right: 4px;
+    }
+    #avdecks .cardlist_wrapper {
+        margin-left: 90px !important;
+    }
+    #heistsdeck.deck {
+        width: 55px !important;
+        height: 77px !important;
+    }
+    .genesis .deck {
+        background-size: 495px 308px !important;
+    }
+    .gangwar .deck {
+        background-size: 495px 385px !important;
+    }    
+    .domination .deck {
+        background-size: 495px 308px !important;
+    }
+    #gangstersdeck.deck {
+        width: 55px !important;
+        height: 77px !important;
+        background-size: 440px 462px !important;
+        background-position: -55px 0px !important;
+    }
+    .current_player .whiteblock, .opposing_player .whiteblock {
+        background: rgb(199 186 176 / 50%) !important;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    .board-skills .skill {
+        margin-bottom: 4px;
+        width: 28px;
+        height: 28px;
+        background-image: url(img/sprite_rewards.png);
+        background-size: 280px 168px;
+        margin-right: 2px;
+    }
+    .board-family .family {
+        margin-bottom: 4px;
+        width: 28px;
+        height: 28px;
+        background-image: url(img/sprite_rewards.png);
+        background-size: 280px 168px;
+        margin-right: 4px;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    
+}
+
+/* -------------------- MOBILE -------------------- */
