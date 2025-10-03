@@ -16,11 +16,14 @@
  *
  */
 
+require_once (dirname(__FILE__) . '/modules/DebugTrait.php');
 
 require_once(APP_GAMEMODULE_PATH . 'module/table/table.game.php');
 
 
 class Gangsta extends Table {
+    use Bga\Games\gansgta\DebugTrait;
+    
     private bool $isStartingDollarSetups;
     private bool $isPassCash;
 
@@ -208,7 +211,13 @@ class Gangsta extends Table {
         $this->cards->pickCardsForLocation(5, 'deckgangsters', 'avgangsters');
 
         // Activate first player (which is in general a good idea :) )
-        $first_player = $this->activeNextPlayer();
+        if(!array_key_exists("DEBUG_SETUP",$options)){
+            $first_player = $this->activeNextPlayer();
+        }
+        else {//In debug, we cannot change active player
+            $first_player = $this->getActivePlayerId();
+        }
+
         self::setGameStateInitialValue('firstPlayer', $first_player);
         self::setGameStateInitialValue('activeSnitches', 0);
         self::setGameStateInitialValue('activePhase', 0);
