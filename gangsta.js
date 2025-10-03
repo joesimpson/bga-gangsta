@@ -15,6 +15,9 @@
  *
  */
 
+var isDebug = window.location.host == 'studio.boardgamearena.com' || window.location.hash.indexOf('debug') > -1;
+var debug = isDebug ? console.info.bind(window.console) : function () {};
+
 define([
         "dojo", "dojo/_base/declare",
         "ebg/core/gamegui",
@@ -356,19 +359,9 @@ define([
             //                  You can use this method to perform some user interface changes at this moment.
             //
             onEnteringState: function (stateName, args) {
-                //console.log( 'Entering state: '+stateName );
+                debug( 'Entering state: ',stateName, args );
 
                 switch (stateName) {
-
-                    /* Example:
-
-                    case 'myGameState':
-
-                        // Show some HTML block at this game state
-                        dojo.style( 'my_html_block_id', 'display', 'block' );
-
-                        break;
-                   */
                     case 'rewardTap':
                         this.enteringRewardTap(args.args);
                         break;
@@ -1429,15 +1422,8 @@ define([
                 dojo.subscribe('endPoints', this, "notif_endPoints");
                 this.notifqueue.setSynchronous('endPoints', 1000);
                 dojo.subscribe('scoreUpdate', this, "notif_scoreUpdate");
-                // Example 1: standard notification handling
-                // dojo.subscribe( 'cardPlayed', this, "notif_cardPlayed" );
-
-                // Example 2: standard notification handling + tell the user interface to wait
-                //            during 3 seconds after calling the method in order to let the players
-                //            see what is happening in the game.
-                // dojo.subscribe( 'cardPlayed', this, "notif_cardPlayed" );
-                // this.notifqueue.setSynchronous( 'cardPlayed', 3000 );
-                //
+                
+                dojo.subscribe('reloadPage', this, "notif_reloadPage");
             },
 
             notif_scoreUpdate: function (notif) {
@@ -1722,6 +1708,11 @@ define([
                 //modify the money
 
                 this.changePlayerMoney(notif.args.player_id, notif.args.new_value);
+            },
+            
+            //For debugging :
+            notif_reloadPage(notif) {
+                window.location.reload(true);
             },
         });
     });

@@ -1344,7 +1344,6 @@ class Gangsta extends Table {
         self::notifyAllPlayers('message',
                                clienttranslate('${player_name} has chosen ${player_name2} as target of their assassination reward'),
                                [
-                                   'player_id' => $player_id,
                                    'player_name' => self::getActivePlayerName(),
                                    'player_name2' => self::getPlayerNameById($target_id),
                                ]);
