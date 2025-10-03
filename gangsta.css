@@ -886,6 +886,7 @@ div.tableWindow table {
     width: 600px;
     margin: 0 auto;
     background-color: #eeeae7;
+    color: black;
     padding: 0.75rem;
     font-family: 'Roboto Condensed', Helvetica, Arial, sans-serif;
     -webkit-box-shadow: 0px 5px 9px 0px rgba(0,0,0,0.35); 
