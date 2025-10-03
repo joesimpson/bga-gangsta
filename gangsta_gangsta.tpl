@@ -66,7 +66,7 @@
 
   var jstpl_skillcounter =
   '<div id="skillcounter" class="roundedbox" style="text-align:center;display:none;">\
-    <span id="skillcounter_text">Required Skills:\
+    <span id="skillcounter_text">${LABEL_REQUIRED_SKILLS}\
       <span id="skill_1">\
         <span class="skill leader"></span>\
         <span id="skill_1_value">0</span>\
@@ -103,22 +103,22 @@
                     <div class="board-items">\
                       <div class="board-skills">\
                         <div class="skill-container">\
-                          <div class="skill leader" title="Skill: Leader"></div><span id="skill_leader_${id}">1</span>\
+                          <div class="skill leader" title="${skill_name_1}"></div><span id="skill_leader_${id}">1</span>\
                         </div>\
                         <div class="skill-container">\
-                          <div class="skill hacker" title="Skill: Hacker"></div><span id="skill_hacker_${id}">5</span>\
+                          <div class="skill hacker" title="${skill_name_6}"></div><span id="skill_hacker_${id}">5</span>\
                         </div>\
                         <div class="skill-container">\
-                          <div class="skill sniper" title="Skill: Sniper"></div><span id="skill_sniper_${id}">4</span>\
+                          <div class="skill sniper" title="${skill_name_4}"></div><span id="skill_sniper_${id}">4</span>\
                         </div>\
                         <div class="skill-container">\
-                          <div class="skill brawler" title="Skill: Brawler"></div><span id="skill_brawler_${id}">2</span>\
+                          <div class="skill brawler" title="${skill_name_5}"></div><span id="skill_brawler_${id}">2</span>\
                         </div>\
                         <div class="skill-container">\
-                          <div class="skill informant" title="Skill: Informant"></div><span id="skill_informant_${id}">3</span>\
+                          <div class="skill informant" title="${skill_name_3}"></div><span id="skill_informant_${id}">3</span>\
                         </div>\
                         <div class="skill-container">\
-                          <div class="skill mercenary" title="Skill: Mercenary"></div><span id="skill_mercenary_${id}">0</span>\
+                          <div class="skill mercenary" title="${skill_name_2}"></div><span id="skill_mercenary_${id}">0</span>\
                         </div>\
                       </div>\
                       <div class="player_cash">\

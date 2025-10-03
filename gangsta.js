@@ -173,11 +173,15 @@ define([
                     var player = gamedatas.players[player_id];
                     player['heistpoints'] = _("Heist Points");
                     player['teampoints'] = _("Team Points");
-                    player['fname_bratva'] = this.gamedatas.constants.clanNames['bratva'];
-                    player['fname_cartel'] = this.gamedatas.constants.clanNames['cartel'];
-                    player['fname_gang'] = this.gamedatas.constants.clanNames['gang'];
-                    player['fname_mafia'] = this.gamedatas.constants.clanNames['mafia'];
-                    player['fname_triad'] = this.gamedatas.constants.clanNames['triad'];
+                    player['fname_bratva'] = _(this.gamedatas.constants.clanNames['bratva']);
+                    player['fname_cartel'] = _(this.gamedatas.constants.clanNames['cartel']);
+                    player['fname_gang'] = _(this.gamedatas.constants.clanNames['gang']);
+                    player['fname_mafia'] = _(this.gamedatas.constants.clanNames['mafia']);
+                    player['fname_triad'] = _(this.gamedatas.constants.clanNames['triad']);
+
+                    for(let k=1; k<this.gamedatas.skill_name.length;k++){
+                        player['skill_name_'+k] = _("Skill: ") + _(this.gamedatas.skill_name[k]);
+                    }
 
                     $('playermoney_' + player_id).innerHTML = player.money;
 
@@ -282,7 +286,9 @@ define([
                 }
 
                 if (!this.isSpectator) {
-                    dojo.place(this.format_block('jstpl_skillcounter', {}), dojo.query('.current_player .playertableau')[0], "before");
+                    dojo.place(this.format_block('jstpl_skillcounter', {
+                        "LABEL_REQUIRED_SKILLS": _("Required Skills :"),
+                    }), dojo.query('.current_player .playertableau')[0], "before");
                 }
                 //adding buttons on heist interface.
                 if (!this.isSpectator) {
@@ -300,7 +306,7 @@ define([
                     this.isPublicVariant = true;
                 }
 
-                dojo.place('<a href="#" onclick="return false;" id="game_help_btn" class="action-button bgabutton bgabutton_blue">Player aid</a>', "synchronous_notif_icon", "before");
+                dojo.place('<a href="#" onclick="return false;" id="game_help_btn" class="action-button bgabutton bgabutton_blue">'+_('Player aid')+'</a>', "synchronous_notif_icon", "before");
                 dojo.connect($('game_help_btn'), 'onclick', this, 'createPlayerAid');
 
                 // Setup game notifications to handle (see "setupNotifications" method below)

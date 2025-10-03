@@ -1098,6 +1098,7 @@ class Gangsta extends Table {
         self::notifyAllPlayers('gainReward',
                                clienttranslate('${player_name} performs ${heist_name} and receives $${money} and ${influence} influence'),
                                [
+                                    'i18n'=>['heist_name'],
                                    'player_id' => $player_id,
                                    'heist_id' => $heist_id,
                                    'heist_name' => $heistType['name'],
@@ -1670,7 +1671,7 @@ class Gangsta extends Table {
             $this->gamestate->nextState('gameEnd');
         }
         //criteria for game end: 9 gangsters or 3 snitches
-        if ($maxcount == 9 && ($currentphase == 2)) {
+        else if ($maxcount == 9 && ($currentphase == 2)) {
             $this->gamestate->nextState('gameEnd');
         } elseif ($maxcount == 7 && $currentphase == 1) {
             //criteria for Domination: 7 gangsters
@@ -1705,9 +1706,10 @@ class Gangsta extends Table {
                 $maxskills = $skillCount[$pid];
             }
         }
-        $table = [["", clienttranslate("Gangster Skills")
-                   , clienttranslate("Bonus Cash"),
-                  ]];
+        $table = [["", 
+                [ 'str' => clienttranslate("Gangster Skills"), 'args' => [] ], 
+                [ 'str' => clienttranslate("Bonus Cash"), 'args' => [] ],
+            ]];
         //send cash to each player who has less than the max, giving them the difference
         foreach ($players as $pid => $pinfo) {
             $bonuscash = $maxskills - $skillCount[$pid];
@@ -1906,7 +1908,7 @@ class Gangsta extends Table {
         $isTie = false;
         $is2players = $this->getPlayersNumber() == 2;
         $isDouble = false;
-        $table = [["", clienttranslate("Mercenary Skill")]];
+        $table = [["", [ 'str' => clienttranslate("Mercenary Skill"), 'args' => [] ]]];
 
         foreach ($allGangsters as $gid => $ginfo) {
             if (!isset($skillCount[$ginfo['location_arg']])) {
@@ -2095,7 +2097,7 @@ class Gangsta extends Table {
                         $cmax[$cname]["players"][] = $pid;
                     }
                 }
-                $row = [$this->Clan_type[$this->Clan_type_name[$cname]]];
+                $row = [[ 'str' => $this->Clan_type[$this->Clan_type_name[$cname]], 'args' => [] ]];
                 foreach ($pbInfos as $plid => $plinfos) {
                     $row[] = $c[$plid];
                 }
@@ -2110,6 +2112,7 @@ class Gangsta extends Table {
                     self::notifyAllPlayers('endPoints',
                                            clienttranslate('${player_name} receives 2 influence for having the most gangsters of the ${clan} clan'),
                                            [
+                                                'i18n'=>['clan'],
                                                'player_name' => $playersInfo[$pid]['player_name'],
                                                'player_id' => $pid,
                                                'amount' => 2,
@@ -2126,6 +2129,7 @@ class Gangsta extends Table {
                         self::notifyAllPlayers('endPoints',
                                                clienttranslate('${player_name} receives 1 influence for being tied for most gangsters of the ${clan} clan'),
                                                [
+                                                    'i18n'=>['clan'],
                                                    'player_name' => $playersInfo[$pid]['player_name'],
                                                    'player_id' => $pid,
                                                    'amount' => 1,
