@@ -43,14 +43,13 @@
 
         $this->page->begin_block( "gangsta_gangsta", "player" );
 
-        global $g_user;
+        $current_player_id = $this->getCurrentPlayerId();
+        $this->tpl['CURRENT_PLAYER_ID'] = $current_player_id;
 
-        $this->tpl['CURRENT_PLAYER_ID'] = $g_user->get_id();
-
-        if( isset( $players[ $g_user->get_id() ] ) )
+        if( isset( $players[ $current_player_id ] ) )
         {
             // Place player tableau first
-            $player = $players[ $g_user->get_id() ];
+            $player = $players[ $current_player_id ];
 
             $this->page->insert_block( "player", array( "PLAYER_ID" => $player['player_id'],
                                                         "PLAYER_CATEGORY" => "current_player",
@@ -59,7 +58,7 @@
         }
         foreach( $players as $player_id => $player )
         {
-            if( $player_id != $g_user->get_id() )
+            if( $player_id != $current_player_id )
             {
                 $this->page->insert_block( "player", array( "PLAYER_ID" => $player['player_id'],
                                                             "PLAYER_CATEGORY" => "opposing_player",
