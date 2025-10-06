@@ -29,10 +29,12 @@ trait DebugTrait
     self::DbQuery("DELETE FROM `global` where global_id >= 10 AND global_id < 100 ");
     self::DbQuery("DELETE FROM `player`");
 
+    self::DbQuery("DELETE FROM `gamelog` where gamelog_packet_id > 1");
+
     $this->setupNewGame($players,$options);
 
     $players = self::loadPlayersBasicInfos(); 
-    $this->gamestate->jumpToState(4);//playerAction
+    $this->gamestate->jumpToState(30);//resourcesSetup
     $this->notify->all('reloadPage', "/!\ : Refresh page to see game has restarted...", []);
     $this->trace("debug_ReSetup - END ////////////////////////////////////////////////////");
 
@@ -77,6 +79,11 @@ trait DebugTrait
     }
 
     $this->trace("debug_KillByHeist - END ////////////////////////////////////////////////////");
+  }
+
+  
+  function debug_actSelectResource(int $cardId = 0){
+    $this->actSelectResource($cardId);
   }
  
 }

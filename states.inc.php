@@ -52,9 +52,12 @@
 
              1 SETUP
                 |
-                |
-                |
-                v
+                30 resourcesSetup
+                |      |
+                |      31 resourcesSelection
+                |      |
+                |      |
+                v      v
     2 -> 3 -> 4 playerAction <---------------------------\
     ^                  |                                 ^
     |                  |-----------------------------    |
@@ -95,10 +98,33 @@ $machinestates = array(
         "description" => "Game Setup",
         "type" => "manager",
         "action" => "stGameSetup",
-        "transitions" => array( "" => "4" )  //for debug
+        "transitions" => array( "" => "30" )
     ),
-
-    // Note: ID=2 => your first state
+    
+    30 => array(
+        "name" => "resourcesSetup",
+        'action' => 'stResourcesSetup',
+        "description" => clienttranslate('Assigning resources cards to players'),
+        "type" => "game",
+        "transitions" => [ 
+            "next" => 4,
+            "draftMulti" => 31,
+        ],
+    ),
+    31 => array(
+        "name" => "resourcesSelection",
+        'args' => 'argResourcesSelection',
+        "description" => clienttranslate('Players must choose a resource card to play with'),
+        "descriptionmyturn" => clienttranslate('${you} must choose a resource card to play with'),
+        "type" => "multipleactiveplayer",
+        "possibleactions" => [ 
+            "actSelectResource",
+        ],
+        "transitions" => [ 
+            "next" => 4,
+        ],
+    ),
+    
     2 => array(
     		"name" => "checkSynchro",
     		"description" => '',
@@ -303,7 +329,7 @@ $machinestates = array(
         "type" => "game",
         "action" => "stEndOfGame",
         "updateGameProgression" => true,
-        "transitions" => array( "gameEnd" => 99) // for Debug
+        "transitions" => array( "gameEnd" => 99)
     ),
     // Final state.
     // Please do not modify (and do not overload action/args methods).

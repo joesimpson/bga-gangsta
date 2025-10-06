@@ -2787,3 +2787,152 @@ $this->gangster_type = array(
         'influence' =>2,
     ),
 );
+
+
+$this->resource_types = [
+    901 => [
+        'influence' => 3,
+        'name' => clienttranslate('Police station'),
+        'cost' => [
+            1 => 2,
+            2 => 1,
+            3 => 1,
+            4 => 0,
+            5 => 0,
+            6 => 0,
+        ],
+    ],
+    902 => [
+        'influence' => 5,
+        'name' => clienttranslate('Black market'),
+        'cost' => [
+            1 => 0,
+            2 => 1,
+            3 => 0,
+            4 => 1,
+            5 => 1,
+            6 => 0,
+        ],
+    ],
+    903 => [
+        'influence' => 2,
+        'name' => clienttranslate('Headquarters'),
+        'cost' => [
+            1 => 0,
+            2 => 1,
+            3 => 1,
+            4 => 0,
+            5 => 1,
+            6 => 0,
+        ],
+    ],
+    904 => [
+        'influence' => 3,
+        'name' => clienttranslate('Counterfeit Printing'),
+        'cost' => [
+            1 => 0,
+            2 => 1,
+            3 => 0,
+            4 => 0,
+            5 => 2,
+            6 => 0,
+        ],
+    ],
+    905 => [
+        'influence' => 4,
+        'name' => clienttranslate('Private jet'),
+        'cost' => [
+            1 => 0,
+            2 => 0,
+            3 => 1,
+            4 => 1,
+            5 => 0,
+            6 => 0,
+        ],
+    ],
+    906 => [
+        'influence' => 0,
+        'name' => clienttranslate('Media'),
+        'cost' => [
+            1 => 0,
+            2 => 1,
+            3 => 1,
+            4 => 2,
+            5 => 1,
+            6 => 1,
+        ],
+    ],
+    907 => [
+        'influence' => 4,
+        'name' => clienttranslate('High tech equipment'),
+        'cost' => [
+            1 => 0,
+            2 => 0,
+            3 => 1,
+            4 => 1,
+            5 => 1,
+            6 => 0,
+        ],
+    ],
+    908 => [
+        'influence' => 3,
+        'name' => clienttranslate('Secret society'),
+        'cost' => [
+            1 => 0,
+            2 => 1,
+            3 => 1,
+            4 => 0,
+            5 => 0,
+            6 => 1,
+        ],
+    ],
+    909 => [
+        'influence' => 4,
+        'name' => clienttranslate('Bank'),
+        'cost' => [
+            1 => 0,
+            2 => 0,
+            3 => 0,
+            4 => 0,
+            5 => 0,
+            6 => 2,
+        ],
+    ],
+    910 => [
+        'influence' => 3,
+        'name' => clienttranslate('Bikers gang'),
+        'cost' => [
+            1 => 0,
+            2 => 0,
+            3 => 0,
+            4 => 1,
+            5 => 1,
+            6 => 1,
+        ],
+    ],
+    911 => [
+        'influence' => 5,
+        'name' => clienttranslate('Hospital'),
+        'cost' => [
+            1 => 0,
+            2 => 1,
+            3 => 0,
+            4 => 1,
+            5 => 0,
+            6 => 1,
+        ],
+    ],
+    912 => [
+        'influence' => 2,
+        'name' => clienttranslate('Indicator Network'),
+        'cost' => [
+            1 => 0,
+            2 => 0,
+            3 => 2,
+            4 => 0,
+            5 => 0,
+            6 => 1,
+        ],
+    ],
+
+];

@@ -20,6 +20,11 @@ require_once (dirname(__FILE__) . '/modules/DebugTrait.php');
 
 require_once(APP_GAMEMODULE_PATH . 'module/table/table.game.php');
 
+const CARD_RESOURCE_LOCATION_DECK = 'deck_resources';
+const CARD_RESOURCE_LOCATION_DRAFT = 'rc_draft';
+
+//Pick 2 cards at setup
+const RESOURCE_CARDS_PER_PLAYER = 2;
 
 class Gangsta extends Table {
     use Bga\Games\gansgta\DebugTrait;
@@ -78,6 +83,16 @@ class Gangsta extends Table {
 
     public function isStartingDollarSetups() {
         return self::getUniqueValueFromDB('select count(*) from global where global_id=101 and (global_value=3 OR global_value=4)') == 1;
+    }
+    
+    function isVariantResourcesChoice() : bool
+    { 
+        $variant_value = self::getGameStateValue( 'resourcevariant', 1 );
+        switch($variant_value){
+            case 1: return FALSE;
+            case 2: return TRUE;
+            default: return FALSE;
+        }
     }
 
     protected function getGameName() {
@@ -151,6 +166,7 @@ class Gangsta extends Table {
         $deck_gangwars = [];
         $deck_domination = [];
         $deck_boss = [];
+        $deck_resources = [];
 
         foreach ($this->heist_genesis_type as $heist_type_id => $heist_type) {
             $deck_genesis[] = ['type' => $heist_type_id, 'type_arg' => 0, 'nbr' => 1, 'card_state' => 0];
@@ -172,6 +188,9 @@ class Gangsta extends Table {
             }
         }
 
+        foreach ($this->resource_types as $resource_type_id => $resource_type) {
+            $deck_resources[] = ['type' => $resource_type_id, 'type_arg' => 5, 'nbr' => 1, 'card_state' => 0];
+        }
 
         // Create all the decks.
         $this->cards->createCards($deck_genesis, 'deckgenesis');
@@ -179,6 +198,7 @@ class Gangsta extends Table {
         $this->cards->createCards($deck_domination, 'deckdomination');
         $this->cards->createCards($deck_gangsters, 'deckgangsters');
         $this->cards->createCards($deck_boss, 'deckboss');
+        $this->cards->createCards($deck_resources, CARD_RESOURCE_LOCATION_DECK);
 
         // Shuffle all the decks
         $this->cards->shuffle("deckgenesis");
@@ -186,6 +206,7 @@ class Gangsta extends Table {
         $this->cards->shuffle("deckdomination");
         $this->cards->shuffle("deckgangsters");
         $this->cards->shuffle("deckboss");
+        $this->cards->shuffle(CARD_RESOURCE_LOCATION_DECK);
 
         // One Boss per player
         foreach ($players as $player_id => $player) {
@@ -242,7 +263,7 @@ class Gangsta extends Table {
         _ when the game starts
         _ when a player refreshes the game page (F5)
     */
-    protected function getAllDatas() {
+    protected function getAllDatas(): array {
         $result = [];
 
         // Constants.
@@ -262,6 +283,7 @@ class Gangsta extends Table {
         $result['pass_variant'] = $this->isPassCash;
         $result['starting_dollars_variant'] = $this->isStartingDollarSetups;
         $result['public_variant'] = $this->isPublic;
+        $result['resources_variant'] = self::getGameStateValue( 'resourcevariant', 1 );
 
         $current_player_id = self::getCurrentPlayerId();    // !! We must only return informations visible by this player !!
 
@@ -613,6 +635,33 @@ class Gangsta extends Table {
         Each time a player is doing some game action, one of the methods below is called.
         (note: each method below must match an input method in gangsta.action.php)
     */
+
+    /**
+     * First user action : select a resource card
+     * @param int $cardId
+     */
+    function actSelectResource(int $cardId){
+        self::checkAction( 'actSelectResource' ); 
+        self::trace("actSelectResource($cardId)");
+        
+        $card = $this->getFullCardInfo($cardId);
+        $player_id = self::getCurrentPlayerId();
+        $args = $this->argResourcesSelection();
+        $selectableCards = array_keys($args['_private'][$player_id]['cards']);
+
+        //ANTICHEAT :
+        if ($card == null) {
+            throw new \BgaVisibleSystemException("Invalid card");
+        }
+        if (!in_array($cardId,$selectableCards)) {
+            throw new \BgaVisibleSystemException("This card is not available");
+        }
+
+        //TODO JSA MOVE RESOURCE CARD
+        //TODO JSA NOTIFY
+
+        $this->gamestate->nextState('next');
+    }
 
     function actionUntapGangsters($gangster_ids) {
         self::checkAction('untapGangsters');
@@ -1406,23 +1455,24 @@ class Gangsta extends Table {
         These methods function is to return some additional information that is specific to the current
         game state.
     */
+            
+    public function argResourcesSelection()
+    { 
+        $privateDatas = array ();
+        $players = $players = self::loadPlayersBasicInfos();
 
-    /*
+        foreach($players as $player_id => $player){
+            $privateDatas[$player_id] = [
+                'cards' => $this->cards->getCardsInLocation(CARD_RESOURCE_LOCATION_DRAFT,$player_id),
+            ];
+        }
 
-    Example for game state "MyGameState":
-
-    function argMyGameState()
-    {
-        // Get some values from the current game situation in database...
-
-        // return values:
-        return array(
-            'variable1' => $value1,
-            'variable2' => $value2,
-            ...
-        );
+        $args = [
+            '_private' => $privateDatas,
+        ];
+        return $args;
     }
-    */
+
     function argPlayerMobilize() {
         $player_id = self::getActivePlayerId();
         $leaders = $this->getCompetenceCount($player_id, 1, true); //get leader count for untapped gangsters
@@ -1549,6 +1599,30 @@ class Gangsta extends Table {
     }
     */
 
+    public function stResourcesSetup()
+    { 
+        self::trace("stResourcesSetup()");
+
+        if($this->isVariantResourcesChoice()){
+            $players = $this->loadPlayersBasicInfos();
+            foreach ($players as $pid => $player) {
+                $drawnCards = $this->cards->pickCardsForLocation(RESOURCE_CARDS_PER_PLAYER,CARD_RESOURCE_LOCATION_DECK,CARD_RESOURCE_LOCATION_DRAFT,$pid);
+                //$this->notify->player($pid,'draftCards',clienttranslate('${player_name} draws 2 resource cards'),[
+                //    'player_name' => $player['player_name'],
+                //    'cards'=> $drawnCards,
+                //]);
+            }
+
+            $this->gamestate->setAllPlayersMultiactive(); 
+            foreach ($players as $pid => $player) {
+                self::giveExtraTime($pid);
+            }
+            $this->gamestate->nextState('draftMulti');
+            return;
+        }
+
+        $this->gamestate->nextState('next');
+    }
 
     function stNextPlayer() {
         $player_id = self::getGameStateValue('replayRewardId');
