@@ -89,9 +89,9 @@ class Gangsta extends Table {
     { 
         $variant_value = self::getGameStateValue( 'resourcevariant', 1 );
         switch($variant_value){
-            case 1: return FALSE;
-            case 2: return TRUE;
-            default: return FALSE;
+            case 1: return false;
+            case 2: return true;
+            default: return false;
         }
     }
 

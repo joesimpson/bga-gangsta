@@ -393,24 +393,26 @@ define([
                 } 
                 let confirmMessage = _('Confirm ${resource_name}');
                 
-                let selectedCard = null;
-                this.addActionButton('btnConfirm', dojo.string.substitute(confirmMessage, {resource_name:''}), () => {
-                    this.bgaPerformAction('actSelectResource', { c: selectedCard });
-                }, null, false, 'blue');
-                $(`btnConfirm`).classList.add('disabled');
+                this.selectedResource = null;
+                if(!$(`btnConfirmResource`)){
+                    this.addActionButton('btnConfirmResource', dojo.string.substitute(confirmMessage, {resource_name:''}), () => {
+                        this.bgaPerformAction('actSelectResource', { c: selectedResource });
+                    }, null, false, 'blue');
+                }
+                $(`btnConfirmResource`).classList.add('disabled');
 
                 Object.values(this.possibleCards).forEach((card) => {
                     let cardDiv = this.addResourceCardInAvailable(card);
                     if (this.isCurrentPlayerActive()) {
                         cardDiv.classList.add('selectable');
                         dojo.connect(cardDiv, 'onclick', this, () => {
-                            if (selectedCard){
-                                $(`resource_card_${selectedCard}`).classList.remove('selected');
+                            if (this.selectedResource){
+                                $(`resource_card_${this.selectedResource}`).classList.remove('selected');
                             }
-                            selectedCard = card.id;
+                            this.selectedResource = card.id;
                             cardDiv.classList.add('selected');
-                            $('btnConfirm').innerHTML = dojo.string.substitute(confirmMessage, { resource_name: _(card.name) });
-                            $(`btnConfirm`).classList.remove('disabled');
+                            $('btnConfirmResource').innerHTML = dojo.string.substitute(confirmMessage, { resource_name: _(card.name) });
+                            $(`btnConfirmResource`).classList.remove('disabled');
                         });
                     }
                 });
@@ -578,6 +580,10 @@ define([
 
                 if (this.isCurrentPlayerActive()) {
                     switch (stateName) {
+                        case 'resourcesSelection':
+                            this.addActionButton('btnConfirmResource',  _('Confirm') , 'onConfirmResource');
+                            dojo.addClass('btnConfirmResource', 'disabled');
+                            break;
                         case 'playerAction':
                             this.addActionButton('confRecruit_button', _('Recruit'), 'onConfRecruit');
                             this.addActionButton('pass_button', _('Pass for Money'), 'onPassForMoney');
@@ -1025,8 +1031,15 @@ define([
 
                 this.ajaxcall('/gangsta/gangsta/pass.html', {lock: true}, this, function (result) {
                 });
-            },
+            }, 
 
+            onConfirmResource: function () {
+                if (!this.checkAction('actSelectResource')) {
+                    return;
+                }
+
+                this.bgaPerformAction('actSelectResource', { c: this.selectedResource });
+            }, 
 
             onConfRecruit: function () {
                 let selected = this.avgangsters.getSelectedItems();

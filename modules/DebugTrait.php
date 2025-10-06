@@ -11,7 +11,7 @@ trait DebugTrait
  
   ////////////////////////////////////////////////////
 
-  function debug_ReSetup(){
+  function debug_ReSetup(bool $draft = true){
     $this->trace("debug_ReSetup - START ////////////////////////////////////////////////////");
     $players = self::loadPlayersBasicInfos();
     
@@ -19,14 +19,16 @@ trait DebugTrait
       100 => 2,
       101 => 2,
       102 => 2,
-      103 => 1,
+      103 => ($draft ? 2 :1) ,
     ];
     //CLEAR DATAS
     // self::DbQuery("UPDATE `stats` set stats_value = 0 where stats_type >= 10 ");
     self::DbQuery("DELETE FROM `stats` where stats_type >= 10 ");
     self::DbQuery("DELETE FROM `card`");
     //self::DbQuery("UPDATE `global` set global_value = 0 where global_id >= 10 AND global_id < 100 ");
-    self::DbQuery("DELETE FROM `global` where global_id >= 10 AND global_id < 100 ");
+    self::DbQuery("DELETE FROM `global` where global_id >= 10 AND global_id < 100 or global_id = 103 ");
+    self::DbQuery("INSERT INTO `global` (global_id,global_value) VALUES ( 103,".$options[103]." )"); //NOT ENOUGH because of cache
+
     self::DbQuery("DELETE FROM `player`");
 
     self::DbQuery("DELETE FROM `gamelog` where gamelog_packet_id > 1");
@@ -34,7 +36,8 @@ trait DebugTrait
     $this->setupNewGame($players,$options);
 
     $players = self::loadPlayersBasicInfos(); 
-    $this->gamestate->jumpToState(30);//resourcesSetup
+    if($draft) $this->gamestate->jumpToState(30);//resourcesSetup
+    else $this->gamestate->jumpToState(4);//playerAction
     $this->notify->all('reloadPage', "/!\ : Refresh page to see game has restarted...", []);
     $this->trace("debug_ReSetup - END ////////////////////////////////////////////////////");
 
