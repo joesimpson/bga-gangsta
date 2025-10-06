@@ -362,6 +362,9 @@ define([
                 debug( 'Entering state: ',stateName, args );
 
                 switch (stateName) {
+                    case 'resourcesSelection':
+                        this.enteringResourcesSelection(args.args);
+                        break;
                     case 'rewardTap':
                         this.enteringRewardTap(args.args);
                         break;
@@ -379,6 +382,38 @@ define([
                         break;
                 }
                 this.updateCounters(this.gamedatas.counters)
+            },
+
+            enteringResourcesSelection: function (args) {
+                this.possibleCards = [];
+                if(args._private !=undefined){
+                    if(args._private.cards!=undefined){
+                        this.possibleCards = args._private.cards;
+                    }
+                } 
+                let confirmMessage = _('Confirm ${resource_name}');
+                
+                let selectedCard = null;
+                this.addActionButton('btnConfirm', dojo.string.substitute(confirmMessage, {resource_name:''}), () => {
+                    this.bgaPerformAction('actSelectResource', { c: selectedCard });
+                }, null, false, 'blue');
+                $(`btnConfirm`).classList.add('disabled');
+
+                Object.values(this.possibleCards).forEach((card) => {
+                    let cardDiv = this.addResourceCardInAvailable(card);
+                    if (this.isCurrentPlayerActive()) {
+                        cardDiv.classList.add('selectable');
+                        dojo.connect(cardDiv, 'onclick', this, () => {
+                            if (selectedCard){
+                                $(`resource_card_${selectedCard}`).classList.remove('selected');
+                            }
+                            selectedCard = card.id;
+                            cardDiv.classList.add('selected');
+                            $('btnConfirm').innerHTML = dojo.string.substitute(confirmMessage, { resource_name: _(card.name) });
+                            $(`btnConfirm`).classList.remove('disabled');
+                        });
+                    }
+                });
             },
 
             enteringPlayerMobilize: function (args) {
@@ -733,6 +768,23 @@ define([
                 }
 
                 delete this.gamedatas.tableau[cardid];
+            },
+            
+            addResourceCardInAvailable: function (cardDatas) {
+                debug('addResourceCardInAvailable',cardDatas);
+                let cardDiv = $('resource_card_' + cardDatas.id);
+                if (cardDiv) return cardDiv;
+
+                dojo.place(this.format_block('jstpl_resource_card', {
+                    'id': cardDatas.id,
+                    'type': cardDatas.type,
+                    'name': _(cardDatas.name),
+                }), 'av_resources');
+
+                //TODO JSA TOOLTIP with details
+
+                cardDiv = $('resource_card_' + cardDatas.id);
+                return cardDiv;
             },
 
             addGangster: function (player_id, type, id, gangsterState, fullCard) {

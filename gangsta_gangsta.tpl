@@ -1,5 +1,6 @@
 {OVERALL_GAME_HEADER}
 <div id="gangstainterface">
+  <div id="av_resources"></div>
   <div id="avdecks">
     <div id="twodecks">
       <div id="heists" class="whiteblock genesis">
@@ -44,6 +45,9 @@
 </div>
 
 <script type="text/javascript">
+   var jstpl_resource_card = '<div class="card_wrap card_sized" id="card_wrap_${id}">\
+                             <div class="resource_card card_sized" id="resource_card_${id}" data-type="${type}" title="${name}"></div>\
+                         </div>';
    var jstpl_gangster = '<div class="card_wrap card_sized" id="card_wrap_${id}">\
                              <div class="gangster card_sized ${boss} ${extra}" id="gangster_${id}" style="background-position: -${backx}% -${backy}%"></div>\
                          </div>';

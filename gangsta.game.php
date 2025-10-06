@@ -434,6 +434,12 @@ class Gangsta extends Table {
         return $heistdeck;
     }
 
+    function fillResourceCardsInfo(array &$cards){
+        foreach($cards as $id => &$card){
+            $card_type = $card['type'];
+            $card['name'] = $this->resource_types[$card_type]['name'];
+        }
+    }
     function getFullCardInfo($cardid) { //returns an object with no key
         $fullCard = self::getObjectFromDB("SELECT card_id id, card_type 'type', card_type_arg type_arg, card_location location, card_location_arg location_arg, card_order 'order', card_state state, card_skills skill from card WHERE card_id='$cardid'");
         return $fullCard;
@@ -660,7 +666,8 @@ class Gangsta extends Table {
         //TODO JSA MOVE RESOURCE CARD
         //TODO JSA NOTIFY
 
-        $this->gamestate->nextState('next');
+        // END PLAYER turn and go to next state when everyone is ready
+        $this->gamestate->setPlayerNonMultiactive( $player_id, 'next');
     }
 
     function actionUntapGangsters($gangster_ids) {
@@ -1462,8 +1469,10 @@ class Gangsta extends Table {
         $players = $players = self::loadPlayersBasicInfos();
 
         foreach($players as $player_id => $player){
+            $cardsInfo = $this->cards->getCardsInLocation(CARD_RESOURCE_LOCATION_DRAFT,$player_id);
+            $this->fillResourceCardsInfo($cardsInfo);
             $privateDatas[$player_id] = [
-                'cards' => $this->cards->getCardsInLocation(CARD_RESOURCE_LOCATION_DRAFT,$player_id),
+                'cards' => $cardsInfo,
             ];
         }
 

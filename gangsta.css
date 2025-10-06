@@ -83,6 +83,12 @@ div.tableWindow table {
     margin-left: auto;
     margin-right: auto;
 }
+#av_resources{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center
+}
 #avdecks {
     display: grid;
     grid-template-columns: 7fr 3fr;
@@ -152,6 +158,75 @@ div.tableWindow table {
     width:220px;
     height:308px;
 }
+
+.resource_card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-image: url('img/resources_sprite.jpg');
+    background-size: 600% 200%;
+    border-radius: 6px;
+}
+.resource_card.selectable {
+    cursor: pointer;
+}
+.resource_card.selected {
+    opacity: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    box-shadow: 0 0 0 2px rgb(124,252,0) inset;
+}
+.resource_card[data-type="901"] { /*police Station*/
+  background-position-y: 0%;
+  background-position-x: 0%;
+}
+.resource_card[data-type="902"] { /*black market*/
+  background-position-y: 0%;
+  background-position-x: 20%;
+}
+.resource_card[data-type="903"] { /*headquarters*/
+  background-position-y: 0%;
+  background-position-x: 40%;
+}
+.resource_card[data-type="904"] {
+  background-position-y: 0%;
+  background-position-x: 60%;
+}
+.resource_card[data-type="905"] {
+  background-position-y: 0%;
+  background-position-x: 80%;
+}
+.resource_card[data-type="906"] {
+  background-position-y: 0%;
+  background-position-x: 100%;
+}
+.resource_card[data-type="907"] {
+  background-position-y: 100%;
+  background-position-x: 0%;
+}
+.resource_card[data-type="908"] {
+  background-position-y: 100%;
+  background-position-x: 20%;
+}
+.resource_card[data-type="909"] {
+  background-position-y: 100%;
+  background-position-x: 40%;
+}
+.resource_card[data-type="910"] {
+  background-position-y: 100%;
+  background-position-x: 60%;
+}
+.resource_card[data-type="911"] {
+  background-position-y: 100%;
+  background-position-x: 80%;
+}
+.resource_card[data-type="912"] {
+  background-position-y: 100%;
+  background-position-x: 100%;
+}
+
 .gtip{
     background-size:1760px 1848px;
     background-image: url('img/gangsters_sprite.jpg');
