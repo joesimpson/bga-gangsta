@@ -1572,6 +1572,7 @@ class Gangsta extends Table {
     function stCheckSynchro() {
         if (self::isCurrentPlayerZombie()) {
             $this->gamestate->nextState("zombiePass");
+            //TODO RETURN ?
         }
 
         $player_id = self::getActivePlayerId();
