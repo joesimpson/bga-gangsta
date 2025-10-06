@@ -89,21 +89,29 @@ $game_options = [
     102 => [
         'name' => totranslate('Heist Influence'),
         'values' => [
-            1 => ['name' => totranslate('private'), 'description' => totranslate('Influence gained from heists is only visible to you')],
-            2 => ['name' => totranslate('public'), 'description' => totranslate('Influence gained from heists is added to you public total')],
+            1 => [
+                'name' => totranslate('private'), 'description' => totranslate('Influence gained from heists is only visible to you')],
+            2 => ['name' => totranslate('public'), 'tmdisplay' => 'public','description' => totranslate('Influence gained from heists is added to you public total')],
         ],
         'default' => 1,
     ],
 
     103 => [
-        'name' => totranslate('Resources'),
+        'name' => 'Resources',
         'values' => [
-            1 => ['name' => totranslate('private'), 'description' => totranslate('Influence gained from heists is only visible to you, other players can only see your team points')],
-            2 => ['name' => totranslate('public'), 'description' => totranslate('Influence gained from heists is added to you public total a visible by all players')],
-        ],
-        'displaycondition' => [
-            ['type' => 'minplayers',
-             'value' => 5],
+            1 => [
+                'name' => 'Disabled', 
+                'tmdisplay' => '',
+                'description' => 'Resource cards are not dealt to players.'
+            ],
+            2 => [
+                'name' => 'Resources choice', 
+                'tmdisplay' => 'Resources choice',
+                'description' => ('Players randomly receive two Resource Cards, selecting only one and discarding the other. Each Resource Card give a unique ability during the game.'),
+                'nobeginner' => true,
+                'beta' => true, //TODO JSA REMOVE BETA OPTION When OK
+            ],
+            //We may add 3 => 'Automatic choice' 
         ],
         'default' => 1,
     ],
