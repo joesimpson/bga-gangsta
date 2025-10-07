@@ -806,16 +806,20 @@ define([
                 if (cardDiv) return cardDiv;
 
                 let card_owner = cardDatas.location_arg;
-                dojo.place(this.format_block('jstpl_resource_card', {
+                let tplCardDatas = {
                     'id': cardDatas.id,
                     'type': cardDatas.type,
                     'name': _(cardDatas.name),
                     'state': cardDatas.state,
-                }), `player_resource_cards_${card_owner}`);
+                };
+                dojo.place(this.format_block('jstpl_resource_card',tplCardDatas ), `player_resource_cards_${card_owner}`);
+                
+                cardDiv = $('resource_card_' + cardDatas.id);
 
                 //TODO JSA TOOLTIP with details
+                let tipHtml = this.format_block('jstpl_tooltip_resource', tplCardDatas);
+                this.addTooltipHtml(cardDiv.id, tipHtml);
 
-                cardDiv = $('resource_card_' + cardDatas.id);
                 return cardDiv;
             },
 

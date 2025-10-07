@@ -65,6 +65,7 @@
 
   var jstpl_boardblock = "";
 
+  var jstpl_tooltip_resource = '<div class="cardTip">'+jstpl_resource_card+'</div>';
   var jstpl_tooltip = '<div class="cardTip ${classes}" style="background-position: -${backx}% -${backy}%;"></div>';
 
   var jstpl_coin = '<div class="coin" style="z-index:10"></div>';
