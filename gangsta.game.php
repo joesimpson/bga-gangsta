@@ -20,10 +20,15 @@ require_once (dirname(__FILE__) . '/modules/DebugTrait.php');
 
 require_once(APP_GAMEMODULE_PATH . 'module/table/table.game.php');
 
+const CARD_TYPE_RESOURCE = 5;
+
 const CARD_RESOURCE_LOCATION_DECK = 'rc_deck';
 const CARD_RESOURCE_LOCATION_DISCARD = 'rc_discard';
 const CARD_RESOURCE_LOCATION_DRAFT = 'rc_draft';
 const CARD_RESOURCE_LOCATION_HAND = 'rc_hand';
+
+const CARD_RESOURCE_STATE_INACTIVE = 0;
+const CARD_RESOURCE_STATE_ACTIVE = 1;
 
 //Pick 2 cards at setup
 const RESOURCE_CARDS_PER_PLAYER = 2;
@@ -191,7 +196,7 @@ class Gangsta extends Table {
         }
 
         foreach ($this->resource_types as $resource_type_id => $resource_type) {
-            $deck_resources[] = ['type' => $resource_type_id, 'type_arg' => 5, 'nbr' => 1, 'card_state' => 0];
+            $deck_resources[] = ['type' => $resource_type_id, 'type_arg' => CARD_TYPE_RESOURCE, 'nbr' => 1, 'card_state' => CARD_RESOURCE_STATE_INACTIVE];
         }
 
         // Create all the decks.
@@ -313,6 +318,9 @@ class Gangsta extends Table {
         $result['gangster_type'] = $this->gangster_type;
 
         // Cards in locations.
+        $playerResources = $this->cards->getCardsInLocation(CARD_RESOURCE_LOCATION_HAND);
+        $this->fillResourceCardsInfo($playerResources);
+        $result['resources'] = $playerResources;
         $result['avheists'] = $this->cards->getCardsInLocation('avheists');
         $result['avgangsters'] = $this->cards->getCardsInLocation('avgangsters');
         $result['activesnitch'] = $this->cards->getCardsInLocation('activesnitch');
@@ -440,6 +448,8 @@ class Gangsta extends Table {
         foreach($cards as $id => &$card){
             $card_type = $card['type'];
             $card['name'] = $this->resource_types[$card_type]['name'];
+
+            $card['state'] = $this->getCardState($id);
         }
     }
     function getFullCardInfo($cardid) { //returns an object with no key
@@ -1631,6 +1641,7 @@ class Gangsta extends Table {
 
         $selectionDone = (0 < $this->cards->countCardsInLocation(CARD_RESOURCE_LOCATION_HAND) );
         if($selectionDone){
+            //Check selection has not been done because we come back here again right after selection
             //NOTIFY selection to everyone
             $resources = $this->cards->getCardsInLocation(CARD_RESOURCE_LOCATION_HAND );
             $this->fillResourceCardsInfo($resources);
@@ -1647,7 +1658,6 @@ class Gangsta extends Table {
             }
         }
         else if($this->isVariantResourcesChoice()){
-            //Check selection has not been done because we come back here again right after selection
             $players = $this->loadPlayersBasicInfos();
             foreach ($players as $pid => $player) {
                 $drawnCards = $this->cards->pickCardsForLocation(RESOURCE_CARDS_PER_PLAYER,CARD_RESOURCE_LOCATION_DECK,CARD_RESOURCE_LOCATION_DRAFT,$pid);

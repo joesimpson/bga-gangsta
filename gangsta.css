@@ -178,6 +178,10 @@ div.tableWindow table {
     position: relative;
     box-shadow: 0 0 0 2px rgb(124,252,0) inset;
 }
+.playertableau .resource_card_wrap[data-state="0"] { /*CARD_RESOURCE_STATE_INACTIVE*/
+  transform: rotate(-90deg);
+}
+
 .resource_card[data-type="901"] { /*police Station*/
   background-position-y: 0%;
   background-position-x: 0%;
@@ -225,6 +229,18 @@ div.tableWindow table {
 .resource_card[data-type="912"] {
   background-position-y: 100%;
   background-position-x: 100%;
+}
+
+.playertableau{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.player_resource_cards{
+    flex-shrink: 1;
+    margin-right: 20px;
+    margin-left: 10px;
 }
 
 .gtip{
@@ -362,10 +378,23 @@ div.tableWindow table {
     -webkit-box-shadow: 0 5px 15px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
     -moz-box-shadow: 0 5px 15px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
 }
+.chapters_separator{
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    background: url('img/chapters-separator.png') no-repeat;
+    /*
+    TODO JSA  ONLY WHEN RESOURCE CARD is displayed : offset of card height + margins when rotated
+    */
+    background-position-x: 150px;
+}
 .current_player .whiteblock, .opposing_player .whiteblock {
-    background: rgb(199 186 176 / 50%) url('img/chapters-separator.png') no-repeat !important;
     padding-left: 20px;
     padding-bottom: 10px;
+    position: relative;
 }
 #snitches .whiteblock {
     border-radius: 6px;

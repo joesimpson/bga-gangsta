@@ -287,6 +287,12 @@ define([
                     //for now location_arg is playerid because it's in the deck location of the php Deck component.
                     this.addGangster(card.location_arg, card.type, card.id, card.state, card);
                 }
+                
+                Object.values(this.gamedatas.resources).forEach((card) => {
+                    if(card.location == 'rc_hand'){
+                        let cardDiv = this.addResourceCardInHand(card);
+                    }
+                });
 
                 if (!this.isSpectator) {
                     dojo.place(this.format_block('jstpl_skillcounter', {
@@ -785,7 +791,27 @@ define([
                     'id': cardDatas.id,
                     'type': cardDatas.type,
                     'name': _(cardDatas.name),
+                    'state': cardDatas.state,
                 }), 'av_resources');
+
+                //TODO JSA TOOLTIP with details
+
+                cardDiv = $('resource_card_' + cardDatas.id);
+                return cardDiv;
+            },
+
+            addResourceCardInHand: function (cardDatas) {
+                debug('addResourceCardInHand',cardDatas);
+                let cardDiv = $('resource_card_' + cardDatas.id);
+                if (cardDiv) return cardDiv;
+
+                let card_owner = cardDatas.location_arg;
+                dojo.place(this.format_block('jstpl_resource_card', {
+                    'id': cardDatas.id,
+                    'type': cardDatas.type,
+                    'name': _(cardDatas.name),
+                    'state': cardDatas.state,
+                }), `player_resource_cards_${card_owner}`);
 
                 //TODO JSA TOOLTIP with details
 

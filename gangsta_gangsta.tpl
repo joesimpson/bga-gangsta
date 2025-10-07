@@ -24,6 +24,7 @@
   <!-- BEGIN player -->
   <div class="{PLAYER_CATEGORY}">
     <div class="whiteblock">
+      <div class="chapters_separator"></div>
       <h3 class="player_title" style="color: #{PLAYER_COLOR}" id="playertitle_{PLAYER_ID}">
         {PLAYER_NAME}
         <div class="money" id="playermoneyicon_{PLAYER_ID}"></div>
@@ -36,6 +37,7 @@
       </h3>
 
       <div id="tableau_{PLAYER_ID}" class="playertableau">
+          <div id="player_resource_cards_{PLAYER_ID}" class="player_resource_cards"></div>
           <div id="recruited_gangsters_{PLAYER_ID}" class="cardlist_wrapper"></div>
       </div>
       <div class="clear"></div>
@@ -45,8 +47,8 @@
 </div>
 
 <script type="text/javascript">
-   var jstpl_resource_card = '<div class="card_wrap card_sized" id="card_wrap_${id}">\
-                             <div class="resource_card card_sized" id="resource_card_${id}" data-type="${type}" title="${name}"></div>\
+   var jstpl_resource_card = '<div class="card_wrap card_sized resource_card_wrap" id="card_wrap_${id}"  data-state="${state}" >\
+                             <div class="resource_card card_sized" id="resource_card_${id}" data-type="${type}" data-state="${state}" title="${name}"></div>\
                          </div>';
    var jstpl_gangster = '<div class="card_wrap card_sized" id="card_wrap_${id}">\
                              <div class="gangster card_sized ${boss} ${extra}" id="gangster_${id}" style="background-position: -${backx}% -${backy}%"></div>\
