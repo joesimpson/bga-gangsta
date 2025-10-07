@@ -20,8 +20,10 @@ require_once (dirname(__FILE__) . '/modules/DebugTrait.php');
 
 require_once(APP_GAMEMODULE_PATH . 'module/table/table.game.php');
 
-const CARD_RESOURCE_LOCATION_DECK = 'deck_resources';
+const CARD_RESOURCE_LOCATION_DECK = 'rc_deck';
+const CARD_RESOURCE_LOCATION_DISCARD = 'rc_discard';
 const CARD_RESOURCE_LOCATION_DRAFT = 'rc_draft';
+const CARD_RESOURCE_LOCATION_HAND = 'rc_hand';
 
 //Pick 2 cards at setup
 const RESOURCE_CARDS_PER_PLAYER = 2;
@@ -653,18 +655,33 @@ class Gangsta extends Table {
         $card = $this->getFullCardInfo($cardId);
         $player_id = self::getCurrentPlayerId();
         $args = $this->argResourcesSelection();
-        $selectableCards = array_keys($args['_private'][$player_id]['cards']);
+        $selectableCards = $args['_private'][$player_id]['cards'];
 
         //ANTICHEAT :
         if ($card == null) {
             throw new \BgaVisibleSystemException("Invalid card");
         }
-        if (!in_array($cardId,$selectableCards)) {
+        if (!array_key_exists($cardId,$selectableCards)) {
             throw new \BgaVisibleSystemException("This card is not available");
         }
 
-        //TODO JSA MOVE RESOURCE CARD
-        //TODO JSA NOTIFY
+        $cardDatas = $selectableCards[$cardId];
+
+        //Action effect : MOVE 1 RESOURCE CARD and discard others (for this player only !)
+        foreach($selectableCards as $scId => $selectableCard){
+            if($scId == $cardId){
+                $this->cards->moveCard($scId, CARD_RESOURCE_LOCATION_HAND,$player_id );
+            }
+            else {
+                $this->cards->moveCard($scId, CARD_RESOURCE_LOCATION_DISCARD,$player_id );
+            }
+        }
+
+        $this->notify->player($player_id,'selectedResource',clienttranslate('You select ${name}'),[
+                'i18n' => ['name'],
+                'name'=> $cardDatas['name'],
+                'card'=> $cardDatas,
+            ]);
 
         // END PLAYER turn and go to next state when everyone is ready
         $this->gamestate->setPlayerNonMultiactive( $player_id, 'next');
@@ -1612,7 +1629,25 @@ class Gangsta extends Table {
     { 
         self::trace("stResourcesSetup()");
 
-        if($this->isVariantResourcesChoice()){
+        $selectionDone = (0 < $this->cards->countCardsInLocation(CARD_RESOURCE_LOCATION_HAND) );
+        if($selectionDone){
+            //NOTIFY selection to everyone
+            $resources = $this->cards->getCardsInLocation(CARD_RESOURCE_LOCATION_HAND );
+            $this->fillResourceCardsInfo($resources);
+            foreach($resources as $resource){
+                $owner_id = $resource['location_arg'];
+                $this->notify->all('selectedResourcePublic',clienttranslate('${player_name} will play with ${resource_name}'),[
+                    'i18n' => ['resource_name'],
+                    'player_id' => $owner_id,
+                    'player_name' => $this->getPlayerNameById($owner_id),
+                    'card'=> $resource,
+                    'resource_name'=> $resource['name'],
+
+                ]);
+            }
+        }
+        else if($this->isVariantResourcesChoice()){
+            //Check selection has not been done because we come back here again right after selection
             $players = $this->loadPlayersBasicInfos();
             foreach ($players as $pid => $player) {
                 $drawnCards = $this->cards->pickCardsForLocation(RESOURCE_CARDS_PER_PLAYER,CARD_RESOURCE_LOCATION_DECK,CARD_RESOURCE_LOCATION_DRAFT,$pid);

@@ -52,12 +52,12 @@
 
              1 SETUP
                 |
-                30 resourcesSetup
-                |      |
-                |      31 resourcesSelection
-                |      |
-                |      |
-                v      v
+                30 resourcesSetup           <----\
+                |      |                         |
+                |      v                         |
+                |      31 resourcesSelection --->/
+                |       
+                v       
     2 -> 3 -> 4 playerAction <---------------------------\
     ^                  |                                 ^
     |                  |-----------------------------    |
@@ -121,7 +121,7 @@ $machinestates = array(
             "actSelectResource",
         ],
         "transitions" => [ 
-            "next" => 4,
+            "next" => 30,
         ],
     ),
     
