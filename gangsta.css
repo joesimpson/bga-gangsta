@@ -86,6 +86,9 @@ div.tableWindow table {
 .animation_copy{
     z-index: 2;
 }
+.no_display{
+    display: none !important;
+}
 
 #av_resources{
     display: flex;

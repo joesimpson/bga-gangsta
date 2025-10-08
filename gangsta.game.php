@@ -233,12 +233,6 @@ class Gangsta extends Table {
             self::DbQuery("UPDATE card SET card_order=1 where card_location='hand'");
         }
 
-        // 5 cards for the heist line
-        $this->cards->pickCardsForLocation(5, 'deckgenesis', 'avheists');
-
-        // 5 cards for the gangster line
-        $this->cards->pickCardsForLocation(5, 'deckgangsters', 'avgangsters');
-
         // Activate first player (which is in general a good idea :) )
         if(!array_key_exists("DEBUG_SETUP",$options)){
             $first_player = $this->activeNextPlayer();
@@ -1689,6 +1683,18 @@ class Gangsta extends Table {
             $this->gamestate->nextState('draftMulti');
             return;
         }
+        
+        // 5 cards for the heist line
+        $this->cards->pickCardsForLocation(5, 'deckgenesis', 'avheists');
+        // 5 cards for the gangster line
+        $this->cards->pickCardsForLocation(5, 'deckgangsters', 'avgangsters');
+        //REFRESH UI :
+        $avheists = $this->cards->getCardsInLocation('avheists');
+        $avgangsters = $this->cards->getCardsInLocation('avgangsters');
+        $this->notify->all('setupAvailableCards','',[
+            'avheists'=> $avheists,
+            'avgangsters'=> $avgangsters,
+        ]);
 
         $this->gamestate->nextState('next');
     }

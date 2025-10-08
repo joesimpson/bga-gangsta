@@ -253,11 +253,7 @@ define([
                     }
                 }
 
-                for (let i in this.gamedatas.avheists) {
-                    var heist = this.gamedatas.avheists[i];
-                    this.avheists.addToStockWithId(heist.type, heist.id);
-                    this.addGangstaTip(heist.type, 'heist', this.avheists.getItemDivId(heist.id));
-                }
+                this.displayAvailableHeists(this.gamedatas.avheists);
 
                 for (let i in this.gamedatas.activesnitch) {
                     var s = this.gamedatas.activesnitch[i];
@@ -278,11 +274,7 @@ define([
                     this.avgangsters.addItemType(gangster_type, 1, g_gamethemeurl + 'img/gangsters_sprite.jpg', card_type_id);
                 }
 
-                for (let i in this.gamedatas.avgangsters) {
-                    var gangster = this.gamedatas.avgangsters[i];
-                    this.avgangsters.addToStockWithId(gangster.type, gangster.id);
-                    this.addGangstaTip(gangster.type, 'gangster', this.avgangsters.getItemDivId(gangster.id));
-                }
+                this.displayAvailableGangsters(this.gamedatas.avgangsters);
 
                 //console.log('  Starting to fill Tableau for players');
                 var sortedTableau = [];
@@ -408,6 +400,7 @@ define([
             },
 
             enteringResourcesSelection: function (args) {
+                document.getElementById("avdecks").classList.add("no_display");
                 if(this.isSpectator) return;
 
                 this.possibleCards = [];
@@ -566,21 +559,15 @@ define([
             //                 You can use this method to perform some user interface changes at this moment.
             //
             onLeavingState: function (stateName) {
-                //console.log( 'Leaving state: '+stateName );
+                debug( 'Leaving state: ',stateName );
                 this.hideSkillCounter();
                 switch (stateName) {
 
-                    /* Example:
-
-                    case 'myGameState':
-
-                        // Hide the HTML block we are displaying only during this game state
-                        dojo.style( 'my_html_block_id', 'display', 'none' );
-
-                        break;
-                   */
                     case 'resourcesSelection':
                         dojo.empty('av_resources');
+                        break;
+                    case 'resourcesSetup':
+                        document.getElementById("avdecks").classList.remove("no_display");
                         break;
                     case 'rewardTap':
                         break;
@@ -731,6 +718,25 @@ define([
                 }
                 var tipHtml = this.format_block('jstpl_tooltip', tpl);
                 this.addTooltipHtml(divId, tipHtml);
+            },
+
+            displayAvailableHeists: function (datas) {
+                debug("displayAvailableHeists",datas);
+                for (let i in datas) {
+                    var heist = datas[i];
+                    this.avheists.addToStockWithId(heist.type, heist.id);
+                    this.addGangstaTip(heist.type, 'heist', this.avheists.getItemDivId(heist.id));
+                }
+                this.avheists.updateDisplay();
+            },
+            displayAvailableGangsters: function (datas) {
+                debug("displayAvailableGangsters",datas);
+                for (let i in datas) {
+                    var gangster = datas[i];
+                    this.avgangsters.addToStockWithId(gangster.type, gangster.id);
+                    this.addGangstaTip(gangster.type, 'gangster', this.avgangsters.getItemDivId(gangster.id));
+                }
+                this.avgangsters.updateDisplay();
             },
 
             isReadOnly: function () {
@@ -1577,6 +1583,10 @@ define([
                 this.notifqueue.setSynchronous('selectedResource', 800);
                 dojo.subscribe('selectedResourcePublic', this, "notif_selectedResourcePublic");
                 this.notifqueue.setSynchronous('selectedResourcePublic', 800);
+                
+                dojo.subscribe('setupAvailableCards', this, "notif_setupAvailableCards");
+                this.notifqueue.setSynchronous('setupAvailableCards', 500);
+
                 dojo.subscribe('recruitGangster', this, "notif_recruitGangster");
                 this.notifqueue.setSynchronous('recruitGangster', 500);
                 //this.notifqueue.setSynchronous( 'recruitGangster', 1000 );
@@ -1635,6 +1645,16 @@ define([
                 //console.log( 'notif_nothing' );
                 //console.log( notif );
             },
+
+            notif_setupAvailableCards: async function (notif) {
+                debug( 'notif_setupAvailableCards', notif );
+                this.gamedatas.avheists = notif.args.avheists;
+                this.gamedatas.avgangsters = notif.args.avgangsters;
+                document.getElementById("avdecks").classList.remove("no_display");
+                this.displayAvailableHeists(this.gamedatas.avheists);
+                this.displayAvailableGangsters(this.gamedatas.avgangsters);
+            },
+
 
             notif_selectedResource: async function (notif) {
                 debug( 'notif_selectedResource ... private card',notif );
