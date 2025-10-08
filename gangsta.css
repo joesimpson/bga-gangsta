@@ -154,10 +154,11 @@ div.tableWindow table {
     width: 110px;
     height: 154px;
 }
-.cardTip, .cardTip .card_sized {
+.cardTip, .resource_card_tooltip .card_sized{
     width:220px;
     height:308px;
 }
+
 .resource_card {
     position: absolute;
     top: 0;
@@ -228,6 +229,27 @@ div.tableWindow table {
 .resource_card[data-type="912"] {
   background-position-y: 100%;
   background-position-x: 100%;
+}
+.resource_card_tooltip .card_wrap{
+    margin-bottom: 5px !important; 
+}
+.resource_card_tooltip{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.resource_card_tooltip hr{
+    width: 100%;
+}
+.resource_card_tooltip .resource_card_details{
+    font-size: 1.5em;
+    display: flex;
+    flex-direction: column;
+}
+.resource_ability_value .reward-icon{
+    vertical-align: middle;
+    margin: 0 1px;
 }
 
 .playertableau{
@@ -1039,7 +1061,7 @@ div.tableWindow table {
     font-size: 1em;
     line-height: 1.4;
 }
-#game-help .reward-icon {
+.reward-icon, .resource_card_tooltip .reward-icon{
     display: inline-block;
     width: 40px;
     height: 40px;
@@ -1050,7 +1072,7 @@ div.tableWindow table {
 #game-help .reward-icon.reward-income {
     background-position: 0 -40px;
 }
-#game-help .reward-icon.reward-influence {
+.reward-icon.reward-influence {
     background-position: 0 0;
 }
 #game-help .reward-icon.reward-recruitement {
@@ -1059,7 +1081,7 @@ div.tableWindow table {
 #game-help .reward-icon.reward-play {
     background-position: -40px -160px;
 }
-#game-help .reward-icon.reward-theft {
+.reward-icon.reward-theft {
     background-position: 0 -120px;
 }
 #game-help .reward-icon.reward-diversion {
@@ -1071,7 +1093,7 @@ div.tableWindow table {
 #game-help .reward-icon.reward-rallying {
     background-position: -160px -160px;
 }
-#game-help .reward-icon.reward-coop {
+.reward-icon.reward-coop {
     background-position: -240px -160px;
 }
 #game-help .reward-learning {

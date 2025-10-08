@@ -2791,6 +2791,7 @@ $this->gangster_type = array(
 
 $this->resource_types = [
     901 => [
+        'ability' => 1,
         'influence' => 3,
         'name' => clienttranslate('Police station'),
         'cost' => [
@@ -2803,6 +2804,7 @@ $this->resource_types = [
         ],
     ],
     902 => [
+        'ability' => 2,
         'influence' => 5,
         'name' => clienttranslate('Black market'),
         'cost' => [
@@ -2815,6 +2817,7 @@ $this->resource_types = [
         ],
     ],
     903 => [
+        'ability' => 3,
         'influence' => 2,
         'name' => clienttranslate('Headquarters'),
         'cost' => [
@@ -2827,6 +2830,7 @@ $this->resource_types = [
         ],
     ],
     904 => [
+        'ability' => 4,
         'influence' => 3,
         'name' => clienttranslate('Counterfeit Printing'),
         'cost' => [
@@ -2839,6 +2843,7 @@ $this->resource_types = [
         ],
     ],
     905 => [
+        'ability' => 5,
         'influence' => 4,
         'name' => clienttranslate('Private jet'),
         'cost' => [
@@ -2851,6 +2856,7 @@ $this->resource_types = [
         ],
     ],
     906 => [
+        'ability' => 6,
         'influence' => 0,
         'name' => clienttranslate('Media'),
         'cost' => [
@@ -2863,6 +2869,7 @@ $this->resource_types = [
         ],
     ],
     907 => [
+        'ability' => 7,
         'influence' => 4,
         'name' => clienttranslate('High tech equipment'),
         'cost' => [
@@ -2875,6 +2882,7 @@ $this->resource_types = [
         ],
     ],
     908 => [
+        'ability' => 8,
         'influence' => 3,
         'name' => clienttranslate('Secret society'),
         'cost' => [
@@ -2887,6 +2895,7 @@ $this->resource_types = [
         ],
     ],
     909 => [
+        'ability' => 9,
         'influence' => 4,
         'name' => clienttranslate('Bank'),
         'cost' => [
@@ -2899,6 +2908,7 @@ $this->resource_types = [
         ],
     ],
     910 => [
+        'ability' => 10,
         'influence' => 3,
         'name' => clienttranslate('Bikers gang'),
         'cost' => [
@@ -2911,6 +2921,7 @@ $this->resource_types = [
         ],
     ],
     911 => [
+        'ability' => 11,
         'influence' => 5,
         'name' => clienttranslate('Hospital'),
         'cost' => [
@@ -2923,6 +2934,7 @@ $this->resource_types = [
         ],
     ],
     912 => [
+        'ability' => 12,
         'influence' => 2,
         'name' => clienttranslate('Indicator Network'),
         'cost' => [

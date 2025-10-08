@@ -297,6 +297,12 @@ define([
                 if (!this.isSpectator) {
                     dojo.place(this.format_block('jstpl_skillcounter', {
                         "LABEL_REQUIRED_SKILLS": _("Required Skills :"),
+                        'skill_1_value': 0,
+                        'skill_2_value': 0,
+                        'skill_3_value': 0,
+                        'skill_4_value': 0,
+                        'skill_5_value': 0,
+                        'skill_6_value': 0,
                     }), dojo.query('.current_player .playertableau')[0], "before");
                 }
                 //adding buttons on heist interface.
@@ -397,11 +403,11 @@ define([
                         this.possibleCards = args._private.cards;
                     }
                 } 
-                let confirmMessage = _('Confirm ${resource_name}');
+                let confirmMessage = _('Confirm ${name}');
                 
                 this.selectedResource = null;
                 if(!$(`btnConfirmResource`)){
-                    this.addActionButton('btnConfirmResource', dojo.string.substitute(confirmMessage, {resource_name:''}), () => {
+                    this.addActionButton('btnConfirmResource', this.format_string(confirmMessage, {name:''}), () => {
                         this.bgaPerformAction('actSelectResource', { c: selectedResource });
                     }, null, false, 'blue');
                 }
@@ -417,7 +423,7 @@ define([
                             }
                             this.selectedResource = card.id;
                             cardDiv.classList.add('selected');
-                            $('btnConfirmResource').innerHTML = dojo.string.substitute(confirmMessage, { resource_name: _(card.name) });
+                            $('btnConfirmResource').innerHTML = this.format_string(confirmMessage, { name: _(card.name) });
                             $(`btnConfirmResource`).classList.remove('disabled');
                         });
                     }
@@ -781,22 +787,56 @@ define([
 
                 delete this.gamedatas.tableau[cardid];
             },
+
+            
+            formatResourceCardAbilityText: function (abilityValue) {
+                let descriptionMap = new Map([
+                    [1, this.format_string(_('Never pay more than $${n} to the bank when a Snitch is revealed. The usual rules apply if you are unable to shell out $${n}.'),{n:1 })],
+                    [2, this.format_string(_('Receive + $${n} when you Pass your Turn.'),{n:2 })],
+                    [3, this.format_string(_('Pay $${n} to make your entire gang available'),{ n:1})],
+                    [4, this.format_string(_('Receive $${n} at the beginning of each of your turns. Discard the Counterfeit printing card during the gang war and place it with your stored Heist Cards.'),{n:1 })],
+                    [5, this.format_string(_('If you just performed or participated in a Cooperative Heist ${icon_coop}, make any of your gangsters Available.'),{ icon_coop:'<span class="reward-icon reward-coop"></span>' })],
+                    [6, this.format_string(_('Receive ${n} influence ${icon_influence} at the end of the game for each stored heist wich includes Influence Points (with a maximum of ${max}).'),{n:1,max:7, icon_influence: '<span class="reward-icon reward-influence"></span>'})],
+                    [7, this.format_string(_(''),{ })],
+                    [8, this.format_string(_('At the end of your turn, make one of your leaders ${icon_leader} available for free.'),{icon_leader: `<span class="skill leader"></span>` })],
+                    [9, this.format_string(_('Store up to $${n} in the bank. This money cannot be targeted by a Theft ${icon_theft}. You can transfer or withdraw money into or from the bank at any time during your turn.'),{n:10, icon_theft: '<span class="reward-icon reward-theft"></span>' })],
+                    [10, this.format_string(_(''),{ })],
+                    [11, this.format_string(_(''),{ })],
+                    [12, this.format_string(_(''),{ })],
+                ]);
+                let description = descriptionMap.get(abilityValue);
+                return description;
+            },
+            prepareTplDatasForResourceCard: function (cardDatas) {
+                let tplCardDatas = {
+                    'id': cardDatas.id,
+                    'type': cardDatas.type,
+                    'name': _(cardDatas.name),
+                    'state': cardDatas.state,
+                    'ability': this.format_string( _('Ability when active : ${ability}') , {'ability': '<span class="resource_ability_value">'+this.formatResourceCardAbilityText(cardDatas.ability)+'</span>'}),
+                    'required_skills_label': _('Required Skills :'),
+                    'skill_1_value': cardDatas.cost[1],
+                    'skill_2_value': cardDatas.cost[2],
+                    'skill_3_value': cardDatas.cost[3],
+                    'skill_4_value': cardDatas.cost[4],
+                    'skill_5_value': cardDatas.cost[5],
+                    'skill_6_value': cardDatas.cost[6],
+                    'LABEL_INFLUENCE': this.format_string( _('End game influence when active : ${influence}') , {'influence': '<span class="resource_influence_value">'+cardDatas.influence+'</span>'}),
+                };
+                return tplCardDatas;
+            },
             
             addResourceCardInAvailable: function (cardDatas) {
                 debug('addResourceCardInAvailable',cardDatas);
                 let cardDiv = $('resource_card_' + cardDatas.id);
                 if (cardDiv) return cardDiv;
 
-                dojo.place(this.format_block('jstpl_resource_card', {
-                    'id': cardDatas.id,
-                    'type': cardDatas.type,
-                    'name': _(cardDatas.name),
-                    'state': cardDatas.state,
-                }), 'av_resources');
-
-                //TODO JSA TOOLTIP with details
+                let tplCardDatas = this.prepareTplDatasForResourceCard(cardDatas);
+                dojo.place(this.format_block('jstpl_resource_card', tplCardDatas), 'av_resources');
 
                 cardDiv = $('resource_card_' + cardDatas.id);
+                let tipHtml = this.format_block('jstpl_tooltip_resource', tplCardDatas);
+                this.addTooltipHtml(cardDiv.id, tipHtml);
                 return cardDiv;
             },
 
@@ -806,17 +846,11 @@ define([
                 if (cardDiv) return cardDiv;
 
                 let card_owner = cardDatas.location_arg;
-                let tplCardDatas = {
-                    'id': cardDatas.id,
-                    'type': cardDatas.type,
-                    'name': _(cardDatas.name),
-                    'state': cardDatas.state,
-                };
+                let tplCardDatas = this.prepareTplDatasForResourceCard(cardDatas);
                 dojo.place(this.format_block('jstpl_resource_card',tplCardDatas ), `player_resource_cards_${card_owner}`);
                 
                 cardDiv = $('resource_card_' + cardDatas.id);
 
-                //TODO JSA TOOLTIP with details
                 let tipHtml = this.format_block('jstpl_tooltip_resource', tplCardDatas);
                 this.addTooltipHtml(cardDiv.id, tipHtml);
 

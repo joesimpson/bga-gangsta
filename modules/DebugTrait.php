@@ -84,7 +84,14 @@ trait DebugTrait
     $this->trace("debug_KillByHeist - END ////////////////////////////////////////////////////");
   }
 
-  
+  //Test  all resource cards images and tooltips
+  function debug_allResourcesInDraft(){
+    $playerId = $this->getCurrentPlayerId();
+    self::DbQuery("UPDATE `card` set card_location ='rc_draft', card_location_arg ='$playerId' where card_location ='rc_deck' ");
+    
+    $this->notify->all('reloadPage', "/!\ : Refresh page to see cards...", []);
+  }
+
   function debug_actSelectResource(int $cardId = 0){
     $this->actSelectResource($cardId);
   }

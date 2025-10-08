@@ -447,7 +447,11 @@ class Gangsta extends Table {
     function fillResourceCardsInfo(array &$cards){
         foreach($cards as $id => &$card){
             $card_type = $card['type'];
-            $card['name'] = $this->resource_types[$card_type]['name'];
+            $cardMaterial = $this->resource_types[$card_type];
+            $card['name'] = $cardMaterial['name'];
+            $card['influence'] = $cardMaterial['influence'];
+            $card['ability'] = $cardMaterial['ability'];
+            $card['cost'] = $cardMaterial['cost'];
 
             $card['state'] = $this->getCardState($id);
         }

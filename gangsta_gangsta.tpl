@@ -65,7 +65,43 @@
 
   var jstpl_boardblock = "";
 
-  var jstpl_tooltip_resource = '<div class="cardTip">'+jstpl_resource_card+'</div>';
+  var jstpl_required_skills = '\
+          <span id="skill_1">\
+            <span class="skill leader"></span>\
+            <span id="skill_1_value">${skill_1_value}</span>\
+          </span>\
+          <span id="skill_2">\
+            <span class="skill mercenary"></span>\
+            <span id="skill_2_value">${skill_2_value}</span>\
+          </span>\
+          <span id="skill_3">\
+            <span class="skill informant"></span>\
+            <span id="skill_3_value">${skill_3_value}</span>\
+          </span>\
+          <span id="skill_4">\
+            <span class="skill sniper"></span>\
+            <span id="skill_4_value">${skill_4_value}</span>\
+          </span>\
+          <span id="skill_5">\
+            <span class="skill brawler"></span>\
+            <span id="skill_5_value">${skill_5_value}</span>\
+          </span>\
+          <span id="skill_6">\
+            <span class="skill hacker"></span>\
+            <span id="skill_6_value">${skill_6_value}</span>\
+          </span>\
+      </span>';
+  var jstpl_tooltip_resource = '<div class="resource_card_tooltip">\
+    <h1>${name}</h1>'+jstpl_resource_card+'\
+    <div class="resource_card_details">\
+      <span class="resource_required_skills">\
+        ${required_skills_label}\
+        '+jstpl_required_skills+'\
+      <hr>\
+      <span class="resource_influence_label">${LABEL_INFLUENCE}</span>\
+      <hr>\
+      <span class="resource_ability">${ability}</span>\
+    </div></div>';
   var jstpl_tooltip = '<div class="cardTip ${classes}" style="background-position: -${backx}% -${backy}%;"></div>';
 
   var jstpl_coin = '<div class="coin" style="z-index:10"></div>';
@@ -74,30 +110,7 @@
   var jstpl_skillcounter =
   '<div id="skillcounter" class="roundedbox" style="text-align:center;display:none;">\
     <span id="skillcounter_text">${LABEL_REQUIRED_SKILLS}\
-      <span id="skill_1">\
-        <span class="skill leader"></span>\
-        <span id="skill_1_value">0</span>\
-      </span>\
-      <span id="skill_2">\
-        <span class="skill mercenary"></span>\
-        <span id="skill_2_value">0</span>\
-      </span>\
-      <span id="skill_3">\
-        <span class="skill informant"></span>\
-        <span id="skill_3_value">0</span>\
-      </span>\
-      <span id="skill_4">\
-        <span class="skill sniper"></span>\
-        <span id="skill_4_value">0</span>\
-      </span>\
-      <span id="skill_5">\
-        <span class="skill brawler"></span>\
-        <span id="skill_5_value">0</span>\
-      </span>\
-      <span id="skill_6">\
-        <span class="skill hacker"></span>\
-        <span id="skill_6_value">0</span>\
-      </span>\
+        '+jstpl_required_skills+'\
       <span id="skill_confirm_holder"></span>\
       <span id="skill_cancel_holder"></span>\
     </span>\
