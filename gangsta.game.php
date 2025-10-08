@@ -26,6 +26,7 @@ const CARD_RESOURCE_LOCATION_DECK = 'rc_deck';
 const CARD_RESOURCE_LOCATION_DISCARD = 'rc_discard';
 const CARD_RESOURCE_LOCATION_DRAFT = 'rc_draft';
 const CARD_RESOURCE_LOCATION_HAND = 'rc_hand';
+const CARD_RESOURCE_LOCATION_FUTURE_HAND = 'rc_hand_future';
 
 const CARD_RESOURCE_STATE_INACTIVE = 0;
 const CARD_RESOURCE_STATE_ACTIVE = 1;
@@ -318,9 +319,12 @@ class Gangsta extends Table {
         $result['gangster_type'] = $this->gangster_type;
 
         // Cards in locations.
-        $playerResources = $this->cards->getCardsInLocation(CARD_RESOURCE_LOCATION_HAND);
-        $this->fillResourceCardsInfo($playerResources);
-        $result['resources'] = $playerResources;
+        $visibleResources = $this->cards->getCardsInLocation([CARD_RESOURCE_LOCATION_FUTURE_HAND,CARD_RESOURCE_LOCATION_HAND]);
+        $visibleResources = array_filter($visibleResources, function ($resource) use ( $current_player_id){
+            return $resource['location'] == CARD_RESOURCE_LOCATION_HAND ||$resource['location_arg'] == $current_player_id;
+        });
+        $this->fillResourceCardsInfo($visibleResources);
+        $result['resources'] = $visibleResources;
         $result['avheists'] = $this->cards->getCardsInLocation('avheists');
         $result['avgangsters'] = $this->cards->getCardsInLocation('avgangsters');
         $result['activesnitch'] = $this->cards->getCardsInLocation('activesnitch');
@@ -689,7 +693,7 @@ class Gangsta extends Table {
         //Action effect : MOVE 1 RESOURCE CARD and discard others (for this player only !)
         foreach($selectableCards as $scId => $selectableCard){
             if($scId == $cardId){
-                $this->cards->moveCard($scId, CARD_RESOURCE_LOCATION_HAND,$player_id );
+                $this->cards->moveCard($scId, CARD_RESOURCE_LOCATION_FUTURE_HAND,$player_id );
             }
             else {
                 $this->cards->moveCard($scId, CARD_RESOURCE_LOCATION_DISCARD,$player_id );
@@ -1648,14 +1652,16 @@ class Gangsta extends Table {
     { 
         self::trace("stResourcesSetup()");
 
-        $selectionDone = (0 < $this->cards->countCardsInLocation(CARD_RESOURCE_LOCATION_HAND) );
+        $selectionDone = (0 < $this->cards->countCardsInLocation(CARD_RESOURCE_LOCATION_FUTURE_HAND) );
         if($selectionDone){
             //Check selection has not been done because we come back here again right after selection
             //NOTIFY selection to everyone
-            $resources = $this->cards->getCardsInLocation(CARD_RESOURCE_LOCATION_HAND );
+            $resources = $this->cards->getCardsInLocation(CARD_RESOURCE_LOCATION_FUTURE_HAND );
             $this->fillResourceCardsInfo($resources);
-            foreach($resources as $resource){
+            foreach($resources as $resourceId => $resource){
                 $owner_id = $resource['location_arg'];
+                $this->cards->moveCard($resourceId, CARD_RESOURCE_LOCATION_HAND,$owner_id );
+                $resource['location'] = CARD_RESOURCE_LOCATION_HAND;
                 $this->notify->all('selectedResourcePublic',clienttranslate('${player_name} will play with this resource card : ${resource_name}'),[
                     'i18n' => ['resource_name'],
                     'player_id' => $owner_id,

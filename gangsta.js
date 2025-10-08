@@ -297,7 +297,7 @@ define([
                 }
                 
                 Object.values(this.gamedatas.resources).forEach((card) => {
-                    if(card.location == 'rc_hand'){
+                    if(card.location == 'rc_hand' || card.location == 'rc_hand_future'){
                         let cardDiv = this.addResourceCardInHand(card);
                     }
                 });
@@ -894,14 +894,14 @@ define([
                 return cardDiv;
             },
 
-            addResourceCardInHand: function (cardDatas) {
+            addResourceCardInHand: async function (cardDatas) {
                 debug('addResourceCardInHand',cardDatas);
                 let cardDiv = $('resource_card_' + cardDatas.id);
                 if (cardDiv) return cardDiv;
 
                 let card_owner = cardDatas.location_arg;
                 let tplCardDatas = this.prepareTplDatasForResourceCard(cardDatas);
-                dojo.place(this.format_block('jstpl_resource_card',tplCardDatas ), `player_resource_cards_${card_owner}`);
+                await dojo.place(this.format_block('jstpl_resource_card',tplCardDatas ), `player_resource_cards_${card_owner}`);
                 
                 cardDiv = $('resource_card_' + cardDatas.id);
 
@@ -1654,7 +1654,8 @@ define([
                 let card = notif.args.card;
                 let player_id = notif.args.player_id;
                 let cardDiv = $('card_wrap_' + card.id);
-                if(!cardDiv) this.addResourceCardInHand(card);
+                if(!cardDiv) await this.addResourceCardInHand(card);
+                cardDiv = $('card_wrap_' + card.id);
                 await this.animationManager.fadeIn(cardDiv, $('av_resources'));
             },
 
