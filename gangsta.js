@@ -1584,6 +1584,9 @@ define([
                 dojo.subscribe('selectedResourcePublic', this, "notif_selectedResourcePublic");
                 this.notifqueue.setSynchronous('selectedResourcePublic', 800);
                 
+                dojo.subscribe('activeResource', this, "notif_activeResource");
+                this.notifqueue.setSynchronous('activeResource', 800);
+
                 dojo.subscribe('setupAvailableCards', this, "notif_setupAvailableCards");
                 this.notifqueue.setSynchronous('setupAvailableCards', 500);
 
@@ -1677,6 +1680,17 @@ define([
                 if(!cardDiv) await this.addResourceCardInHand(card);
                 cardDiv = $('card_wrap_' + card.id);
                 await this.animationManager.fadeIn(cardDiv, $('av_resources'));
+            },
+            
+            notif_activeResource: async function (notif) {
+                debug( 'notif_activeResource ...',notif );
+
+                let card = notif.args.card;
+                let player_id = notif.args.player_id;
+                let cardDiv = $('card_wrap_' + card.id);
+
+                //TODO JSA ANIM ROTATE ?
+                cardDiv.dataset.state = 1;//CARD_RESOURCE_STATE_ACTIVE
             },
 
             notif_recruitGangster: function (notif) {

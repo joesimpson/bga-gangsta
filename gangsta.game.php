@@ -492,6 +492,47 @@ class Gangsta extends Table {
         return $tapped;
     }
 
+    function getHandResourceCard(int $player_id) : array|null {
+        $cards = $this->cards->getCardsInLocation(CARD_RESOURCE_LOCATION_HAND,$player_id);
+        $this->fillResourceCardsInfo($cards);
+        if(isset($cards) && count($cards)>0) return array_values($cards)[0];
+        return null;
+    }
+
+    /**
+     * CHECK IF Enough skills to activate player resource card
+     */
+    function checkResourceCardActivation(int $player_id) {
+        $resourceCard = $this->getHandResourceCard($player_id);
+        if(!isset($resourceCard)) return;
+        $activeState = CARD_RESOURCE_STATE_ACTIVE;
+        if($resourceCard['state'] == $activeState) return;
+
+        $resourceCardId = $resourceCard['id'];
+        $availableSkills = $this->getAllTeamSkill($player_id);
+
+        $enoughSkills = true;
+        foreach ($resourceCard['cost'] as $skillId => $sValue) {
+            if ($sValue > $availableSkills[$skillId]) {
+                $enoughSkills = false;
+            }
+        }
+
+        if($enoughSkills) {
+            $resourceCard['state'] = $activeState;
+            $sql = "UPDATE card SET card_state = $activeState where card_id = $resourceCardId";
+            self::DbQuery($sql);
+            $this->notify->all('activeResource',clienttranslate('${player_name} actives their resource card : ${resource_name}'),[
+                    'i18n' => ['resource_name'],
+                    'player_id' => $player_id,
+                    'player_name' => $this->getPlayerNameById($player_id),
+                    'card'=> $resourceCard,
+                    'resource_name'=> $resourceCard['name'],
+
+                ]);
+        }
+    }
+
     function getCompetenceCount($player_id,
                                 $competence,
                                 $onlyUntapped) {
@@ -546,7 +587,7 @@ class Gangsta extends Table {
     function getAllTeamSkill($player_id) { //return a 0 based skill array (with 0 skill as dummy skill)
         $skills = [0, 0, 0, 0, 0, 0, 0];
 
-        $gangstersInTeam = getCardsForPlayer($player_id);
+        $gangstersInTeam = $this->getCardsForPlayer($player_id);
 
         foreach ($gangstersInTeam as $gid => $gCard) {
             for ($i = 1; $i < 7; $i++) {
@@ -1038,6 +1079,9 @@ class Gangsta extends Table {
         //         'gangster_influence' => $old_values[$player_id]['public_score']+$score,
         //     ));
         // }
+
+        $this->checkResourceCardActivation($player_id);
+
         $this->gamestate->nextState('checkPhase');
     }
 
