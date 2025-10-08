@@ -20,11 +20,12 @@ var debug = isDebug ? console.info.bind(window.console) : function () {};
 
 define([
         "dojo", "dojo/_base/declare",
+        getLibUrl('bga-animations', '1.x'),
         "ebg/core/gamegui",
         "ebg/counter",
         "ebg/stock",
     ],
-    function (dojo, declare) {
+    function (dojo, declare, BgaAnimations) {
         return declare("bgagame.gangsta", ebg.core.gamegui, {
             constructor: function () {
                 //console.log('gangsta constructor');
@@ -50,6 +51,9 @@ define([
                 this.possibleTargets = [];
                 this.currentHeist = null;
                 this.isPublicVariant = false;
+                
+                this._connections = [];
+                this._selectableNodes = [];
                 this.skillCount = class {
                     needed = null;
                     gangsters = [];
@@ -169,6 +173,10 @@ define([
                 //console.log( "Starting game setup" );
                 console.log(gamedatas);
 
+                // create the animation manager, and bind it to the `game.bgaAnimationsActive()` function
+                this.animationManager = new BgaAnimations.Manager({
+                    animationsActive: () => this.bgaAnimationsActive(),
+                });
                 // Setting up player boards
                 var nb_players = 0;
 
@@ -414,7 +422,7 @@ define([
                 Object.values(this.possibleCards).forEach((card) => {
                     let cardDiv = this.addResourceCardInAvailable(card);
                     cardDiv.classList.add('selectable');
-                    dojo.connect(cardDiv, 'onclick', this, () => {
+                    this.onClick(cardDiv.id, () => {
                         if (this.isCurrentPlayerActive()) {
                             if (this.selectedResource){
                                 $(`resource_card_${this.selectedResource}`).classList.remove('selected');
@@ -571,6 +579,9 @@ define([
 
                         break;
                    */
+                    case 'resourcesSelection':
+                        dojo.empty('av_resources');
+                        break;
                     case 'rewardTap':
                         break;
                     case 'rewardKill':
@@ -586,11 +597,9 @@ define([
                     case 'dummmy':
                         break;
                 }
-                dojo.query('.selectable').removeClass('selectable');
-                dojo.query('.selected').removeClass('selected');
+                this.clearPossibleSelection();
                 this.avheists.unselectAll();
                 this.avgangsters.unselectAll();
-                dojo.empty('customActions');
             },
 
             // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
@@ -667,6 +676,41 @@ define([
             //// Utility methods
 
             // Here, you can defines some utility methods that you can use everywhere in your javascript script.
+
+            clearPossibleSelection() {
+                debug('clearPossibleSelection()' );
+                dojo.empty('customActions');
+
+                this._connections.forEach(dojo.disconnect);
+                this._connections = [];
+                this._selectableNodes.forEach((node) => {
+                    if ($(node)) dojo.removeClass(node, 'selectable selected');
+                });
+                this._selectableNodes = [];
+                dojo.query('.selectable').removeClass('selectable');
+                dojo.query('.selected').removeClass('selected');
+            },
+            /*
+            * Custom connect that keep track of the connections
+            */
+            connect(node, action, callback) {
+                this._connections.push(dojo.connect($(node), action, callback));
+            },
+            onClick(node, callback, temporary = true) {
+                let safeCallback = (evt) => {
+                    evt.stopPropagation();
+                    if (this.isInterfaceLocked()) return false;
+                    callback(evt);
+                };
+
+                if (temporary) {
+                    this.connect($(node), 'click', safeCallback);
+                    dojo.addClass(node, 'selectable');
+                    this._selectableNodes.push(node);
+                } else {
+                    dojo.connect($(node), 'click', safeCallback);
+                }
+            },
 
             // Returns true for spectators, instant replay (during game), archive mode (after game end)
             addGangstaTip: function (cardTypeId, type, divId) {
@@ -1529,6 +1573,10 @@ define([
                 // everyoneTapped (no gangster to tap)
                 // nobodyKillable (nobody has exactly 2 skills)
 
+                dojo.subscribe('selectedResource', this, "notif_selectedResource");
+                this.notifqueue.setSynchronous('selectedResource', 800);
+                dojo.subscribe('selectedResourcePublic', this, "notif_selectedResourcePublic");
+                this.notifqueue.setSynchronous('selectedResourcePublic', 800);
                 dojo.subscribe('recruitGangster', this, "notif_recruitGangster");
                 this.notifqueue.setSynchronous('recruitGangster', 500);
                 //this.notifqueue.setSynchronous( 'recruitGangster', 1000 );
@@ -1586,6 +1634,28 @@ define([
             notif_nothing: function (notif) {
                 //console.log( 'notif_nothing' );
                 //console.log( notif );
+            },
+
+            notif_selectedResource: async function (notif) {
+                debug( 'notif_selectedResource ... private card',notif );
+
+                let card = notif.args.card;
+                let cardDiv = $('card_wrap_' + card.id);
+                if(!cardDiv) this.addResourceCardInHand(card);
+                let destinationDiv = document.getElementById(`player_resource_cards_${this.player_id}`);
+                await this.animationManager.slideAndAttach(cardDiv, destinationDiv);
+
+                dojo.empty('av_resources');
+            },
+            
+            notif_selectedResourcePublic: async function (notif) {
+                debug( 'notif_selectedResourcePublic ... public card',notif );
+
+                let card = notif.args.card;
+                let player_id = notif.args.player_id;
+                let cardDiv = $('card_wrap_' + card.id);
+                if(!cardDiv) this.addResourceCardInHand(card);
+                await this.animationManager.fadeIn(cardDiv, $('av_resources'));
             },
 
             notif_recruitGangster: function (notif) {

@@ -1656,7 +1656,7 @@ class Gangsta extends Table {
             $this->fillResourceCardsInfo($resources);
             foreach($resources as $resource){
                 $owner_id = $resource['location_arg'];
-                $this->notify->all('selectedResourcePublic',clienttranslate('${player_name} will play with ${resource_name}'),[
+                $this->notify->all('selectedResourcePublic',clienttranslate('${player_name} will play with this resource card : ${resource_name}'),[
                     'i18n' => ['resource_name'],
                     'player_id' => $owner_id,
                     'player_name' => $this->getPlayerNameById($owner_id),
