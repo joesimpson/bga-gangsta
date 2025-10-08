@@ -66,17 +66,17 @@ define([
                     }
 
                     hideSkill(skill) {
-                        dojo.query('#skill_' + skill).style("display", "none");
+                        dojo.query('#skillcounter_text .skill_' + skill).style("display", "none");
                     }
 
                     showSkill(skill) {
-                        dojo.query('#skill_' + skill).style("display", "");
+                        dojo.query('#skillcounter_text .skill_' + skill).style("display", "");
                     }
 
                     updateText() {
                         //console.log("updateText");
                         this.needed.forEach((element, index) => {
-                            dojo.query("#skill_" + index + "_value").text(element);
+                            dojo.query("#skillcounter_text .skill_" + index + "_value").text(element);
                         });
                     }
 
