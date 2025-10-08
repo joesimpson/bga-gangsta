@@ -311,7 +311,10 @@ define([
                     this.addActionButton('cancel_heist_button', _('Cancel'), 'onCancelHeist', null, false, 'blue');
                     dojo.place('commit_heist_button', 'skill_confirm_holder');
                     dojo.place('cancel_heist_button', 'skill_cancel_holder');
+                    
                 }
+                // Create a new div for multi active buttons to avoid BGA auto clearing it
+                dojo.place("<div id='customActions' style='display:inline-block'></div>", $('generalactions'), 'after');
 
                 if (this.gamedatas['clan_variant'] == true) {
                     dojo.query('.board-family').removeClass('displaynone');
@@ -397,36 +400,41 @@ define([
             },
 
             enteringResourcesSelection: function (args) {
+                if(this.isSpectator) return;
+
                 this.possibleCards = [];
                 if(args._private !=undefined){
                     if(args._private.cards!=undefined){
                         this.possibleCards = args._private.cards;
                     }
                 } 
-                let confirmMessage = _('Confirm ${name}');
                 
                 this.selectedResource = null;
-                if(!$(`btnConfirmResource`)){
-                    this.addActionButton('btnConfirmResource', this.format_string(confirmMessage, {name:''}), () => {
-                        this.bgaPerformAction('actSelectResource', { c: selectedResource });
-                    }, null, false, 'blue');
-                }
-                $(`btnConfirmResource`).classList.add('disabled');
 
                 Object.values(this.possibleCards).forEach((card) => {
                     let cardDiv = this.addResourceCardInAvailable(card);
-                    if (this.isCurrentPlayerActive()) {
-                        cardDiv.classList.add('selectable');
-                        dojo.connect(cardDiv, 'onclick', this, () => {
+                    cardDiv.classList.add('selectable');
+                    dojo.connect(cardDiv, 'onclick', this, () => {
+                        if (this.isCurrentPlayerActive()) {
                             if (this.selectedResource){
                                 $(`resource_card_${this.selectedResource}`).classList.remove('selected');
                             }
                             this.selectedResource = card.id;
                             cardDiv.classList.add('selected');
-                            $('btnConfirmResource').innerHTML = this.format_string(confirmMessage, { name: _(card.name) });
-                            $(`btnConfirmResource`).classList.remove('disabled');
-                        });
-                    }
+                            this.confirmMessage = this.format_string(_('Confirm ${name}'), { name: _(card.name) });
+
+                            if($(`btnConfirmResource`)){
+                                $('btnConfirmResource').innerHTML = this.confirmMessage;
+                            }
+                            else {
+                                this.statusBar.addActionButton(this.confirmMessage, () => this.onConfirmResource(),{
+                                    id:'btnConfirmResource',
+                                    destination:$('customActions'),
+                                    disabled: false,
+                                });
+                            }
+                        }
+                    });
                 });
             },
 
@@ -582,6 +590,7 @@ define([
                 dojo.query('.selected').removeClass('selected');
                 this.avheists.unselectAll();
                 this.avgangsters.unselectAll();
+                dojo.empty('customActions');
             },
 
             // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
@@ -593,8 +602,7 @@ define([
                 if (this.isCurrentPlayerActive()) {
                     switch (stateName) {
                         case 'resourcesSelection':
-                            this.addActionButton('btnConfirmResource',  _('Confirm') , 'onConfirmResource');
-                            dojo.addClass('btnConfirmResource', 'disabled');
+                            //!\\ Multi active state
                             break;
                         case 'playerAction':
                             this.addActionButton('confRecruit_button', _('Recruit'), 'onConfRecruit');
@@ -650,6 +658,8 @@ define([
                                             break;
                         */
                     }
+                } else {
+                    dojo.empty('customActions');
                 }
             },
 
@@ -1098,11 +1108,15 @@ define([
             }, 
 
             onConfirmResource: function () {
-                if (!this.checkAction('actSelectResource')) {
+                if (!this.checkPossibleActions('actSelectResource')) {
                     return;
                 }
 
-                this.bgaPerformAction('actSelectResource', { c: this.selectedResource });
+                this.bgaPerformAction('actSelectResource', { c: this.selectedResource },
+                    {
+                        //checkAction:false,//allow user to replay while waiting for others
+                    }
+                );
             }, 
 
             onConfRecruit: function () {

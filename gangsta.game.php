@@ -664,8 +664,13 @@ class Gangsta extends Table {
      */
     function actSelectResource(int $cardId){
         self::checkAction( 'actSelectResource' ); 
+        //$this->gamestate->checkPossibleAction( 'actSelectResource' );
         self::trace("actSelectResource($cardId)");
         
+        if($this->isSpectator() || $this->isCurrentPlayerZombie()){
+            throw new \BgaVisibleSystemException("You cannot play now");
+        }
+
         $card = $this->getFullCardInfo($cardId);
         $player_id = self::getCurrentPlayerId();
         $args = $this->argResourcesSelection();
