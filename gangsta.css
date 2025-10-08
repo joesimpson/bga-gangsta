@@ -599,6 +599,10 @@ div.tableWindow table {
 .skill.brawler{
     background-position: -200% -200%;
 }
+.resource_card_details .required_skill[data-value="0"]{
+    display: none;
+}
+
 #skillcounter {
     padding: 0 5px;
     background-color: rgba(255,255,255, 0.6);

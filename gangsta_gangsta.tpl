@@ -66,27 +66,27 @@
   var jstpl_boardblock = "";
 
   var jstpl_required_skills = '\
-          <span class="skill_1">\
+          <span class="required_skill skill_1" data-value="${skill_1_value}">\
             <span class="skill leader"></span>\
             <span class="skill_1_value">${skill_1_value}</span>\
           </span>\
-          <span class="skill_6">\
+          <span class="required_skill skill_6" data-value="${skill_6_value}">\
             <span class="skill hacker"></span>\
             <span class="skill_6_value">${skill_6_value}</span>\
           </span>\
-          <span class="skill_4">\
+          <span class="required_skill skill_4" data-value="${skill_4_value}">\
             <span class="skill sniper"></span>\
             <span class="skill_4_value">${skill_4_value}</span>\
           </span>\
-          <span class="skill_5">\
+          <span class="required_skill skill_5" data-value="${skill_5_value}">\
             <span class="skill brawler"></span>\
             <span class="skill_5_value">${skill_5_value}</span>\
           </span>\
-          <span class="skill_3">\
+          <span class="required_skill skill_3" data-value="${skill_3_value}">\
             <span class="skill informant"></span>\
             <span class="skill_3_value">${skill_3_value}</span>\
           </span>\
-          <span class="skill_2">\
+          <span class="required_skill skill_2" data-value="${skill_2_value}">\
             <span class="skill mercenary"></span>\
             <span class="skill_2_value">${skill_2_value}</span>\
           </span>\
