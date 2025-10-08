@@ -70,13 +70,9 @@
             <span class="skill leader"></span>\
             <span class="skill_1_value">${skill_1_value}</span>\
           </span>\
-          <span class="skill_2">\
-            <span class="skill mercenary"></span>\
-            <span class="skill_2_value">${skill_2_value}</span>\
-          </span>\
-          <span class="skill_3">\
-            <span class="skill informant"></span>\
-            <span class="skill_3_value">${skill_3_value}</span>\
+          <span class="skill_6">\
+            <span class="skill hacker"></span>\
+            <span class="skill_6_value">${skill_6_value}</span>\
           </span>\
           <span class="skill_4">\
             <span class="skill sniper"></span>\
@@ -86,9 +82,13 @@
             <span class="skill brawler"></span>\
             <span class="skill_5_value">${skill_5_value}</span>\
           </span>\
-          <span class="skill_6">\
-            <span class="skill hacker"></span>\
-            <span class="skill_6_value">${skill_6_value}</span>\
+          <span class="skill_3">\
+            <span class="skill informant"></span>\
+            <span class="skill_3_value">${skill_3_value}</span>\
+          </span>\
+          <span class="skill_2">\
+            <span class="skill mercenary"></span>\
+            <span class="skill_2_value">${skill_2_value}</span>\
           </span>\
       </span>';
   var jstpl_tooltip_resource = '<div class="resource_card_tooltip">\
