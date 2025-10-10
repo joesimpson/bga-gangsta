@@ -401,7 +401,7 @@ class Gangsta extends Table {
             $result["skill_mercenary_$pid"] = ["counter_name" => "skill_mercenary_$pid", "counter_value" => 0];
             $result["skill_informant_$pid"] = ["counter_name" => "skill_informant_$pid", "counter_value" => 0];
             $result["panel_team_$pid"] = ["counter_name" => "panel_team_$pid", "counter_value" => 0];
-            $result["panel_t_pts_$pid"] = ["counter_name" => "panel_t_pts_$pid", "counter_value" => $pinfo['public_score']];
+            $result["panel_t_pts_$pid"] = ["counter_name" => "panel_t_pts_$pid", "counter_value" => 0];
             $result["panel_r_pts_$pid"] = ["counter_name" => "panel_r_pts_$pid", "counter_value" => $pinfo['resource_value']];
             $result["family_triad_$pid"] = ["counter_name" => "family_triad_$pid", "counter_value" => 0];
             $result["family_bratva_$pid"] = ["counter_name" => "family_bratva_$pid", "counter_value" => 0];
@@ -413,15 +413,20 @@ class Gangsta extends Table {
             }
         }
 
+        //Loop all gansgters in players's hand
         foreach ($cards as $cid => $cinfo) {
+            $gangster_pid = $cinfo['location_arg'];
+            $gangster_material = $this->gangster_type[$cinfo['type']];
             foreach ($this->skill_typeid as $sname => $sid) {
-                $result["skill_{$sname}_{$cinfo['location_arg']}"]["counter_value"] += $this->gangster_type[$cinfo['type']]['stats'][$sid];
+                $result["skill_{$sname}_$gangster_pid"]["counter_value"] += $gangster_material['stats'][$sid];
             }
             if ($cinfo['skill'] > 0) {
                 $result["skill_{$this->skill_name_invariant[$cinfo['skill']]}_{$cinfo['location_arg']}"]["counter_value"] += 1;
             }
             $result["panel_team_{$cinfo['location_arg']}"]["counter_value"] += 1;
-            $result["family_{$this->gangster_type[$cinfo['type']]['clan']}_{$cinfo['location_arg']}"]['counter_value'] += 1;
+            $result["family_{$gangster_material['clan']}_{$cinfo['location_arg']}"]['counter_value'] += 1;
+            
+            $result["panel_t_pts_$gangster_pid"]["counter_value"] += $gangster_material['influence'];
         }
 
         return $result;
@@ -553,9 +558,9 @@ class Gangsta extends Table {
 
         $current_score = 0;
         if ($this->isPublic) {
-            $current_score = $playerInfos['public_score'];
-        } else {
             $current_score = $playerInfos['player_score'];
+        } else {
+            $current_score = $playerInfos['public_score'];
         }
 
         $this->notify->all('scoreResource',clienttranslate('${player_name} scores ${n} influence points with the resource card ${resource_name}'),[
@@ -1064,7 +1069,7 @@ class Gangsta extends Table {
         self::DbQuery($sql);
 
         $current_score = $old_values[$player_id]['public_score'] + $score;
-        $team_score = $current_score;
+        $team_score = self::getStat('scoreFromGangster', $player_id);
         if ($this->isPublic) {
             $current_score = $old_values[$player_id]['player_score'] + $score;
         }
@@ -1105,7 +1110,7 @@ class Gangsta extends Table {
                 'player_id' => $player_id,
                 'new_influence' => $old_values[$player_id]['player_score'] + $score,
                 'heist_influence' => $heistScore,
-                'gangster_influence' => $old_values[$player_id]['public_score'] + $score,
+                'gangster_influence' => $team_score,
             ]);
         }
         // else{
@@ -1286,8 +1291,8 @@ class Gangsta extends Table {
             self::notifyPlayer($player_id, 'scoreUpdate', "", [
                 'player_id' => $player_id,
                 'new_influence' => $newvalues[$player_id]['player_score'],
-                'heist_influence' => $newvalues[$player_id]['player_score'] - $newvalues[$player_id]['public_score'],
-                'gangster_influence' => $newvalues[$player_id]['public_score'],
+                'heist_influence' => self::getStat('scoreFromHeist', $player_id),
+                'gangster_influence' => self::getStat('scoreFromGangster', $player_id),
             ]);
         }
 
