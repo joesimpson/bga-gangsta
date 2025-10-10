@@ -70,9 +70,13 @@
             <span class="skill leader"></span>\
             <span class="skill_1_value">${skill_1_value}</span>\
           </span>\
-          <span class="required_skill skill_6" data-value="${skill_6_value}">\
-            <span class="skill hacker"></span>\
-            <span class="skill_6_value">${skill_6_value}</span>\
+          <span class="required_skill skill_2" data-value="${skill_2_value}">\
+            <span class="skill mercenary"></span>\
+            <span class="skill_2_value">${skill_2_value}</span>\
+          </span>\
+          <span class="required_skill skill_3" data-value="${skill_3_value}">\
+            <span class="skill informant"></span>\
+            <span class="skill_3_value">${skill_3_value}</span>\
           </span>\
           <span class="required_skill skill_4" data-value="${skill_4_value}">\
             <span class="skill sniper"></span>\
@@ -82,13 +86,9 @@
             <span class="skill brawler"></span>\
             <span class="skill_5_value">${skill_5_value}</span>\
           </span>\
-          <span class="required_skill skill_3" data-value="${skill_3_value}">\
-            <span class="skill informant"></span>\
-            <span class="skill_3_value">${skill_3_value}</span>\
-          </span>\
-          <span class="required_skill skill_2" data-value="${skill_2_value}">\
-            <span class="skill mercenary"></span>\
-            <span class="skill_2_value">${skill_2_value}</span>\
+          <span class="required_skill skill_6" data-value="${skill_6_value}">\
+            <span class="skill hacker"></span>\
+            <span class="skill_6_value">${skill_6_value}</span>\
           </span>\
       </span>';
   var jstpl_tooltip_resource = '<div class="resource_card_tooltip">\
@@ -126,7 +126,10 @@
                           <div class="skill leader" title="${skill_name_1}"></div><span id="skill_leader_${id}">1</span>\
                         </div>\
                         <div class="skill-container">\
-                          <div class="skill hacker" title="${skill_name_6}"></div><span id="skill_hacker_${id}">5</span>\
+                          <div class="skill mercenary" title="${skill_name_2}"></div><span id="skill_mercenary_${id}">0</span>\
+                        </div>\
+                        <div class="skill-container">\
+                          <div class="skill informant" title="${skill_name_3}"></div><span id="skill_informant_${id}">3</span>\
                         </div>\
                         <div class="skill-container">\
                           <div class="skill sniper" title="${skill_name_4}"></div><span id="skill_sniper_${id}">4</span>\
@@ -135,10 +138,7 @@
                           <div class="skill brawler" title="${skill_name_5}"></div><span id="skill_brawler_${id}">2</span>\
                         </div>\
                         <div class="skill-container">\
-                          <div class="skill informant" title="${skill_name_3}"></div><span id="skill_informant_${id}">3</span>\
-                        </div>\
-                        <div class="skill-container">\
-                          <div class="skill mercenary" title="${skill_name_2}"></div><span id="skill_mercenary_${id}">0</span>\
+                          <div class="skill hacker" title="${skill_name_6}"></div><span id="skill_hacker_${id}">5</span>\
                         </div>\
                       </div>\
                       <div class="player_cash">\
