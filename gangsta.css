@@ -482,6 +482,9 @@ div.tableWindow table {
     background-size: 420px 252px;
     background-position: -340px -11px;
 }
+.head_infomsg .money{
+    display: inline-block;
+}
 .player_title {
     position: relative;
     top: -8px;

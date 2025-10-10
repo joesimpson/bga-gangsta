@@ -1038,6 +1038,17 @@ define([
                 this.updateCounters(this.gamedatas.counters);
             },
 
+            /* @Override BGA standard error handling (for specific errors only) */
+            showMessage: function (msg, type) {
+                let indexOfIconMoney = msg.indexOf("&lt;span class=");
+                if (type == "error" && msg && indexOfIconMoney >= 0) {
+                    //let iconMoney = '<span class=\"money\"></span>';
+                    //msg = msg.substring(0, indexOfIconMoney) + iconMoney + msg.substring(indexOfIconMoney + iconMoney.length);
+                    msg = msg.replace('&lt;span class=&quot;money&quot; style=&quot;z-index:10&quot;&gt;&lt;/span&gt;', '<span class=\"money\"></span>');
+                }
+                this.inherited(arguments);
+            },
+
             ///////////////////////////////////////////////////
             //// Player's action
 
