@@ -545,11 +545,15 @@ class Gangsta extends Table {
         }
     }
     
-    function increasePlayerResourceScore(int $player_id,array $resourceCard) {
+    /**
+     * @param int $player_id : owner id 
+     * @param array $resourceCard : card datas
+     * @param int|null $score_delta : score to add to player. by default, take the resource card influence
+     */
+    function increasePlayerResourceScore(int $player_id,array $resourceCard, int|null $score_delta = null) {
         if($resourceCard['state'] == CARD_RESOURCE_STATE_INACTIVE) return;
 
-        $resourceScore = $resourceCard['influence'];
-        //TODO JSA IF MEDIA : add +1/scoring heist MAX 7
+        $resourceScore = isset($score_delta) ? $score_delta : $resourceCard['influence'];
         
         $sql = "UPDATE player SET resource_value = resource_value + $resourceScore, player_score = player_score + $resourceScore, public_score = public_score + $resourceScore WHERE player_id = $player_id";
         self::DbQuery($sql);
@@ -1296,6 +1300,17 @@ class Gangsta extends Table {
             ]);
         }
 
+        if ($heistreward['influence'] > 0) {
+            //CHECK MEDIA Ability
+            $resource = $this->getHandResourceCard($player_id);
+            if( isset($resource) 
+                && $resource['state'] == CARD_RESOURCE_STATE_ACTIVE 
+                && $resource['ability'] == 'media'
+            ){
+                //Increase score by 1
+                $this->increasePlayerResourceScore($player_id,$resource,1);
+            }
+        }
 
         if ($heistreward['coopcash'] > 0) {
             self::incStat(1, 'coopPerformed', $player_id);

@@ -96,6 +96,23 @@ trait DebugTrait
     $this->actSelectResource($cardId);
   }
 
+  
+  function debug_scoreMedia(){
+    $playerId = $this->getCurrentPlayerId();
+    $resource = $this->getHandResourceCard($playerId);
+    if(isset($resource)){
+      $resourceId = $resource['id'];
+      self::DbQuery("UPDATE `card` set card_type =906, card_location ='rc_hand', card_location_arg ='$playerId' where card_id = $resourceId ");
+    }
+    else {
+      //todo
+    }
+    
+    self::DbQuery("UPDATE player SET player_score =player_score-resource_value, public_score =public_score-resource_value, resource_value = 0  WHERE player_id = $playerId");
+    
+    $this->notify->player($playerId, 'reloadPage', "/!\ : Refresh page to see resource card...", []);
+  }
+
   //TODO JSA FIX PRODUCTION BUG  when conceding
   function debug_scoreOnConcede(){
     $player_id = $this->getCurrentPlayerId();
