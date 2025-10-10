@@ -42,6 +42,18 @@ trait DebugTrait
     $this->trace("debug_ReSetup - END ////////////////////////////////////////////////////");
 
   }
+  
+  /**
+   * Function to call to regenerate JSON from PHP 
+   */
+  function debug_JSON(){
+
+    $json = json_encode($this->getStatTypes(), JSON_PRETTY_PRINT);
+    //Formatting options as json -> copy the DOM of this log : \n
+    $this->notify->all("jsonStats","$json",['json' => $json]);
+     
+  }
+  ////////////////////////////////////////////////////
 
   
   function debug_KillByHeist(int $nbGangstersOpponent = 0, bool $notifyAll = true){

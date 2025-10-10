@@ -1,0 +1,106 @@
+{
+    "table": {
+        "turns_number": {
+            "id": 10,
+            "name": "Number of turns",
+            "type": "int"
+        },
+        "snitches": {
+            "id": 11,
+            "name": "Snitches Discovered",
+            "type": "int"
+        }
+    },
+    "player": {
+        "gangsterRecruited": {
+            "id": 10,
+            "name": "Gangsters recruited",
+            "type": "int"
+        },
+        "gangsterLost": {
+            "id": 22,
+            "name": "Total gangsters lost",
+            "type": "int"
+        },
+        "heistPerformed": {
+            "id": 11,
+            "name": "Total heists performed",
+            "type": "int"
+        },
+        "coopPerformed": {
+            "id": 21,
+            "name": "Co-Op heists performed",
+            "type": "int"
+        },
+        "passedForMoney": {
+            "id": 13,
+            "name": "Passed for money",
+            "type": "int"
+        },
+        "scoreFromHeist": {
+            "id": 17,
+            "name": "Influence from Heists",
+            "type": "int"
+        },
+        "scoreFromGangster": {
+            "id": 18,
+            "name": "Influence from Gangsters",
+            "type": "int"
+        },
+        "scoreFromResource": {
+            "id": 28,
+            "name": "Influence from Resource card",
+            "type": "int"
+        },
+        "scoreMostMoney": {
+            "id": 26,
+            "name": "Influence: most money",
+            "type": "int"
+        },
+        "scoreMostGangster": {
+            "id": 27,
+            "name": "Influence: most Gangsters",
+            "type": "int"
+        },
+        "moneyGained": {
+            "id": 19,
+            "name": "Total money gained",
+            "type": "int"
+        },
+        "lostToSnitch": {
+            "id": 20,
+            "name": "Money lost to snitches",
+            "type": "int"
+        },
+        "synchronizations": {
+            "id": 16,
+            "name": "Synchronizations",
+            "type": "int"
+        },
+        "gangsterUntapped": {
+            "id": 12,
+            "name": "Gangsters untapped",
+            "type": "int"
+        },
+        "gangsterFreeUntap": {
+            "id": 15,
+            "name": "Free untaps",
+            "type": "int"
+        },
+        "leaderComp": {
+            "id": 23,
+            "name": "Leader skills",
+            "type": "int"
+        },
+        "mercComp": {
+            "id": 24,
+            "name": "Mercenary skills",
+            "type": "int"
+        },
+        "infoComp": {
+            "id": 25,
+            "name": "Informant skills",
+            "type": "int"
+        }
+    }
+}

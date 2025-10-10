@@ -45,6 +45,8 @@
     * Statistics ID is the reference used by BGA website. If you change the ID, you lost all historical statistic data. Do NOT re-use an ID of a deleted statistic
     * Statistic name is the English description of the statistic as shown to players
 
+
+    !!!!! 2025 -> upgrade to json file next to this file
 */
 
 $stats_type = array(
@@ -60,18 +62,6 @@ $stats_type = array(
                     "name" => totranslate("Snitches Discovered"),
                     "type" => "int" ),
 
-/*
-        Examples:
-
-
-        "table_teststat1" => array(   "id"=> 10,
-                                "name" => totranslate("table test stat 1"),
-                                "type" => "int" ),
-
-        "table_teststat2" => array(   "id"=> 11,
-                                "name" => totranslate("table test stat 2"),
-                                "type" => "float" )
-*/
     ),
 
     // Statistics existing for each player
@@ -96,6 +86,8 @@ $stats_type = array(
                     "type" => "int" ),
         "scoreFromGangster" => array(   "id"=> 18,
                     "name" => totranslate("Influence from Gangsters"),
+        "scoreFromResource" => array(   "id"=> 28,
+                    "name" => totranslate("Influence from Resource card"),
                     "type" => "int" ),
         "scoreMostMoney" => array(   "id"=> 26,
                     "name" => totranslate("Influence: most money"),

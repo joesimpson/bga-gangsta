@@ -153,6 +153,7 @@ class Gangsta extends Table {
         self::initStat('player', 'scoreFromGangster', 0);
         self::initStat('player', 'heistPerformed', 0);
         self::initStat('player', 'scoreFromHeist', 0);
+        self::initStat('player', 'scoreFromResource', 0);
         self::initStat('player', 'gangsterUntapped', 0);
         self::initStat('player', 'gangsterFreeUntap', 0);
         self::initStat('player', 'moneyGained', 0);
@@ -606,6 +607,8 @@ class Gangsta extends Table {
         self::DbQuery($sql);
         
         $playerInfos = $this->getPlayersCompleteInfos()[$player_id];
+        
+        self::setStat($playerInfos['resource_value'], 'scoreFromResource', $player_id);
 
         $current_score = 0;
         if ($this->isPublic) {
