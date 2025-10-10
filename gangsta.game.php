@@ -39,6 +39,10 @@ class Gangsta extends Table {
     
     private bool $isStartingDollarSetups;
     private bool $isPassCash;
+    /**
+     * Is information about players' performed heists public ?
+     */
+    private bool $isPublic;
 
     function __construct() {
         // Your global variables labels:
@@ -398,6 +402,7 @@ class Gangsta extends Table {
             $result["skill_informant_$pid"] = ["counter_name" => "skill_informant_$pid", "counter_value" => 0];
             $result["panel_team_$pid"] = ["counter_name" => "panel_team_$pid", "counter_value" => 0];
             $result["panel_t_pts_$pid"] = ["counter_name" => "panel_t_pts_$pid", "counter_value" => $pinfo['public_score']];
+            $result["panel_r_pts_$pid"] = ["counter_name" => "panel_r_pts_$pid", "counter_value" => $pinfo['resource_value']];
             $result["family_triad_$pid"] = ["counter_name" => "family_triad_$pid", "counter_value" => 0];
             $result["family_bratva_$pid"] = ["counter_name" => "family_bratva_$pid", "counter_value" => 0];
             $result["family_mafia_$pid"] = ["counter_name" => "family_mafia_$pid", "counter_value" => 0];
@@ -423,7 +428,7 @@ class Gangsta extends Table {
     }
 
     function getPlayersCompleteInfos() {
-        return self::getCollectionFromDB('SELECT player_id, player_name, player_score, public_score, player_no, player_money, player_snitch FROM player');
+        return self::getCollectionFromDB('SELECT player_id, player_name, player_score, public_score, player_no, player_money, player_snitch,resource_value FROM player');
     }
 
     function getChapterDeckName() {
@@ -522,7 +527,8 @@ class Gangsta extends Table {
             $resourceCard['state'] = $activeState;
             $sql = "UPDATE card SET card_state = $activeState where card_id = $resourceCardId";
             self::DbQuery($sql);
-            $this->notify->all('activeResource',clienttranslate('${player_name} actives their resource card : ${resource_name}'),[
+            
+            $this->notify->all('activeResource',clienttranslate('${player_name} actives his resource card : ${resource_name}'),[
                     'i18n' => ['resource_name'],
                     'player_id' => $player_id,
                     'player_name' => $this->getPlayerNameById($player_id),
@@ -530,7 +536,38 @@ class Gangsta extends Table {
                     'resource_name'=> $resourceCard['name'],
 
                 ]);
+            $this->increasePlayerResourceScore($player_id,$resourceCard);
         }
+    }
+    
+    function increasePlayerResourceScore(int $player_id,array $resourceCard) {
+        if($resourceCard['state'] == CARD_RESOURCE_STATE_INACTIVE) return;
+
+        $resourceScore = $resourceCard['influence'];
+        //TODO JSA IF MEDIA : add +1/scoring heist MAX 7
+        
+        $sql = "UPDATE player SET resource_value = resource_value + $resourceScore, player_score = player_score + $resourceScore, public_score = public_score + $resourceScore WHERE player_id = $player_id";
+        self::DbQuery($sql);
+        
+        $playerInfos = $this->getPlayersCompleteInfos()[$player_id];
+
+        $current_score = 0;
+        if ($this->isPublic) {
+            $current_score = $playerInfos['public_score'];
+        } else {
+            $current_score = $playerInfos['player_score'];
+        }
+
+        $this->notify->all('scoreResource',clienttranslate('${player_name} scores ${n} influence points with the resource card ${resource_name}'),[
+            'i18n' => ['resource_name'],
+            'player_id' => $player_id,
+            'player_name' => $this->getPlayerNameById($player_id),
+            'resource_name'=> $resourceCard['name'],
+            'n'=> $resourceScore,
+            'new_influence'=> $current_score,
+            'new_res_score'=> $playerInfos['resource_value'],
+
+        ]);
     }
 
     function getCompetenceCount($player_id,

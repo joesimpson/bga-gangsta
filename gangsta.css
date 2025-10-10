@@ -748,7 +748,7 @@ div.tableWindow table {
     font-weight: 700;
     font-size: 16px;
 }
-.player_points .playerheist {
+.player_points_team, .player_points_heists, .player_points_resources {
     display: inline-block;
 }
 .total_influence {

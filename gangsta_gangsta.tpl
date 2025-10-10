@@ -146,8 +146,9 @@
                           <div class="team" id="playerteamicon_{PLAYER_ID}"></div><span class="playerteam">&nbsp;<span class="boardValue" id="panel_team_${id}">0</span></span>\
                       </div>\
                       <div class="player_points">\
-                          <span class="playerheist">${teampoints}:&nbsp;<span class="boardValue" id="panel_t_pts_${id}">0</span></span> &nbsp;/&nbsp;\
-                          <span class="playerheist">${heistpoints}:&nbsp;<span class="boardValue" id="panel_h_pts_${id}">?</span></span>\
+                          <span class="player_points_team">${teampoints}:&nbsp;<span class="boardValue" id="panel_t_pts_${id}">0</span></span> &nbsp;/&nbsp;\
+                          <span class="player_points_heists">${heistpoints}:&nbsp;<span class="boardValue" id="panel_h_pts_${id}">?</span></span>\
+                          <span class="player_points_resources_separator">&nbsp;/&nbsp;</span><span  class="player_points_resources">${resourcepoints}:&nbsp;<span class="boardValue" id="panel_r_pts_${id}">0</span></span>\
                       </div>\
                       <div class="board-family displaynone">\
                         <div class="family-container">\

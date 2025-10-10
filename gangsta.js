@@ -184,6 +184,7 @@ define([
                     var player = gamedatas.players[player_id];
                     player['heistpoints'] = _("Heist Points");
                     player['teampoints'] = _("Team Points");
+                    player['resourcepoints'] = _("Resource Points");
                     player['fname_bratva'] = _(this.gamedatas.constants.clanNames['bratva']);
                     player['fname_cartel'] = _(this.gamedatas.constants.clanNames['cartel']);
                     player['fname_gang'] = _(this.gamedatas.constants.clanNames['gang']);
@@ -1032,6 +1033,10 @@ define([
                     this.updateCounters(this.gamedatas.counters);
                 }
             },
+            changePlayerResourceScore: function (playerid, score) {
+                this.gamedatas.counters['panel_r_pts_' + playerid].counter_value = score;
+                this.updateCounters(this.gamedatas.counters);
+            },
 
             ///////////////////////////////////////////////////
             //// Player's action
@@ -1626,17 +1631,24 @@ define([
                 dojo.subscribe('endPoints', this, "notif_endPoints");
                 this.notifqueue.setSynchronous('endPoints', 1000);
                 dojo.subscribe('scoreUpdate', this, "notif_scoreUpdate");
+                dojo.subscribe('scoreResource', this, "notif_scoreResource");
+                this.notifqueue.setSynchronous('scoreResource', 300);
                 
                 dojo.subscribe('reloadPage', this, "notif_reloadPage");
             },
 
             notif_scoreUpdate: function (notif) {
-                // console.log( 'notif_scoreUpdate' );
-                // console.log( notif );
+                debug( 'notif_scoreUpdate', notif );
 
                 this.changePlayerScore(notif.args.player_id, notif.args.new_influence);
                 this.changePlayerHeistScore(notif.args.player_id, notif.args.heist_influence);
                 this.changePlayerTeamScore(notif.args.player_id, notif.args.gangster_influence);
+            },
+            notif_scoreResource: function (notif) {
+                debug( 'notif_scoreResource : increase +n', notif );
+
+                this.changePlayerResourceScore(notif.args.player_id, notif.args.new_res_score);
+                this.changePlayerScore(notif.args.player_id, notif.args.new_influence);
             },
 
             notif_endPoints: function (notif) {

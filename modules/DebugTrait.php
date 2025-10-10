@@ -95,5 +95,17 @@ trait DebugTrait
   function debug_actSelectResource(int $cardId = 0){
     $this->actSelectResource($cardId);
   }
+
+  //TODO JSA FIX PRODUCTION BUG  when conceding
+  function debug_scoreOnConcede(){
+    $player_id = $this->getCurrentPlayerId();
+    
+    $sql = "UPDATE player SET player_score = 0 WHERE player_id = $player_id";
+    self::DbQuery($sql);
+    $sql = "UPDATE player SET player_score = 1 WHERE player_id != $player_id";
+    self::DbQuery($sql);
+    
+    $this->notify->player($player_id,'reloadPage', "/!\ : Refresh page to see score...", []);
+  }
  
 }
