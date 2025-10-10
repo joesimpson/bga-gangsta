@@ -2804,7 +2804,7 @@ $this->resource_types = [
         ],
     ],
     902 => [
-        'ability' => 2,
+        'ability' => 'black_market',
         'influence' => 5,
         'name' => clienttranslate('Black market'),
         'cost' => [

@@ -1204,6 +1204,23 @@ class Gangsta extends Table {
             'new_money' => $current_money,
             'money' => $leaderComps,
         ]);
+        
+        $resource = $this->getHandResourceCard($player_id);
+        if( isset($resource) && $resource['ability'] == 'black_market'
+            && $resource['state'] == CARD_RESOURCE_STATE_ACTIVE 
+        ){
+            $blackMarketMoney = 2;
+            $current_money += $blackMarketMoney;
+            self::DbQuery("UPDATE player SET player_money='$current_money' WHERE player_id='$player_id'");
+            $this->notify->all('pass', clienttranslate('${player_name} receives $${money} with the resource card ${resource_name}'), [
+                'i18n' => ['resource_name'],
+                'player_id' => $player_id,
+                'player_name' => self::getActivePlayerName(),
+                'new_money' => $current_money,
+                'money' => $blackMarketMoney,
+                'resource_name'=> $resource['name'],
+            ]);
+        }
 
         $this->gamestate->nextState('discard');
     }
