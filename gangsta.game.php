@@ -451,6 +451,22 @@ class Gangsta extends Table {
         }
         return $heistdeck;
     }
+    
+    function getHeistMaterialByType(int $heistType) {
+        $heistdeck = $this->heist_genesis_type;
+        if (isset($heistdeck[$heistType])) {
+            return $heistdeck[$heistType];
+        }
+        $heistdeck = $this->heist_gangwars_type;
+        if (isset($heistdeck[$heistType])) {
+            return $heistdeck[$heistType];
+        }
+        $heistdeck = $this->heist_domination_type;
+        if (isset($heistdeck[$heistType])) {
+            return $heistdeck[$heistType];
+        }
+        return null;
+    }
 
     function fillResourceCardsInfo(array &$cards){
         foreach($cards as $id => &$card){
@@ -460,6 +476,7 @@ class Gangsta extends Table {
             $card['influence'] = $cardMaterial['influence'];
             $card['ability'] = $cardMaterial['ability'];
             $card['cost'] = $cardMaterial['cost'];
+            if(isset($cardMaterial['max_influence'])) $card['max_influence'] = $cardMaterial['max_influence'];
 
             $card['state'] = $this->getCardState($id);
         }
@@ -502,6 +519,18 @@ class Gangsta extends Table {
         return $tapped;
     }
 
+    function getPlayerPerformedHeist(int $player_id) : array {
+        return $this->cards->getCardsInLocation('performed',$player_id);
+    }
+    function getPlayerPerformedHeistWithInfluence(int $player_id) : array {
+        $heists = $this->getPlayerPerformedHeist($player_id);
+        return array_filter($heists, function ($item) {
+                $heistMaterial = $this->getHeistMaterialByType($item['type']);
+                $heistreward = $heistMaterial['reward'];
+                    return ($heistreward['influence'] > 0);
+                });
+    }
+
     function getHandResourceCard(int $player_id) : array|null {
         $cards = $this->cards->getCardsInLocation(CARD_RESOURCE_LOCATION_HAND,$player_id);
         $this->fillResourceCardsInfo($cards);
@@ -513,6 +542,7 @@ class Gangsta extends Table {
      * CHECK IF Enough skills to activate player resource card
      */
     function checkResourceCardActivation(int $player_id) {
+        $this->trace("checkResourceCardActivation($player_id) ... ");
         $resourceCard = $this->getHandResourceCard($player_id);
         if(!isset($resourceCard)) return;
         $activeState = CARD_RESOURCE_STATE_ACTIVE;
@@ -527,7 +557,7 @@ class Gangsta extends Table {
                 $enoughSkills = false;
             }
         }
-
+        
         if($enoughSkills) {
             $resourceCard['state'] = $activeState;
             $sql = "UPDATE card SET card_state = $activeState where card_id = $resourceCardId";
@@ -541,7 +571,17 @@ class Gangsta extends Table {
                     'resource_name'=> $resourceCard['name'],
 
                 ]);
-            $this->increasePlayerResourceScore($player_id,$resourceCard);
+            if($resourceCard['ability'] == 'media'){
+                //if media, get score from previous performed heists ! (max 7)
+                $nbPerformedHeistsWithInfluence = count($this->getPlayerPerformedHeistWithInfluence($player_id));
+                $this->increasePlayerResourceScore($player_id,$resourceCard,$nbPerformedHeistsWithInfluence);
+            }
+            else {
+                $this->increasePlayerResourceScore($player_id,$resourceCard);
+            }
+        }
+        else {
+            $this->trace("checkResourceCardActivation($player_id) - Not enough skills in ".json_encode($availableSkills)." for resource card type ".$resourceCard['type'] );
         }
     }
     
@@ -554,6 +594,13 @@ class Gangsta extends Table {
         if($resourceCard['state'] == CARD_RESOURCE_STATE_INACTIVE) return;
 
         $resourceScore = isset($score_delta) ? $score_delta : $resourceCard['influence'];
+
+        $max_resource_score = $resourceCard['max_influence'];
+        if(isset($max_resource_score)){
+            $current_resourceScore = self::getUniqueValueFromDB("SELECT resource_value FROM player WHERE player_id='$player_id'");
+            $resourceScore = min( $current_resourceScore + $resourceScore, $max_resource_score) - $current_resourceScore;
+            
+        }
         
         $sql = "UPDATE player SET resource_value = resource_value + $resourceScore, player_score = player_score + $resourceScore, public_score = public_score + $resourceScore WHERE player_id = $player_id";
         self::DbQuery($sql);
@@ -632,16 +679,9 @@ class Gangsta extends Table {
 
     function getAllTeamSkill($player_id) { //return a 0 based skill array (with 0 skill as dummy skill)
         $skills = [0, 0, 0, 0, 0, 0, 0];
-
-        $gangstersInTeam = $this->getCardsForPlayer($player_id);
-
-        foreach ($gangstersInTeam as $gid => $gCard) {
-            for ($i = 1; $i < 7; $i++) {
-                $skills[$i] += $this->gangster_type[$gCard['type']]['stats'][$i];
-            }
-            $skills[$gCard['skill']] += 1; //this increase dummy if they don't have any
+        for ($i = 1; $i < 7; $i++) {
+            $skills[$i] = $this->getCompetenceCount($player_id, $i, false);
         }
-        $skills[0] = 0;
         return $skills;
     }
 
@@ -1030,6 +1070,7 @@ class Gangsta extends Table {
 
         self::setGameStateValue('rewardParam', 0);
         self::setGameStateValue('lastPerformedHeist', 0);
+        $this->checkResourceCardActivation($player_id);
         $this->gamestate->nextState('checkPhase');
     }
 
@@ -1307,7 +1348,7 @@ class Gangsta extends Table {
                 && $resource['state'] == CARD_RESOURCE_STATE_ACTIVE 
                 && $resource['ability'] == 'media'
             ){
-                //Increase score by 1
+                //Increase score by 1, max 7
                 $this->increasePlayerResourceScore($player_id,$resource,1);
             }
         }

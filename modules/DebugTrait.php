@@ -102,10 +102,40 @@ trait DebugTrait
     $resource = $this->getHandResourceCard($playerId);
     if(isset($resource)){
       $resourceId = $resource['id'];
-      self::DbQuery("UPDATE `card` set card_type =906, card_location ='rc_hand', card_location_arg ='$playerId' where card_id = $resourceId ");
+      self::DbQuery("UPDATE `card` set card_type =906, card_location ='rc_hand', card_location_arg ='$playerId', card_state = 1 where card_id = $resourceId ");
     }
     else {
       //todo
+    }
+    
+    self::DbQuery("UPDATE player SET player_score =player_score-resource_value, public_score =public_score-resource_value, resource_value = 0, player_money=50  WHERE player_id = $playerId");
+
+    //several scoring heists may be performed 220, 401 with a score+ 218 no score
+    self::DbQuery("UPDATE `card` set card_location ='performed', card_location_arg=$playerId where card_type in (220,401,218) ");
+    
+    $this->notify->player($playerId, 'reloadPage', "/!\ : Refresh page to see resource card...", []);
+  }
+  
+  function debug_teachSkill(){
+    $playerId = $this->getCurrentPlayerId();
+    self::DbQuery("UPDATE `card` set card_location ='discard' where card_location ='avheists' ");
+    //some cards can teach : 313
+    self::DbQuery("UPDATE `card` set card_location ='avheists' where card_type in (313,326,301) ");
+    //Several gangsters are needed to attack
+    self::DbQuery("UPDATE `card` set card_location ='hand', card_location_arg=$playerId, card_state=0 where card_type in (152,111) ");
+    
+    //Go to phase 2
+    self::DbQuery("UPDATE `global` set global_value = 1 where global_id = 12 ");
+
+    $this->notify->all( 'reloadPage', "/!\ : Refresh page to see resource card...", []);
+  }
+  
+  function debug_inactivateResource(){
+    $playerId = $this->getCurrentPlayerId();
+    $resource = $this->getHandResourceCard($playerId);
+    if(isset($resource)){
+      $resourceId = $resource['id'];
+      self::DbQuery("UPDATE `card` set card_type =906, card_location ='rc_hand', card_location_arg ='$playerId', card_state = 0 where card_id = $resourceId ");
     }
     
     self::DbQuery("UPDATE player SET player_score =player_score-resource_value, public_score =public_score-resource_value, resource_value = 0  WHERE player_id = $playerId");

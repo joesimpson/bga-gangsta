@@ -2858,6 +2858,7 @@ $this->resource_types = [
     906 => [
         'ability' => 'media',
         'influence' => 0,
+        'max_influence' => 7,
         'name' => clienttranslate('Media'),
         'cost' => [
             1 => 0,
