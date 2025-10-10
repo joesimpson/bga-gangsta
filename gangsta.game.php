@@ -596,8 +596,8 @@ class Gangsta extends Table {
 
         $resourceScore = isset($score_delta) ? $score_delta : $resourceCard['influence'];
 
-        $max_resource_score = $resourceCard['max_influence'];
-        if(isset($max_resource_score)){
+        if(isset($resourceCard['max_influence'])){
+            $max_resource_score = $resourceCard['max_influence'];
             $current_resourceScore = self::getUniqueValueFromDB("SELECT resource_value FROM player WHERE player_id='$player_id'");
             $resourceScore = min( $current_resourceScore + $resourceScore, $max_resource_score) - $current_resourceScore;
             
