@@ -43,6 +43,11 @@ class Gangsta extends Table {
      * Is information about players' performed heists public ?
      */
     private bool $isPublic;
+    
+    /**
+     * Is it a game with resource cards ?
+     */
+    private bool $isResources;
 
     function __construct() {
         // Your global variables labels:
@@ -82,7 +87,7 @@ class Gangsta extends Table {
         $this->isClan = self::getUniqueValueFromDB('select count(*) from global where global_id=100 and global_value=2') == 1;
         $this->initializeMoneyOptions();
         $this->isPublic = self::getUniqueValueFromDB('select count(*) from global where global_id=102 and global_value=2') == 1;
-        $this->isResources = self::getUniqueValueFromDB('select count(*) from global where global_id=103 and global_value=2') == 1;
+        $this->isResources = self::getUniqueValueFromDB('select count(*) from global where global_id=103 and global_value!=1') == 1;
     }
 
     private function initializeMoneyOptions() {
@@ -153,7 +158,7 @@ class Gangsta extends Table {
         self::initStat('player', 'scoreFromGangster', 0);
         self::initStat('player', 'heistPerformed', 0);
         self::initStat('player', 'scoreFromHeist', 0);
-        self::initStat('player', 'scoreFromResource', 0);
+        if($this->isResources) self::initStat('player', 'scoreFromResource', 0);
         self::initStat('player', 'gangsterUntapped', 0);
         self::initStat('player', 'gangsterFreeUntap', 0);
         self::initStat('player', 'moneyGained', 0);
