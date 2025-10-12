@@ -58,14 +58,14 @@
                 |      31 resourcesSelection --->/
                 |       
                 v       
-    2 -> 3 -> 4 playerAction <---------------------------\
-    ^                  |                                 ^
-    |                  |-----------------------------    |
-    |                  |           |                |    |
-    |                  v           v                v    |            
-    |   /------>6      5,7,9,11   10  ->12->13->14  8--->/
-    |   ^       |      |           |            |   |
-    |   |       v      v           v            v   v
+    2 -> 3 -> 4 playerAction
+    ^              |   |                             
+    |              |   |-----------------------------
+    |              |   |           |                |
+    |              |   v           v                v            
+    |   /------>6  |   5,7,9,11   10  ->12->13->14  8
+    |   ^       |  |   |           |            |   |
+    |   |       v  v   v           v            v   v
     |   |       -------------------------------------
     |   |               |
     |   |               v
@@ -80,7 +80,7 @@
     |   23 <--- 24  <------------------------/       |
     |           |                                    |
     |           v                                    |
-    \<--------- 20 nextPlayer                        |
+    \<--------- 20 nextPlayer (& replay)             |
                                                      v
                         98 endOfGame  <--------------/
                         | 
@@ -189,7 +189,9 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} may steal ${amount} from a rival gang'),
         "type" => "activeplayer",
         "possibleactions" => array( "steal", "skip" ),
-        "transitions" => array( "checkPhase" => 25, "skip" => 25, "replay" => 4  ),
+        "transitions" => array( "checkPhase" => 25, "skip" => 25, 
+            "replay" => 4  //Seems obsolete
+        ),
         "args" => "argRewardSteal"
     ),
 
