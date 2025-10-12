@@ -393,6 +393,14 @@ define([
                     case 'playerMobilize':
                         this.enteringPlayerMobilize(args.args);
                         break;
+                    case 'endTurnActions':
+                        this.enteringEndTurnActions(args.args);
+                        break;
+                        
+                    //Client states :
+                    case 'client_untapGangsters':
+                        this.enteringClientUntapGangsters(args.args);
+                        break;
 
                     case 'dummmy':
                         break;
@@ -494,6 +502,60 @@ define([
                     return;
                 }
             },
+            enteringEndTurnActions: function (args) {
+                if (!this.isCurrentPlayerActive()) {
+                    return;
+                }
+                let actions = args.pactions;
+                Object.entries(actions).forEach(([actionName,actionDatas]) => {
+
+                    switch(actionName){
+                        case 'freeUntapLeader':
+                            this.statusBar.addActionButton(this.format_string(_("Untap ${n} leaders"), {n:  actionDatas['args'].amount}), () => {
+                                this.setClientState('client_untapGangsters', {
+                                   descriptionmyturn : _('${you} must choose which gangster to untap'),
+                                   args : actionDatas['args'],
+                                });
+                            },{
+                                id:'btnEndTurn'+actionName,
+                                destination:$('customActions'),
+                            });
+                            break;
+                        default: break;
+                    }
+
+                    
+                });
+            },
+
+            enteringClientUntapGangsters: function (args) {
+                if (!this.isCurrentPlayerActive()) {
+                    return;
+                }
+
+                let gangsters_ids = args.g_ids;
+
+                this.statusBar.addActionButton("Cancel", () => {
+                        dojo.query('.selected').addClass('mobilized');
+                        this.restoreServerGameState();
+                    },{
+                        id:'btnCancel',
+                        destination:$('customActions'),
+                        color: 'secondary',
+                    });
+                this.statusBar.addActionButton(_("Confirm"), () => {
+                        this.bgaPerformAction('actEndUntapGangsters', { g_ids: this.currentMobilize.gangsters.join(";") });
+                    },{
+                        id:'btnEndTurnConfirm',
+                        destination:$('customActions'),
+                    });
+                //From enteringPlayerMobilize..., useful infos for onClickGangsterForMobilization
+                this.currentMobilize = {free: args.amount, gangsters: [], money: 0};
+                Object.values(gangsters_ids).forEach((gangster_id) => {
+                    let div = $('gangster_' + gangster_id);
+                    div.classList.add('selectable');
+                });
+            },
 
             enteringRewardSkill: function (args) {
                 if (!this.isCurrentPlayerActive()) {
@@ -577,6 +639,9 @@ define([
                     case 'rewardSkill':
                         break;
                     case 'playerMobilize':
+                        dojo.query('.selected').addClass('mobilized');
+                        break;
+                    case 'client_untapGangsters':
                         dojo.query('.selected').addClass('mobilized');
                         break;
                     case 'snitch':
@@ -859,7 +924,7 @@ define([
                     [5, this.format_string(_('If you just performed or participated in a Cooperative Heist ${icon_coop}, make any of your gangsters Available.'),{ icon_coop:'<span class="reward-icon reward-coop"></span>' })],
                     ['media', this.format_string(_('Receive ${n} influence ${icon_influence} at the end of the game for each stored heist wich includes Influence Points (with a maximum of ${max}).'),{n:1,max:7, icon_influence: '<span class="reward-icon reward-influence"></span>'})],
                     [7, this.format_string(_(''),{ })],
-                    [8, this.format_string(_('At the end of your turn, make one of your leaders ${icon_leader} available for free.'),{icon_leader: `<span class="skill leader"></span>` })],
+                    ['privatesociety', this.format_string(_('At the end of your turn, make one of your leaders ${icon_leader} available for free.'),{icon_leader: `<span class="skill leader"></span>` })],
                     [9, this.format_string(_('Store up to $${n} in the bank. This money cannot be targeted by a Theft ${icon_theft}. You can transfer or withdraw money into or from the bank at any time during your turn.'),{n:10, icon_theft: '<span class="reward-icon reward-theft"></span>' })],
                     [10, this.format_string(_(''),{ })],
                     [11, this.format_string(_(''),{ })],
@@ -1244,7 +1309,7 @@ define([
                     //console.log(this.neededHeistSkills.needed);
                     return;
                 }
-                if (this.checkAction("untapGangsters", true)) {
+                if (this.checkAction("untapGangsters", true) || this.checkAction("actEndUntapGangsters", true)) {
                     this.onClickGangsterForMobilization(evt);
                     return;
                 }

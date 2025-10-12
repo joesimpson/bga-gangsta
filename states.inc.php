@@ -68,7 +68,9 @@
     |   |       v  v   v           v            v   v
     |   |       -------------------------------------
     |   |               |
-    |   |               v
+    |   |               |   40 endTurnActions
+    |   |               |   ^   |
+    |   |               v   |   v
     |   |              25 checkPhase --------------->\
     |   |               |                            |
     |   |               v                            |
@@ -304,7 +306,7 @@ $machinestates = array(
         "type" => "game",
         "action" => "stCheckPhase",
         "updateGameProgression" => true,
-        "transitions" => array( "gameEnd" => 98, "startGDG" => 21, "startDomination"=>27, "revealCards" => 24) // for Debug
+        "transitions" => array( "gameEnd" => 98, "startGDG" => 21, "startDomination"=>27, "revealCards" => 24, "endTurnActions" => 40, ) 
     ),
 
     26 => array(
@@ -323,6 +325,17 @@ $machinestates = array(
         "action" => "stComputeGDG",
         "updateGameProgression" => false,
         "transitions" => array( "GDGMulti" => 22) // for Debug
+    ),
+    
+    40 => array(
+        "name" => "endTurnActions",
+        "action" => "stEndTurnActions",
+        "args" => "argEndTurnActions",
+        "description" => clienttranslate('${actplayer} may perform an action at the end of his turn'),
+        "descriptionmyturn" => clienttranslate('${you} may perform an action at the end of your turn'),
+        "type" => "activeplayer",
+        "possibleactions" => array( "actEndUntapGangsters" ),
+        "transitions" => array( "stay" => 40,"next" => 25, "zombiePass"=> 25, ),
     ),
 
     98 => array(

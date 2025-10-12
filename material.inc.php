@@ -2883,7 +2883,7 @@ $this->resource_types = [
         ],
     ],
     908 => [
-        'ability' => 8,
+        'ability' => 'privatesociety',
         'influence' => 3,
         'name' => clienttranslate('Secret society'),
         'cost' => [
