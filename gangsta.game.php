@@ -17,6 +17,7 @@
  */
 
 use Bga\GameFramework\Actions\Types\IntArrayParam;
+use Bga\GameFramework\Actions\Types\StringParam;
 
 require_once (dirname(__FILE__) . '/modules/DebugTrait.php');
 
@@ -181,7 +182,9 @@ class Gangsta extends Table {
         self::initStat('player', 'scoreMostMoney', 0);
 
         //self::incStat( 1, 'gangsterLost', $player_id );
-
+        
+        $this->globals->set(GLOBAL_END_TURN_ACTIONS_DONE,false);
+        $this->globals->set(GLOBAL_END_TURN_ACTIONS,[]);
 
         // TODO: setup the initial game situation here
         $deck_gangsters = [];
@@ -794,6 +797,46 @@ class Gangsta extends Table {
             123456 => 4     // and player 123456 has 4 cards in hand
         );
     */
+        
+    /**
+     * Remove a specific action from endTurnActions phase 
+     * 
+     * @return array endTurnActions
+     */
+    function removeActionFromEndTurn(string $actionName): array{
+        $endTurnActions = $this->globals->get(GLOBAL_END_TURN_ACTIONS,[]);
+        $endTurnActions = array_filter($endTurnActions, function ($item) use ($actionName) {
+            return $item != $actionName;
+        });
+        $this->globals->set(GLOBAL_END_TURN_ACTIONS, $endTurnActions);
+        return $endTurnActions;
+    }
+    /**
+     * Add a specific action to endTurnActions phase 
+     * 
+     * @return array endTurnActions
+     */
+    function addActionToEndTurn(string $actionName): array{
+        $endTurnActions = $this->globals->get(GLOBAL_END_TURN_ACTIONS,[]);
+        $endTurnActions[] = $actionName;
+        $this->globals->set(GLOBAL_END_TURN_ACTIONS, $endTurnActions);
+        return $endTurnActions;
+    }
+    /**
+     * Add a specific action to endTurnActions phase when specific ability is active for this player id
+     * 
+     * @return array endTurnActions
+     */
+    function addActionToEndTurnWhenAbility(int $player_id, string $actionName, string $ability): array{
+        $endTurnActions = $this->globals->get(GLOBAL_END_TURN_ACTIONS,[]);
+        $resource = $this->getHandResourceCard($player_id);
+        if( isset($resource) && $resource['ability'] == $ability
+            && $resource['state'] == CARD_RESOURCE_STATE_ACTIVE 
+        ){
+            $endTurnActions = $this->addActionToEndTurn($actionName);
+        }
+        return $endTurnActions;
+    }
 
 //////////////////////////////////////////////////////////////////////////////
 //////////// Player actions
@@ -894,15 +937,16 @@ class Gangsta extends Table {
         $this->gamestate->nextState('playTurn');
     }
     
-    function actEndUntapGangsters(#[IntArrayParam(name:'g_ids')] array $gangster_ids) {
+    function actEndUntapGangsters(#[StringParam()] string $actionType, #[IntArrayParam(name:'g_ids')] array $gangster_ids) {
         self::checkAction('actEndUntapGangsters');
         $player_id = $this->getCurrentPlayerId();
+        $this->trace("actEndUntapGangsters($actionType) $player_id, ",json_encode($gangster_ids));
         
         $cost = 0;//This action is designed for free untaps after turn
         $availableMoney = self::getUniqueValueFromDB("SELECT player_money FROM player WHERE player_id='$player_id'");
 
         $args = $this->argEndTurnActions();
-        $argsForUntap = $args['pactions']['freeUntapLeader']['args'];
+        $argsForUntap = $args['pactions'][$actionType]['args'];
         if(!isset($argsForUntap) || !isset($argsForUntap['g_ids'])) {
             throw new BgaVisibleSystemException("You cannot untap now");
         }
@@ -933,8 +977,19 @@ class Gangsta extends Table {
                                    'new_money' => $availableMoney - $cost,
                                    'gangsters' => $gangster_ids,
                                ]);
-                               
+
+        $this->removeActionFromEndTurn($actionType);
         $this->gamestate->nextState('stay');
+    }
+    
+    function actSkipEndTurn() {
+        self::checkAction('actSkipEndTurn');
+        $player_id = $this->getCurrentPlayerId();
+        $this->trace("actSkipEndTurn()  $player_id");
+        
+        $this->globals->set(GLOBAL_END_TURN_ACTIONS_DONE, true);
+
+        $this->gamestate->nextState('skip');
     }
 
     function actionTapGangsters($gangster_ids) {
@@ -1446,6 +1501,7 @@ class Gangsta extends Table {
             }, $gangster_ids));
             if (count($playersInvolved) > 1) {
                 $players = $this->getPlayersCompleteInfos();
+                $this->addActionToEndTurnWhenAbility($player_id,'freeUntapGangster','private_jet');
                 foreach ($playersInvolved as $pid) {
                     self::incStat($coopReward, 'moneyGained', $pid);
                     self::DbQuery("UPDATE player SET player_money = player_money+$coopReward WHERE player_id = $pid");
@@ -1845,6 +1901,7 @@ class Gangsta extends Table {
 
     function argEndTurnActions() {
         $player_id = $this->getActivePlayerId();
+        //Possible actions during this game state are generated on the fly during preceding game states (player turn...) and stored in a global ARRAY
         $actions = $this->globals->get(GLOBAL_END_TURN_ACTIONS,[]);
 
         $args = [];
@@ -1864,6 +1921,18 @@ class Gangsta extends Table {
                         $args['pactions'][$action] = ['args' => [
                                 'g_ids'=> array_keys($listTappedLeaders),
                                 'amount' => 1,
+                                'actionType' => $action,
+                            ]
+                        ];
+                    }
+                    break;
+                case 'freeUntapGangster': 
+                    $tapped = $this->getTappedGangstersForPlayer($player_id);
+                    if(count($tapped) > 0) {
+                        $args['pactions'][$action] = ['args' => [
+                                'g_ids'=> array_keys($tapped),
+                                'amount' => 1,
+                                'actionType' => $action,
                             ]
                         ];
                     }
@@ -1972,6 +2041,10 @@ class Gangsta extends Table {
             self::incStat(1, 'turns_number');
             $player_id = self::activeNextPlayer();
         }
+        
+        //Reset some globals for next turn
+        $this->globals->set(GLOBAL_END_TURN_ACTIONS_DONE,false);
+        $this->globals->set(GLOBAL_END_TURN_ACTIONS,[]);
 
         self::giveExtraTime($player_id);
 
@@ -2068,19 +2141,14 @@ class Gangsta extends Table {
         //This code block could be a different game state before this one, but I don't want to impact living games... so I add a check at the beginning of this state to redirect to new state
         $endTurnActionsAlreadyDone = $this->globals->get(GLOBAL_END_TURN_ACTIONS_DONE,false);
         if(!$endTurnActionsAlreadyDone){
-            $endTurnActions = $this->globals->get(GLOBAL_END_TURN_ACTIONS,[]);
-            $resource = $this->getHandResourceCard($player_id);
-            if( isset($resource) && $resource['ability'] == 'privatesociety'
-                && $resource['state'] == CARD_RESOURCE_STATE_ACTIVE 
-            ){
-                //"Secret society - At the end of your turn, make one of your leaders available for free."
-                $endTurnActions[] = 'freeUntapLeader';
-            }
-            $this->globals->set(GLOBAL_END_TURN_ACTIONS, $endTurnActions);
+            //"Secret society - At the end of your turn, make one of your leaders available for free."
+            $endTurnActions = $this->addActionToEndTurnWhenAbility($player_id,'freeUntapLeader','private_society');
 
             if( count($endTurnActions)>0 ){
                 $this->gamestate->nextState('endTurnActions');
                 return;
+            } else {
+                $this->globals->set(GLOBAL_END_TURN_ACTIONS_DONE,true);
             }
         }
         // -----------------------------------------------------------------

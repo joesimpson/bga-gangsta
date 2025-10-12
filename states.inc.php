@@ -334,8 +334,8 @@ $machinestates = array(
         "description" => clienttranslate('${actplayer} may perform an action at the end of his turn'),
         "descriptionmyturn" => clienttranslate('${you} may perform an action at the end of your turn'),
         "type" => "activeplayer",
-        "possibleactions" => array( "actEndUntapGangsters" ),
-        "transitions" => array( "stay" => 40,"next" => 25, "zombiePass"=> 25, ),
+        "possibleactions" => array( "actEndUntapGangsters","actSkipEndTurn" ),
+        "transitions" => array( "stay" => 40,"next" => 25, "skip"=>25, "zombiePass"=> 25, ),
     ),
 
     98 => array(

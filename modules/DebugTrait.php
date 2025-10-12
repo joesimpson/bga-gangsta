@@ -156,6 +156,18 @@ trait DebugTrait
     
     $this->notify->player($playerId, 'reloadPage', "/!\ : Refresh page to see resource card...", []);
   }
+  
+  function debug_endTurnActions(){
+    $this->globals->set(GLOBAL_END_TURN_ACTIONS, []);
+    $endTurnActions = $this->addActionToEndTurn('freeUntapGangster');
+    $endTurnActions = $this->addActionToEndTurn('freeUntapLeader');
+
+    $this->addActionToEndTurn('TEST_ABSENT');
+    $this->removeActionFromEndTurn('TEST_ABSENT');
+
+    $this->globals->set(GLOBAL_END_TURN_ACTIONS_DONE,false);
+    $this->gamestate->jumpToState(40);
+  }
 
   //TODO JSA FIX PRODUCTION BUG  when conceding
   function debug_scoreOnConcede(){

@@ -511,9 +511,20 @@ define([
 
                     switch(actionName){
                         case 'freeUntapLeader':
-                            this.statusBar.addActionButton(this.format_string(_("Untap ${n} leaders"), {n:  actionDatas['args'].amount}), () => {
+                            this.statusBar.addActionButton(this.format_string(_("Untap ${n} leader(s)"), {n:  actionDatas['args'].amount}), () => {
                                 this.setClientState('client_untapGangsters', {
-                                   descriptionmyturn : _('${you} must choose which gangster to untap'),
+                                   descriptionmyturn : this.format_string(_('You must choose which leaders to untap for free'), {  } ),
+                                   args : actionDatas['args'],
+                                });
+                            },{
+                                id:'btnEndTurn'+actionName,
+                                destination:$('customActions'),
+                            });
+                            break;
+                        case 'freeUntapGangster':
+                            this.statusBar.addActionButton(this.format_string(_("Untap ${n} gangster(s)"), {n:  actionDatas['args'].amount}), () => {
+                                this.setClientState('client_untapGangsters', {
+                                   descriptionmyturn : this.format_string(_('You must choose which gangsters to untap for free'), {  } ),
                                    args : actionDatas['args'],
                                 });
                             },{
@@ -544,7 +555,7 @@ define([
                         color: 'secondary',
                     });
                 this.statusBar.addActionButton(_("Confirm"), () => {
-                        this.bgaPerformAction('actEndUntapGangsters', { g_ids: this.currentMobilize.gangsters.join(";") });
+                        this.bgaPerformAction('actEndUntapGangsters', { 'actionType':args.actionType, g_ids: this.currentMobilize.gangsters.join(";") });
                     },{
                         id:'btnEndTurnConfirm',
                         destination:$('customActions'),
@@ -704,6 +715,9 @@ define([
                             break;
                         case 'snitch':
                             this.enteringSnitch(args);
+                            break;
+                        case 'endTurnActions':
+                            this.statusBar.addActionButton( _('Skip'), () => this.bgaPerformAction('actSkipEndTurn'),{destination:$('customActions')});
                             break;
                         case 'gdgMulti':
                             //console.log(args);
@@ -921,10 +935,10 @@ define([
                     ['black_market', this.format_string(_('Receive + $${n} when you Pass your Turn.'),{n:2 })],
                     [3, this.format_string(_('Pay $${n} to make your entire gang available'),{ n:1})],
                     [4, this.format_string(_('Receive $${n} at the beginning of each of your turns. Discard the Counterfeit printing card during the gang war and place it with your stored Heist Cards.'),{n:1 })],
-                    [5, this.format_string(_('If you just performed or participated in a Cooperative Heist ${icon_coop}, make any of your gangsters Available.'),{ icon_coop:'<span class="reward-icon reward-coop"></span>' })],
+                    ['private_jet', this.format_string(_('If you just performed or participated in a Cooperative Heist ${icon_coop}, make any of your gangsters Available.'),{ icon_coop:'<span class="reward-icon reward-coop"></span>' })],
                     ['media', this.format_string(_('Receive ${n} influence ${icon_influence} at the end of the game for each stored heist wich includes Influence Points (with a maximum of ${max}).'),{n:1,max:7, icon_influence: '<span class="reward-icon reward-influence"></span>'})],
                     [7, this.format_string(_(''),{ })],
-                    ['privatesociety', this.format_string(_('At the end of your turn, make one of your leaders ${icon_leader} available for free.'),{icon_leader: `<span class="skill leader"></span>` })],
+                    ['private_society', this.format_string(_('At the end of your turn, make one of your leaders ${icon_leader} available for free.'),{icon_leader: `<span class="skill leader"></span>` })],
                     [9, this.format_string(_('Store up to $${n} in the bank. This money cannot be targeted by a Theft ${icon_theft}. You can transfer or withdraw money into or from the bank at any time during your turn.'),{n:10, icon_theft: '<span class="reward-icon reward-theft"></span>' })],
                     [10, this.format_string(_(''),{ })],
                     [11, this.format_string(_(''),{ })],
