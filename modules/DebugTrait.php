@@ -158,15 +158,28 @@ trait DebugTrait
   }
   
   function debug_endTurnActions(){
-    $this->globals->set(GLOBAL_END_TURN_ACTIONS, []);
-    $endTurnActions = $this->addActionToEndTurn('freeUntapGangster');
-    $endTurnActions = $this->addActionToEndTurn('freeUntapLeader');
+    $player_id = $this->getCurrentPlayerId();
+    
+    $players = self::loadPlayersBasicInfos();
+    //$this->globals->set(GLOBAL_END_TURN_ACTIONS, []);
+    foreach($players as $pId => $player){
+      $this->removeAllActionsFromEndTurn($pId);
+      $this->addActionToEndTurn($pId,'freeUntapGangster');
+      $this->addActionToEndTurn($pId,'freeUntapLeader');
 
-    $this->addActionToEndTurn('TEST_ABSENT');
-    $this->removeActionFromEndTurn('TEST_ABSENT');
+      $this->addActionToEndTurn($pId,'TEST_ABSENT');
+      $this->removeActionFromEndTurn($pId,'TEST_ABSENT');
+    }
+    
+    $endTurnActions = $this->globals->get(GLOBAL_END_TURN_ACTIONS, []);
+    $this->notify->player($player_id, 'json', "endTurnActions :".json_encode($endTurnActions), ['json'=>$endTurnActions]);
+    
+    //Mobilize gang
+    self::DbQuery("UPDATE `card` set card_state=1 where card_location ='hand' AND card_location_arg='$player_id' ");
 
     $this->globals->set(GLOBAL_END_TURN_ACTIONS_DONE,false);
-    $this->gamestate->jumpToState(40);
+    $this->gamestate->jumpToState(25);//checkPhase
+    $this->notify->player($player_id, 'reloadPage', "/!\ : Refresh page to see gangsters card...", []);
   }
 
   //TODO JSA FIX PRODUCTION BUG  when conceding

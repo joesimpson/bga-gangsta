@@ -68,7 +68,7 @@
     |   |       v  v   v           v            v   v
     |   |       -------------------------------------
     |   |               |
-    |   |               |   40 endTurnActions
+    |   |               |   40 endTurnActions <->41
     |   |               |   ^   |
     |   |               v   |   v
     |   |              25 checkPhase --------------->\
@@ -328,14 +328,22 @@ $machinestates = array(
     ),
     
     40 => array(
+        "name" => "nextPlayerForEndTurn",
+        "action" => "stNextPlayerForEndTurn",
+        "description" => '',
+        "type" => "game",
+        "transitions" => array( "nextAction" => 41, "end" => 25 ),
+    ),
+
+    41 => array(
         "name" => "endTurnActions",
         "action" => "stEndTurnActions",
         "args" => "argEndTurnActions",
-        "description" => clienttranslate('${actplayer} may perform an action at the end of his turn'),
-        "descriptionmyturn" => clienttranslate('${you} may perform an action at the end of your turn'),
+        "description" => clienttranslate('${actplayer} may perform an action at the end of this turn'),
+        "descriptionmyturn" => clienttranslate('${you} may perform an action at the end of this turn'),
         "type" => "activeplayer",
         "possibleactions" => array( "actEndUntapGangsters","actSkipEndTurn" ),
-        "transitions" => array( "stay" => 40,"next" => 25, "skip"=>25, "zombiePass"=> 25, ),
+        "transitions" => array( "stay" => 41,"next" => 40, "skip"=>40, "zombiePass"=> 40, ),
     ),
 
     98 => array(
