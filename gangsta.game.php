@@ -605,10 +605,7 @@ class Gangsta extends Table {
             else {
                 $this->increasePlayerResourceScore($player_id,$resourceCard);
             }
-            if ($resourceCard['ability'] == 'bank'){
-                //Save player money to the vault
-                $this->savePlayerMoney($player_id);
-            }
+            $this->savePlayerMoney($player_id);
         }
         else {
             $this->trace("checkResourceCardActivation($player_id) - Not enough skills in ".json_encode($availableSkills)." for resource card type ".$resourceCard['type'] );
@@ -659,17 +656,21 @@ class Gangsta extends Table {
     }
 
     /**
-     *  Save player money to the vault
+     *  Save player money to the vault if active
      * 
      *  @param int $player_id 
      *  @param int|null $amount (Default null) When null, saves the maximum we can
      */
     function savePlayerMoney(int $player_id, int|null $amount = null)  {
+        $resourceCard = $this->getHandResourceCard($player_id);
+        if(!isset($resourceCard)) return;
+        if ($resourceCard['ability'] != 'bank') return;
+
         $current_money = self::getUniqueValueFromDB("SELECT player_money FROM player WHERE player_id='$player_id'");
         $money_in_vault = $this->globals->get(GLOBAL_VAULT_MONEY,0);
         $money_to_save = isset($amount) ? $amount : $current_money;
 
-        $updated_money = $money_in_vault + $money_to_save;
+        $updated_money = $money_to_save;
         //Save between 0 and 10 :
         $updated_money = max(0, $updated_money);
         $updated_money = min(10, $updated_money);
@@ -678,8 +679,19 @@ class Gangsta extends Table {
 
         $money_saved = $updated_money - $money_in_vault;
 
-        if($money_saved != 0){
-            $this->notify->all('vaultUpdate',clienttranslate('${player_name} saves $ ${n} in the bank vault'),[
+        if($money_saved < 0){
+            $msg = clienttranslate('${player_name} withdraws $ ${n} from the bank vault');
+            $this->notify->all('vaultUpdate',$msg,[
+                'preserve' => ['vault'],
+                'player_id' => $player_id,
+                'player_name' => $this->getPlayerNameById($player_id),
+                'n'=> -$money_saved,
+                'vault'=> $updated_money,
+            ]);
+        } 
+        else {
+            $msg = clienttranslate('${player_name} saves $ ${n} in the bank vault');
+            $this->notify->all('vaultUpdate',$msg,[
                     'preserve' => ['vault'],
                     'player_id' => $player_id,
                     'player_name' => $this->getPlayerNameById($player_id),
@@ -1330,6 +1342,7 @@ class Gangsta extends Table {
                                    'team_score' => $team_score,
                                    'order' => $gansterorder,
                                ]);
+        $this->savePlayerMoney($player_id);
 
         $heistScore = $old_values[$player_id]['player_score'] - $old_values[$player_id]['public_score'];
         if (!$this->isPublic) {
@@ -1384,6 +1397,7 @@ class Gangsta extends Table {
             'new_money' => $current_money,
             'money' => $leaderComps,
         ]);
+        $this->savePlayerMoney($player_id);
         
         $resource = $this->getHandResourceCard($player_id);
         if( isset($resource) && $resource['ability'] == 'black_market'
