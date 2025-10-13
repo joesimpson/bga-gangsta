@@ -157,6 +157,43 @@ trait DebugTrait
     $this->notify->player($playerId, 'reloadPage', "/!\ : Refresh page to see resource card...", []);
   }
   
+  function debug_PrivateJetVSSociety(){
+    $playerId = $this->getCurrentPlayerId();
+    $cardsToTest = [905,908];
+    $players = self::loadPlayersBasicInfos();
+    $k = 0;
+    foreach($players as $pId => $player){
+      $this->removeAllActionsFromEndTurn($pId); 
+    }
+    foreach($cardsToTest as $cardType){//Give resource cards to players
+      $nextPid = array_keys($players)[$k];
+
+      $resource = $this->getHandResourceCard($nextPid);
+      if(isset($resource)){
+        $resourceId = $resource['id'];
+        self::DbQuery("UPDATE `card` set card_location ='rc_discard', card_location_arg =0, card_state = 0 where card_id = $resourceId ");
+      }
+      
+      self::DbQuery("UPDATE `card` set card_location ='rc_hand', card_location_arg =$nextPid, card_state = 1 where card_type = $cardType ");
+      
+      //Several gangsters are needed to attack
+      if($k % 2==0) $gangstersToAdd = [124,125,152,111];
+      else $gangstersToAdd = [120,121,122,123];
+      self::DbQuery("UPDATE `card` set card_location ='hand', card_location_arg=$nextPid, card_state=0 where card_type in (". implode(',',$gangstersToAdd).") ");
+
+      $k++;
+    }
+
+    //some heists can COOP : 303
+    self::DbQuery("UPDATE `card` set card_location ='avheists' where card_type in (303,305) ");
+    
+    //Go to phase 2
+    self::DbQuery("UPDATE `global` set global_value = 1 where global_id = 12 ");
+
+    $this->gamestate->jumpToState(2);
+    $this->notify->all( 'reloadPage', "/!\ : Refresh page to see resource card...", []);
+  }
+  
   function debug_endTurnActions(){
     $player_id = $this->getCurrentPlayerId();
     
@@ -179,7 +216,7 @@ trait DebugTrait
 
     $this->globals->set(GLOBAL_END_TURN_ACTIONS_DONE,false);
     $this->gamestate->jumpToState(25);//checkPhase
-    $this->notify->player($player_id, 'reloadPage', "/!\ : Refresh page to see gangsters card...", []);
+    $this->notify->all('reloadPage', "/!\ : Refresh page to see gangsters card...", []);
   }
 
   //TODO JSA FIX PRODUCTION BUG  when conceding

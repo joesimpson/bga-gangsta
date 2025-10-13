@@ -975,7 +975,7 @@ class Gangsta extends Table {
             throw new BgaVisibleSystemException("You cannot untap now");
         }
         $possibleAmount = $argsForUntap['amount'];
-        if($possibleAmount > count($gangster_ids)) {
+        if($possibleAmount < count($gangster_ids)) {
             throw new BgaVisibleSystemException("You cannot untap more than $possibleAmount gangsters");
         }
         if(0 >= count($gangster_ids)) {
@@ -1222,6 +1222,7 @@ class Gangsta extends Table {
         self::checkAction('recruitGangster');
 
         $player_id = self::getActivePlayerId();
+        $this->trace("recruitGangster($player_id) ");
 
         $gangster = $this->getFullCardInfo($gangster_id);
 
@@ -1319,6 +1320,7 @@ class Gangsta extends Table {
         self::checkAction('pass');
 
         $player_id = self::getActivePlayerId();
+        $this->trace("passForMoney($player_id) ");
 
         $gangstersInTeam = $this->getCardsForPlayer($player_id);
         self::incStat(1, 'passedForMoney', $player_id);
@@ -1371,6 +1373,7 @@ class Gangsta extends Table {
         $heistdeck = $this->getRelevantHeistDeck();
 
         $player_id = self::getActivePlayerId();
+        $this->trace("performHeist($player_id) ");
 
         $heistCard = $this->cards->getCard($heist_id);
 
@@ -2163,19 +2166,17 @@ class Gangsta extends Table {
 
     function stNextPlayerForEndTurn(){
         $player_id = $this->getActivePlayerId();
-        $this->trace("stNextPlayerForEndTurn($player_id)");
         $endTurnActions = $this->globals->get(GLOBAL_END_TURN_ACTIONS,[]);
-        
-        if( count($endTurnActions)>0 ){
-            foreach($endTurnActions as $next_pid => $playerActions){
-                if(count($playerActions) == 0 ) continue;
-                //activate first player in list
-                $this->gamestate->changeActivePlayer($next_pid);
-                $this->giveExtraTime($next_pid);
-                $this->gamestate->nextState('nextAction');
-                return;
-            }
-        } 
+        $this->trace("stNextPlayerForEndTurn($player_id) ... endTurnActions = ".json_encode($endTurnActions));
+    
+        foreach($endTurnActions as $next_pid => $playerActions){
+            if(count($playerActions) == 0 ) continue;
+            //activate first player in list
+            $this->gamestate->changeActivePlayer($next_pid);
+            $this->giveExtraTime($next_pid);
+            $this->gamestate->nextState('nextAction');
+            return;
+        }
     
         $this->globals->set(GLOBAL_END_TURN_ACTIONS_DONE,true);
         //reActive current turn player 
@@ -2441,9 +2442,11 @@ class Gangsta extends Table {
     }
     
     function stEndTurnActions() {
+        $player_id = $this->getActivePlayerId();
+        $this->trace("stEndTurnActions($player_id) ");
         $args = $this->argEndTurnActions();
         if ($args['_no_notify']) {
-            $this->globals->set(GLOBAL_END_TURN_ACTIONS_DONE, true);
+            $this->removeAllActionsFromEndTurn($player_id);
             //Go to next phase when no more actions here
             $this->gamestate->nextState("next");
             return;

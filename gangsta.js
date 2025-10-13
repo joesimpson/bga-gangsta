@@ -513,7 +513,7 @@ define([
                         case 'freeUntapLeader':
                             this.statusBar.addActionButton(this.format_string(_("Untap ${n} leader(s)"), {n:  actionDatas['args'].amount}), () => {
                                 this.setClientState('client_untapGangsters', {
-                                   descriptionmyturn : this.format_string(_('You must choose which leaders to untap for free'), {  } ),
+                                   descriptionmyturn : this.format_string(_('You must choose ${n} leaders to untap for free'), { n: actionDatas['args'].amount  } ),
                                    args : actionDatas['args'],
                                 });
                             },{
@@ -524,7 +524,7 @@ define([
                         case 'freeUntapGangster':
                             this.statusBar.addActionButton(this.format_string(_("Untap ${n} gangster(s)"), {n:  actionDatas['args'].amount}), () => {
                                 this.setClientState('client_untapGangsters', {
-                                   descriptionmyturn : this.format_string(_('You must choose which gangsters to untap for free'), {  } ),
+                                   descriptionmyturn : this.format_string(_('You must choose ${n} gangsters to untap for free'), { n: actionDatas['args'].amount } ),
                                    args : actionDatas['args'],
                                 });
                             },{
@@ -555,6 +555,8 @@ define([
                         color: 'secondary',
                     });
                 this.statusBar.addActionButton(_("Confirm"), () => {
+                        if(this.currentMobilize.gangsters.length > args.amount) return;
+
                         this.bgaPerformAction('actEndUntapGangsters', { 'actionType':args.actionType, g_ids: this.currentMobilize.gangsters.join(";") });
                     },{
                         id:'btnEndTurnConfirm',
