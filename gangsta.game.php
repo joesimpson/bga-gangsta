@@ -37,6 +37,7 @@ const CARD_RESOURCE_STATE_ACTIVE = 1;
 const GLOBAL_END_TURN_ACTIONS = 'endTurnActions';
 const GLOBAL_END_TURN_ACTIONS_DONE = 'endTurnActionsDone';
 const GLOBAL_END_TURN_CURRENT_PLAYER = 'endTurnActionsCurrentPlayer';
+const GLOBAL_VAULT_MONEY = 'vault_money';
 
 //Pick 2 cards at setup
 const RESOURCE_CARDS_PER_PLAYER = 2;
@@ -186,6 +187,7 @@ class Gangsta extends Table {
         
         $this->globals->set(GLOBAL_END_TURN_ACTIONS_DONE,false);
         $this->globals->set(GLOBAL_END_TURN_ACTIONS,[]);
+        $this->globals->set(GLOBAL_VAULT_MONEY,0);
 
         // TODO: setup the initial game situation here
         $deck_gangsters = [];
@@ -426,6 +428,7 @@ class Gangsta extends Table {
             if ($this->isPublic) {
                 $result["panel_h_pts_$pid"] = ["counter_name" => "panel_h_pts_$pid", "counter_value" => $pinfo['player_score'] - $pinfo['public_score']];
             }
+            $result["panel_vault_$pid"] = ["counter_name" => "panel_vault_$pid", "counter_value" => $this->globals->get(GLOBAL_VAULT_MONEY,0)];
         }
 
         //Loop all gansgters in players's hand
@@ -602,6 +605,10 @@ class Gangsta extends Table {
             else {
                 $this->increasePlayerResourceScore($player_id,$resourceCard);
             }
+            if ($resourceCard['ability'] == 'bank'){
+                //Save player money to the vault
+                $this->savePlayerMoney($player_id);
+            }
         }
         else {
             $this->trace("checkResourceCardActivation($player_id) - Not enough skills in ".json_encode($availableSkills)." for resource card type ".$resourceCard['type'] );
@@ -649,6 +656,37 @@ class Gangsta extends Table {
             'new_res_score'=> $playerInfos['resource_value'],
 
         ]);
+    }
+
+    /**
+     *  Save player money to the vault
+     * 
+     *  @param int $player_id 
+     *  @param int|null $amount (Default null) When null, saves the maximum we can
+     */
+    function savePlayerMoney(int $player_id, int|null $amount = null)  {
+        $current_money = self::getUniqueValueFromDB("SELECT player_money FROM player WHERE player_id='$player_id'");
+        $money_in_vault = $this->globals->get(GLOBAL_VAULT_MONEY,0);
+        $money_to_save = isset($amount) ? $amount : $current_money;
+
+        $updated_money = $money_in_vault + $money_to_save;
+        //Save between 0 and 10 :
+        $updated_money = max(0, $updated_money);
+        $updated_money = min(10, $updated_money);
+
+        $this->globals->set(GLOBAL_VAULT_MONEY,$updated_money);
+
+        $money_saved = $updated_money - $money_in_vault;
+
+        if($money_saved != 0){
+            $this->notify->all('vaultUpdate',clienttranslate('${player_name} saves $ ${n} in the bank vault'),[
+                    'preserve' => ['vault'],
+                    'player_id' => $player_id,
+                    'player_name' => $this->getPlayerNameById($player_id),
+                    'n'=> $money_saved,
+                    'vault'=> $updated_money,
+                ]);
+        }
     }
 
     function getCompetenceCount($player_id,

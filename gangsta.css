@@ -742,6 +742,12 @@ div.tableWindow table {
     display: flex;
     align-items: center;
 }
+.player_cash .player_vault, .player_vault .icon_vault{
+    margin: 0 1px;
+}
+.player_cash .panel_vault{
+    margin: 0 2px;
+}
 .player_points {
     font-size: 14px;
     margin-top: 5px;

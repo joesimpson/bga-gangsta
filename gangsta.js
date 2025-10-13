@@ -196,6 +196,7 @@ define([
                     }
 
                     $('playermoney_' + player_id).innerHTML = player.money;
+                    player['vault_style'] = "no_display";
 
                     // Setting up players boards if needed
                     var player_board_div = $('player_board_' + player_id);
@@ -208,6 +209,7 @@ define([
                 }
 
                 this.updateCounters(this.gamedatas.counters);
+                this.addTooltipToClass('player_vault',_('Bank vault'),'');
 
                 if (this.gamedatas.activePhaseName == 'gangwars') {
                     dojo.removeClass('heists', 'genesis');
@@ -941,7 +943,7 @@ define([
                     ['media', this.format_string(_('Receive ${n} influence ${icon_influence} at the end of the game for each stored heist wich includes Influence Points (with a maximum of ${max}).'),{n:1,max:7, icon_influence: '<span class="reward-icon reward-influence"></span>'})],
                     [7, this.format_string(_(''),{ })],
                     ['private_society', this.format_string(_('At the end of your turn, make one of your leaders ${icon_leader} available for free.'),{icon_leader: `<span class="skill leader"></span>` })],
-                    [9, this.format_string(_('Store up to $${n} in the bank. This money cannot be targeted by a Theft ${icon_theft}. You can transfer or withdraw money into or from the bank at any time during your turn.'),{n:10, icon_theft: '<span class="reward-icon reward-theft"></span>' })],
+                    ['bank', this.format_string(_('Store up to $${n} in the bank. This money cannot be targeted by a Theft ${icon_theft}. You can transfer or withdraw money into or from the bank at any time during your turn.'),{n:10, icon_theft: '<span class="reward-icon reward-theft"></span>' })],
                     [10, this.format_string(_(''),{ })],
                     [11, this.format_string(_(''),{ })],
                     [12, this.format_string(_(''),{ })],
@@ -995,6 +997,11 @@ define([
 
                 let tipHtml = this.format_block('jstpl_tooltip_resource', tplCardDatas);
                 this.addTooltipHtml(cardDiv.id, tipHtml);
+
+                let vault = document.getElementById(`player_vault_${card_owner}`);
+                if(cardDatas.ability == 'bank'){
+                    vault.classList.remove("no_display");
+                }
 
                 return cardDiv;
             },
@@ -1726,6 +1733,9 @@ define([
                 dojo.subscribe('scoreResource', this, "notif_scoreResource");
                 this.notifqueue.setSynchronous('scoreResource', 300);
                 
+                dojo.subscribe('vaultUpdate', this, "notif_vaultUpdate");
+                this.notifqueue.setSynchronous('vaultUpdate', 300);
+                
                 dojo.subscribe('reloadPage', this, "notif_reloadPage");
             },
 
@@ -1741,6 +1751,13 @@ define([
 
                 this.changePlayerResourceScore(notif.args.player_id, notif.args.new_res_score);
                 this.changePlayerScore(notif.args.player_id, notif.args.new_influence);
+            },
+            notif_vaultUpdate: function (notif) {
+                debug( 'notif_vaultUpdate : update vault content', notif );
+
+                let totalVault = notif.args.vault;
+                let playerid = notif.args.player_id;
+                this.gamedatas.counters['panel_vault_' + playerid]['counter_value'] = totalVault;
             },
 
             notif_endPoints: function (notif) {

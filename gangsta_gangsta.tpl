@@ -142,8 +142,9 @@
                         </div>\
                       </div>\
                       <div class="player_cash">\
-                          <div class="money" id="playermoneyicon_{PLAYER_ID}"></div><span class="playermoney">&nbsp;<span class="boardValue" id="panel_money_${id}">10</span></span>\
-                          <div class="team" id="playerteamicon_{PLAYER_ID}"></div><span class="playerteam">&nbsp;<span class="boardValue" id="panel_team_${id}">0</span></span>\
+                          <div class="money" id="playermoneyicon_${id}"></div><span class="playermoney">&nbsp;<span class="boardValue" id="panel_money_${id}">10</span></span>\
+                          <div class="player_vault ${vault_style}" id="player_vault_${id}">(<i class="icon_vault fa6-solid fa6-vault fa6-lg"></i><span class="boardValue panel_vault" id="panel_vault_${id}">0</span>)</div>\
+                          <div class="team" id="playerteamicon_${id}"></div><span class="playerteam">&nbsp;<span class="boardValue" id="panel_team_${id}">0</span></span>\
                       </div>\
                       <div class="player_points">\
                           <span class="player_points_team">${teampoints}:&nbsp;<span class="boardValue" id="panel_t_pts_${id}">0</span></span> &nbsp;/&nbsp;\
