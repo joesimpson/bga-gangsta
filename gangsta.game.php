@@ -2374,6 +2374,14 @@ class Gangsta extends Table {
             $difference = $snitchValue - $skillCount;
             if ($difference > 0) { //player doesn't have enough Informants
                 $deduction = $difference;
+                $resource = $this->getHandResourceCard($pid);
+                if( isset($resource) && $resource['ability'] == 'police_station'
+                    && $resource['state'] == CARD_RESOURCE_STATE_ACTIVE 
+                ) {
+                    //Never pay more than $1 with police station
+                    $deduction = 1;
+                }
+
                 if ($pinfo['player_money'] < $deduction) { //player doesn't have nough money to compensate
                     self::DbQuery("UPDATE player SET player_money = 0  WHERE player_id = $pid");
                     //ok this guy must kill a gangster

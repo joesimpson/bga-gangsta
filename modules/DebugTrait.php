@@ -157,6 +157,28 @@ trait DebugTrait
     $this->notify->player($playerId, 'reloadPage', "/!\ : Refresh page to see resource card...", []);
   }
   
+  function debug_SnitchToDraw(int $money = 1){
+    $playerId = $this->getCurrentPlayerId();
+    self::DbQuery("UPDATE player SET player_money=$money where player_id = $playerId");
+
+    //set police station
+    $cardType = 901;
+    self::DbQuery("UPDATE `card` set card_location ='rc_hand', card_location_arg = $playerId, card_state = 1 where card_type = $cardType ");
+    
+    //Go to phase 2
+    self::DbQuery("UPDATE `global` set global_value = 1 where global_id = 12 ");
+    $snitchesTypes = [331,332,333];
+    $snitches = self::getCollectionFromDB("SELECT card_id id, card_type type  from card WHERE card_type in (". implode(',',$snitchesTypes).")");
+    foreach($snitches as $snitch){
+      $onTop = true;
+      if($snitch['type'] == 331) $onTop = false;
+      $this->cards->insertCardOnExtremePosition($snitch['id'],'deckgangwars',$onTop);
+    }
+
+    $this->gamestate->jumpToState(5);//discard card
+    $this->notify->all( 'reloadPage', "/!\ : Refresh page to see resource card...", []);
+  }
+  
   function debug_PrivateJetVSSociety(){
     $playerId = $this->getCurrentPlayerId();
     $cardsToTest = [905,908];

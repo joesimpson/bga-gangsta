@@ -2791,7 +2791,7 @@ $this->gangster_type = array(
 
 $this->resource_types = [
     901 => [
-        'ability' => 1,
+        'ability' => 'police_station',
         'influence' => 3,
         'name' => clienttranslate('Police station'),
         'cost' => [
