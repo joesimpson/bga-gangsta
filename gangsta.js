@@ -1000,8 +1000,10 @@ define([
                 let tipHtml = this.format_block('jstpl_tooltip_resource', tplCardDatas);
                 this.addTooltipHtml(cardDiv.id, tipHtml);
 
-                let vault = document.getElementById(`player_vault_${card_owner}`);
                 if(cardDatas.ability == 'bank'){
+                    let vault = document.getElementById(`player_vault_${card_owner}`);
+                    vault.classList.remove("no_display");
+                    vault = document.getElementById(`playerboard_vault_wrap_${card_owner}`);
                     vault.classList.remove("no_display");
                 }
 
@@ -1760,6 +1762,7 @@ define([
                 let totalVault = notif.args.vault;
                 let playerid = notif.args.player_id;
                 this.gamedatas.counters['panel_vault_' + playerid]['counter_value'] = totalVault;
+                this.gamedatas.counters['board_vault_' + playerid]['counter_value'] = totalVault;
             },
 
             notif_endPoints: function (notif) {

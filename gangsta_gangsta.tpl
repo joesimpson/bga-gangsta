@@ -31,6 +31,11 @@
         <span class="playermoney">
           x<span id="playermoney_{PLAYER_ID}">10</span></span
         >
+        <div class="player_vault playerboard_vault no_display" id="playerboard_vault_wrap_{PLAYER_ID}">
+          <i class="icon_vault fa6-solid fa6-vault fa6-lg"></i>
+          x<span class="playerboard_vault" id="board_vault_{PLAYER_ID}">0</span>
+        </div>
+        
         <div class="firstplayerwrap">
           <div id="firstplayer_{PLAYER_ID}" class="firstplayer"></div>
         </div>

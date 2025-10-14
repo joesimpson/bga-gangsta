@@ -429,6 +429,7 @@ class Gangsta extends Table {
                 $result["panel_h_pts_$pid"] = ["counter_name" => "panel_h_pts_$pid", "counter_value" => $pinfo['player_score'] - $pinfo['public_score']];
             }
             $result["panel_vault_$pid"] = ["counter_name" => "panel_vault_$pid", "counter_value" => $this->globals->get(GLOBAL_VAULT_MONEY,0)];
+            $result["board_vault_$pid"] = ["counter_name" => "board_vault_$pid", "counter_value" => $this->globals->get(GLOBAL_VAULT_MONEY,0)];
         }
 
         //Loop all gansgters in players's hand
