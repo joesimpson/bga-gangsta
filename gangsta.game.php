@@ -2275,9 +2275,12 @@ class Gangsta extends Table {
             //"Secret society - At the end of your turn, make one of your leaders available for free."
             $endTurnActions = $this->addActionToEndTurnWhenAbility($player_id,'freeUntapLeader','private_society');
 
-            $this->globals->set(GLOBAL_END_TURN_CURRENT_PLAYER,$player_id);
-            $this->gamestate->nextState('endTurnActions');
-            return;
+            if( count($endTurnActions)>0 ){
+
+                $this->globals->set(GLOBAL_END_TURN_CURRENT_PLAYER,$player_id);
+                $this->gamestate->nextState('endTurnActions');
+                return;
+            }
         }
         // -----------------------------------------------------------------
 
