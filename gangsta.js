@@ -959,7 +959,14 @@ define([
                     'type': cardDatas.type,
                     'name': _(cardDatas.name),
                     'state': cardDatas.state,
-                    'ability': this.format_string( _('Ability when active : ${ability}') , {'ability': '<span class="resource_ability_value">'+this.formatResourceCardAbilityText(cardDatas.ability)+'</span>'}),
+                    'ability': this.format_string( 
+                        bga_format(_('Ability *when active* : ${ability}'), {
+                            '*': (t) => '<b><i>' + t + '</i></b>',
+                        })
+                        , {
+                            'ability': '<span class="resource_ability_value">'+this.formatResourceCardAbilityText(cardDatas.ability)+'</span>'
+                        }
+                    ),
                     'required_skills_label': _('Required Skills :'),
                     'skill_1_value': cardDatas.cost[1],
                     'skill_2_value': cardDatas.cost[2],
@@ -967,7 +974,14 @@ define([
                     'skill_4_value': cardDatas.cost[4],
                     'skill_5_value': cardDatas.cost[5],
                     'skill_6_value': cardDatas.cost[6],
-                    'LABEL_INFLUENCE': this.format_string( _('End game influence when active : ${influence}') , {'influence': '<span class="resource_influence_value">'+cardDatas.influence+'</span>'}),
+                    'LABEL_INFLUENCE': this.format_string(
+                        bga_format(_('End game influence *when active* : ${influence}'), {
+                            '*': (t) => '<b><i>' + t + '</i></b>',
+                        })
+                        , {
+                            'influence': '<span class="resource_influence_value">'+cardDatas.influence+'</span>'
+                        }
+                    ),
                 };
                 return tplCardDatas;
             },
