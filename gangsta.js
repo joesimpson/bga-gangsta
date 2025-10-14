@@ -988,10 +988,13 @@ define([
 
             addResourceCardInHand: async function (cardDatas) {
                 debug('addResourceCardInHand',cardDatas);
+                let card_owner = cardDatas.location_arg;
+                if(cardDatas.ability == 'bank'){
+                    this.displayPlayerVault(card_owner);
+                }
                 let cardDiv = $('resource_card_' + cardDatas.id);
                 if (cardDiv) return cardDiv;
 
-                let card_owner = cardDatas.location_arg;
                 let tplCardDatas = this.prepareTplDatasForResourceCard(cardDatas);
                 await dojo.place(this.format_block('jstpl_resource_card',tplCardDatas ), `player_resource_cards_${card_owner}`);
                 
@@ -1000,15 +1003,18 @@ define([
                 let tipHtml = this.format_block('jstpl_tooltip_resource', tplCardDatas);
                 this.addTooltipHtml(cardDiv.id, tipHtml);
 
-                if(cardDatas.ability == 'bank'){
-                    let vault = document.getElementById(`player_vault_${card_owner}`);
-                    vault.classList.remove("no_display");
-                    vault = document.getElementById(`playerboard_vault_wrap_${card_owner}`);
-                    vault.classList.remove("no_display");
-                }
-
                 return cardDiv;
             },
+            displayPlayerVault: function (player_id) {
+                debug('displayPlayerVault',player_id);
+            
+                let vault = document.getElementById(`player_vault_${player_id}`);
+                vault.classList.remove("no_display");
+                vault = document.getElementById(`playerboard_vault_wrap_${player_id}`);
+                vault.classList.remove("no_display");
+            },
+            
+
 
             addGangster: function (player_id, type, id, gangsterState, fullCard) {
                 // Standard case
@@ -1763,6 +1769,8 @@ define([
                 let playerid = notif.args.player_id;
                 this.gamedatas.counters['panel_vault_' + playerid]['counter_value'] = totalVault;
                 this.gamedatas.counters['board_vault_' + playerid]['counter_value'] = totalVault;
+
+                this.displayPlayerVault(playerid);
             },
 
             notif_endPoints: function (notif) {
@@ -1790,7 +1798,7 @@ define([
 
                 let card = notif.args.card;
                 let cardDiv = $('card_wrap_' + card.id);
-                if(!cardDiv) this.addResourceCardInHand(card);
+                await this.addResourceCardInHand(card);
                 let destinationDiv = document.getElementById(`player_resource_cards_${this.player_id}`);
                 await this.animationManager.slideAndAttach(cardDiv, destinationDiv);
 
@@ -1803,7 +1811,7 @@ define([
                 let card = notif.args.card;
                 let player_id = notif.args.player_id;
                 let cardDiv = $('card_wrap_' + card.id);
-                if(!cardDiv) await this.addResourceCardInHand(card);
+                await this.addResourceCardInHand(card);
                 cardDiv = $('card_wrap_' + card.id);
                 await this.animationManager.fadeIn(cardDiv, $('av_resources'));
             },
