@@ -504,6 +504,15 @@ div.tableWindow table {
     font-weight: 700;
     font-size: 18px;
 }
+.button_player_name {
+  text-shadow: 2px 0px 2px black, 0px 2px 2px black, -2px 0px 2px black, 0px -2px 2px black;
+}
+.button_player_name[style*="color:#0000ff"],
+.button_player_name[style*="color:#008000"], 
+.button_player_name[style*="color:#773300"] 
+{
+  text-shadow: 2px 0px 2px white, 0px 2px 2px white, -2px 0px 2px white, 0px -2px 2px white;
+}
 .genesis .deck {
     background: url('img/heist_sprite_chap1.jpg');
     background-size: 990px 616px;

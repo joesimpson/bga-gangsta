@@ -187,7 +187,7 @@ class Gangsta extends Table {
         
         $this->globals->set(GLOBAL_END_TURN_ACTIONS_DONE,false);
         $this->globals->set(GLOBAL_END_TURN_ACTIONS,[]);
-        $this->globals->set(GLOBAL_VAULT_MONEY,0);
+        $this->globals->set(GLOBAL_VAULT_MONEY,intval(0));
 
         // TODO: setup the initial game situation here
         $deck_gangsters = [];
@@ -605,7 +605,7 @@ class Gangsta extends Table {
             else {
                 $this->increasePlayerResourceScore($player_id,$resourceCard);
             }
-            $this->savePlayerMoney($player_id);
+            $this->updatePlayerVault($player_id);
         }
         else {
             $this->trace("checkResourceCardActivation($player_id) - Not enough skills in ".json_encode($availableSkills)." for resource card type ".$resourceCard['type'] );
@@ -619,6 +619,7 @@ class Gangsta extends Table {
      */
     function increasePlayerResourceScore(int $player_id,array $resourceCard, int|null $score_delta = null) {
         if($resourceCard['state'] == CARD_RESOURCE_STATE_INACTIVE) return;
+        $this->trace("increasePlayerResourceScore($player_id,$score_delta) ");
 
         $resourceScore = isset($score_delta) ? $score_delta : $resourceCard['influence'];
 
@@ -656,15 +657,17 @@ class Gangsta extends Table {
     }
 
     /**
-     *  Save player money to the vault if active
+     *  Save player money to the vault if active (between 0 and 10)
      * 
      *  @param int $player_id 
      *  @param int|null $amount (Default null) When null, saves the maximum we can
      */
-    function savePlayerMoney(int $player_id, int|null $amount = null)  {
+    function updatePlayerVault(int $player_id, int|null $amount = null)  {
         $resourceCard = $this->getHandResourceCard($player_id);
         if(!isset($resourceCard)) return;
+        if ($resourceCard['state'] != CARD_RESOURCE_STATE_ACTIVE) return;
         if ($resourceCard['ability'] != 'bank') return;
+        $this->trace("updatePlayerVault($player_id,$amount) ");
 
         $current_money = self::getUniqueValueFromDB("SELECT player_money FROM player WHERE player_id='$player_id'");
         $money_in_vault = $this->globals->get(GLOBAL_VAULT_MONEY,0);
@@ -675,7 +678,7 @@ class Gangsta extends Table {
         $updated_money = max(0, $updated_money);
         $updated_money = min(10, $updated_money);
 
-        $this->globals->set(GLOBAL_VAULT_MONEY,$updated_money);
+        $this->globals->set(GLOBAL_VAULT_MONEY,intval( $updated_money) );
 
         $money_saved = $updated_money - $money_in_vault;
 
@@ -689,7 +692,7 @@ class Gangsta extends Table {
                 'vault'=> $updated_money,
             ]);
         } 
-        else {
+        else if($money_saved > 0){
             $msg = clienttranslate('${player_name} saves $ ${n} in the bank vault');
             $this->notify->all('vaultUpdate',$msg,[
                     'preserve' => ['vault'],
@@ -699,6 +702,21 @@ class Gangsta extends Table {
                     'vault'=> $updated_money,
                 ]);
         }
+    }
+    
+    /**
+     *  @param int $player_id 
+     * 
+     *  @return int 0 or the amount the player saved in Bank vault
+     */
+    function getPlayerVaultMoney(int $player_id) : int {
+        $resourceCard = $this->getHandResourceCard($player_id);
+        if(!isset($resourceCard)) return 0;
+        if ($resourceCard['state'] != CARD_RESOURCE_STATE_ACTIVE) return 0;
+        if ($resourceCard['ability'] != 'bank') return 0;
+
+        $money_in_vault = $this->globals->get(GLOBAL_VAULT_MONEY,0);
+        return $money_in_vault;
     }
 
     function getCompetenceCount($player_id,
@@ -993,6 +1011,7 @@ class Gangsta extends Table {
 
         if ($cost > 0) {
             self::dbQuery("UPDATE player SET player_money=player_money-$cost WHERE player_id='$player_id'");
+            $this->updatePlayerVault($player_id);
         }
 
         self::notifyAllPlayers('mobilize',
@@ -1342,7 +1361,7 @@ class Gangsta extends Table {
                                    'team_score' => $team_score,
                                    'order' => $gansterorder,
                                ]);
-        $this->savePlayerMoney($player_id);
+        $this->updatePlayerVault($player_id);
 
         $heistScore = $old_values[$player_id]['player_score'] - $old_values[$player_id]['public_score'];
         if (!$this->isPublic) {
@@ -1397,7 +1416,7 @@ class Gangsta extends Table {
             'new_money' => $current_money,
             'money' => $leaderComps,
         ]);
-        $this->savePlayerMoney($player_id);
+        $this->updatePlayerVault($player_id);
         
         $resource = $this->getHandResourceCard($player_id);
         if( isset($resource) && $resource['ability'] == 'black_market'
@@ -1546,6 +1565,7 @@ class Gangsta extends Table {
                                    'new_money' => $newvalues[$player_id]['player_money'],
                                    'gangsters' => $gangster_ids,
                                ]);
+        $this->updatePlayerVault($player_id);
 
         if (!$this->isPublic) {
             self::notifyPlayer($player_id, 'scoreUpdate', "", [
@@ -1590,6 +1610,7 @@ class Gangsta extends Table {
                                                'money' => $coopReward,
                                                'new_money' => $players[$pid]['player_money'] + $coopReward,
                                            ]);
+                    $this->updatePlayerVault($pid);
                     //Cooperating players could an action at the end of the turn
                     $this->addActionToEndTurnWhenAbility($pid,'freeUntapGangster','private_jet');
                 }
@@ -1751,11 +1772,10 @@ class Gangsta extends Table {
         if (!($target_id > 0 && $target_id != $player_id)) {
             throw new feException("Invalid player");
         }
+        $args = $this->argRewardSteal();
 
-        $stealAmount = self::getGameStateValue('rewardParam');
-
-        $sql = "SELECT player_id id, player_money money FROM player ";
-        $players = self::getCollectionFromDb($sql);
+        $stealAmount = $args['amount'];
+        $players = $args['player_money'];
 
         if (!array_key_exists($target_id, $players)) {
             throw new feException("Invalid player");
@@ -1784,6 +1804,7 @@ class Gangsta extends Table {
             'new_amount_player' => $new_amount_player,
             'new_amount_target' => $new_amount_target,
         ]);
+        $this->updatePlayerVault($player_id);
 
         $this->gamestate->nextState('checkPhase');
     }
@@ -1958,6 +1979,11 @@ class Gangsta extends Table {
     function argRewardSteal() {
         $amount = self::getGameStateValue('rewardParam');
         $playermoney = self::getCollectionFromDB("SELECT player_id 'id', player_name 'name', player_money 'money' FROM player");
+        foreach($playermoney as $id => &$datas){
+            $datas['vault'] = $this->getPlayerVaultMoney($id);
+            //'money' represents the stealable amount
+            $datas['money'] -= $datas['vault'];
+        }
 
         return [
             'amount' => $amount,
@@ -2326,6 +2352,7 @@ class Gangsta extends Table {
                                            'money' => $bonuscash,
                                            'new_money' => $current_money + $bonuscash,
                                        ]);
+                $this->updatePlayerVault($pid);
             } else {
                 $bonuscash = 0;
             }
@@ -2464,6 +2491,7 @@ class Gangsta extends Table {
                                            ]);
                     self::incStat($deduction, 'lostToSnitch', $pid);
                 }
+                $this->updatePlayerVault($pid);
             } else {
                 //player is unaffected because of informant skill
                 self::notifyAllPlayers('message',

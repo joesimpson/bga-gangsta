@@ -157,6 +157,35 @@ trait DebugTrait
     $this->notify->player($playerId, 'reloadPage', "/!\ : Refresh page to see resource card...", []);
   }
   
+  function debug_EndOfChapter(int $chap = 1){
+    $playerId = $this->getCurrentPlayerId();
+
+    //set bank
+    $cardType = 909;
+    self::DbQuery("UPDATE `card` set card_location ='rc_discard', card_location_arg = 0 where card_location ='rc_hand' and card_location_arg = $playerId ");
+    self::DbQuery("UPDATE `card` set card_location ='rc_hand', card_location_arg = $playerId, card_state = 1 where card_type = $cardType ");
+    
+    //Go to phase 2
+    $phase = $chap -1;
+    self::DbQuery("UPDATE `global` set global_value = $phase where global_id = 12 ");
+    self::setGameStateValue('activePhase', $phase);
+
+    $countForChap = [4,7,9][$phase];
+
+    $players = self::loadPlayersBasicInfos();
+    foreach($players as $pId => $player){
+      $gangsters = $this->cards->getPlayerHand($pId);
+      if(count($gangsters) < $countForChap ){
+        $this->cards->pickCardsForLocation($countForChap-count($gangsters) ,'deckgenesis','hand',$pId);
+      } else if(count($gangsters) > $countForChap ){
+        $this->cards->pickCardsForLocation(count($gangsters) - $countForChap ,'hand','deckgenesis',$pId);
+      }
+    }
+
+    $this->notify->all( 'reloadPage', "/!\ : Refresh page to see resource card...", []);
+    $this->gamestate->jumpToState(25);//checkPhase
+  }
+
   function debug_SnitchToDraw(int $money = 1){
     $playerId = $this->getCurrentPlayerId();
     self::DbQuery("UPDATE player SET player_money=$money where player_id = $playerId");

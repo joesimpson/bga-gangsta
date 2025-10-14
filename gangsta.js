@@ -862,12 +862,14 @@ define([
 
             addAllPlayerButtons: function (args) {
                 var activeplayer = this.getActivePlayerId();
-                for (var player_id in this.gamedatas.players) {
+                for (let player_id in args.player_money) {
                     if (player_id != activeplayer) {
-                        var name = this.gamedatas.players[player_id].name;
-                        var money = this.gamedatas.players[player_id].money;
+                        let name = args.player_money[player_id].name;
+                        let player_color = this.gamedatas.players[player_id].color;
+                        let formattedName = `<span class='button_player_name' style='color:#${player_color};'>${name}</span>`;
+                        let money = args.player_money[player_id].money;
                         if (money >= 0) {
-                            this.addActionButton('st_Button' + player_id, name + ' (' + money + ')', dojo.hitch(this, "onSteal", player_id));
+                            this.addActionButton('st_Button' + player_id, formattedName + ' (' + money + ')', dojo.hitch(this, "onSteal", player_id));
                         }
                     }
                 }
