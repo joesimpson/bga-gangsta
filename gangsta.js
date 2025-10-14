@@ -939,7 +939,7 @@ define([
                 let descriptionMap = new Map([
                     ['police_station', this.format_string(_('Never pay more than $${n} to the bank when a Snitch is revealed. The usual rules apply if you are unable to shell out $${n}.'),{n:1 })],
                     ['black_market', this.format_string(_('Receive + $${n} when you Pass your Turn.'),{n:2 })],
-                    [3, this.format_string(_('Pay $${n} to make your entire gang available'),{ n:1})],
+                    ['hq', this.format_string(_('Pay $${n} to make your entire gang available'),{ n:1})],
                     [4, this.format_string(_('Receive $${n} at the beginning of each of your turns. Discard the Counterfeit printing card during the gang war and place it with your stored Heist Cards.'),{n:1 })],
                     ['private_jet', this.format_string(_('If you just performed or participated in a Cooperative Heist ${icon_coop}, make any of your gangsters Available.'),{ icon_coop:'<span class="reward-icon reward-coop"></span>' })],
                     ['media', this.format_string(_('Receive ${n} influence ${icon_influence} at the end of the game for each stored heist wich includes Influence Points (with a maximum of ${max}).'),{n:1,max:7, icon_influence: '<span class="reward-icon reward-influence"></span>'})],

@@ -998,6 +998,14 @@ class Gangsta extends Table {
         if ($cost < 0) {
             $cost = 0;
         }
+        $resource = $this->getHandResourceCard($player_id);
+        if( isset($resource) 
+            && $resource['state'] == CARD_RESOURCE_STATE_ACTIVE 
+            && $resource['ability'] == 'hq'
+        ){
+            //1 max to pay with headquarters
+            $cost = min($cost,1);
+        }
         if ($availableMoney < $cost) {
             throw new BgaUserException(self::_("You don't have enough money for that"));
         }
