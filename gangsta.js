@@ -940,7 +940,7 @@ define([
                     ['police_station', this.format_string(_('Never pay more than $${n} to the bank when a Snitch is revealed. The usual rules apply if you are unable to shell out $${n}.'),{n:1 })],
                     ['black_market', this.format_string(_('Receive + $${n} when you Pass your Turn.'),{n:2 })],
                     ['hq', this.format_string(_('Pay $${n} to make your entire gang available'),{ n:1})],
-                    [4, this.format_string(_('Receive $${n} at the beginning of each of your turns. Discard the Counterfeit printing card during the gang war and place it with your stored Heist Cards.'),{n:1 })],
+                    ['counterfeit_printing', this.format_string(_('Receive $${n} at the beginning of each of your turns. Discard the Counterfeit printing card during the gang war and place it with your stored Heist Cards.'),{n:1 })],
                     ['private_jet', this.format_string(_('If you just performed or participated in a Cooperative Heist ${icon_coop}, make any of your gangsters Available.'),{ icon_coop:'<span class="reward-icon reward-coop"></span>' })],
                     ['media', this.format_string(_('Receive ${n} influence ${icon_influence} at the end of the game for each stored heist wich includes Influence Points (with a maximum of ${max}).'),{n:1,max:7, icon_influence: '<span class="reward-icon reward-influence"></span>'})],
                     [7, this.format_string(_(''),{ })],
@@ -1712,8 +1712,8 @@ define([
                 dojo.subscribe('selectedResourcePublic', this, "notif_selectedResourcePublic");
                 this.notifqueue.setSynchronous('selectedResourcePublic', 800);
                 
-                dojo.subscribe('activeResource', this, "notif_activeResource");
-                this.notifqueue.setSynchronous('activeResource', 800);
+                dojo.subscribe('resourceState', this, "notif_resourceState");
+                this.notifqueue.setSynchronous('resourceState', 800);
 
                 dojo.subscribe('setupAvailableCards', this, "notif_setupAvailableCards");
                 this.notifqueue.setSynchronous('setupAvailableCards', 500);
@@ -1723,6 +1723,7 @@ define([
                 //this.notifqueue.setSynchronous( 'recruitGangster', 1000 );
                 //this.notifqueue.setSynchronous( 'performHeist', 1000 );
                 dojo.subscribe('pass', this, "notif_pass");
+                dojo.subscribe('gainMoney', this, "notif_gainMoney");
                 dojo.subscribe('gainReward', this, "notif_gainReward");
                 this.notifqueue.setSynchronous('gainReward', 500);
                 dojo.subscribe('discardHeist', this, "notif_discardHeist");
@@ -1830,15 +1831,15 @@ define([
                 await this.animationManager.fadeIn(cardDiv, $('av_resources'));
             },
             
-            notif_activeResource: async function (notif) {
-                debug( 'notif_activeResource ...',notif );
+            notif_resourceState: async function (notif) {
+                debug( 'notif_resourceState ...',notif );
 
                 let card = notif.args.card;
                 let player_id = notif.args.player_id;
                 let cardDiv = $('card_wrap_' + card.id);
 
                 //TODO JSA ANIM ROTATE ?
-                cardDiv.dataset.state = 1;//CARD_RESOURCE_STATE_ACTIVE
+                cardDiv.dataset.state = card.state;
             },
 
             notif_recruitGangster: function (notif) {
@@ -1883,6 +1884,11 @@ define([
 
             notif_pass: function (notif) {
                 debug( 'notif_pass',notif );
+                this.changePlayerMoney(notif.args.player_id, notif.args.new_money);
+            },
+
+            notif_gainMoney: function (notif) {
+                debug( 'notif_gainMoney',notif );
                 this.changePlayerMoney(notif.args.player_id, notif.args.new_money);
             },
 

@@ -2830,7 +2830,7 @@ $this->resource_types = [
         ],
     ],
     904 => [
-        'ability' => 4,
+        'ability' => 'counterfeit_printing',
         'influence' => 3,
         'name' => clienttranslate('Counterfeit Printing'),
         'cost' => [

@@ -33,6 +33,7 @@ const CARD_RESOURCE_LOCATION_FUTURE_HAND = 'rc_hand_future';
 
 const CARD_RESOURCE_STATE_INACTIVE = 0;
 const CARD_RESOURCE_STATE_ACTIVE = 1;
+const CARD_RESOURCE_STATE_DISABLED = 2;
 
 const GLOBAL_END_TURN_ACTIONS = 'endTurnActions';
 const GLOBAL_END_TURN_ACTIONS_DONE = 'endTurnActionsDone';
@@ -572,9 +573,10 @@ class Gangsta extends Table {
         $this->trace("checkResourceCardActivation($player_id) ... ");
         $resourceCard = $this->getHandResourceCard($player_id);
         if(!isset($resourceCard)) return;
-        $activeState = CARD_RESOURCE_STATE_ACTIVE;
-        if($resourceCard['state'] == $activeState) return;
+        $inactiveState = CARD_RESOURCE_STATE_INACTIVE;
+        if($resourceCard['state'] != $inactiveState) return;
 
+        $activeState = CARD_RESOURCE_STATE_ACTIVE;
         $resourceCardId = $resourceCard['id'];
         $availableSkills = $this->getAllTeamSkill($player_id);
 
@@ -590,7 +592,7 @@ class Gangsta extends Table {
             $sql = "UPDATE card SET card_state = $activeState where card_id = $resourceCardId";
             self::DbQuery($sql);
             
-            $this->notify->all('activeResource',clienttranslate('${player_name} actives his resource card : ${resource_name}'),[
+            $this->notify->all('resourceState',clienttranslate('${player_name} actives his resource card : ${resource_name}'),[
                     'i18n' => ['resource_name'],
                     'player_id' => $player_id,
                     'player_name' => $this->getPlayerNameById($player_id),
@@ -2178,6 +2180,27 @@ class Gangsta extends Table {
 
         $nextState = 'mobilize';
 
+        $resource = $this->getHandResourceCard($player_id);
+        if( isset($resource) && $resource['ability'] == 'counterfeit_printing'
+            && $resource['state'] == CARD_RESOURCE_STATE_ACTIVE 
+        ){
+            //GET 1$
+            $printingMoney = 1;
+            $current_money = self::getUniqueValueFromDB("SELECT player_money FROM player WHERE player_id='$player_id'");
+            $current_money += $printingMoney;
+            self::DbQuery("UPDATE player SET player_money='$current_money' WHERE player_id='$player_id'");
+
+            $this->notify->all('gainMoney', clienttranslate('${player_name} receives $${money} with the resource card ${resource_name}'), [
+                'i18n' => ['resource_name'],
+                'player_id' => $player_id,
+                'player_name' => $this->getPlayerNameById($player_id),
+                'new_money' => $current_money,
+                'money' => $printingMoney,
+                'resource_name'=> $resource['name'],
+            ]);
+
+        }
+
         if ($this->checkForSynchro($player_id)) {
             self::incStat(1, 'synchronizations', $player_id);
             $this->untapAllPlayerGangsters($player_id);
@@ -2617,6 +2640,25 @@ class Gangsta extends Table {
             "closing" => clienttranslate('Close'),
         ]);
 
+        //Find and CHANGE STATE of counterfeit_printing after chap gang war :
+        foreach($p_infos as $pId => $player){
+            $resource = $this->getHandResourceCard($pId);
+            if( isset($resource) && $resource['ability'] == 'counterfeit_printing' ){
+                $resourceId = $resource['id'];
+                $newState = CARD_RESOURCE_STATE_DISABLED;
+                $resource['state'] = $newState;
+                self::DbQuery("UPDATE card SET card_state = $newState where card_id = $resourceId");
+                
+                $this->notify->all('resourceState',clienttranslate('${player_name} discards his resource card : ${resource_name}'),[
+                    'i18n' => ['resource_name'],
+                    'player_id' => $pId,
+                    'player_name' => $this->getPlayerNameById($pId),
+                    'card'=> $resource,
+                    'resource_name'=> $resource['name'],
+
+                ]);
+            }
+        }
 
         $this->gamestate->nextState("GDGMulti");
     }

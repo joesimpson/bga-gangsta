@@ -186,7 +186,40 @@ div.tableWindow table {
     box-shadow: 0 0 0 2px rgb(124,252,0) inset;
 }
 .playertableau .resource_card_wrap[data-state="0"] { /*CARD_RESOURCE_STATE_INACTIVE*/
-  transform: rotate(-90deg);
+    transform: rotate(-90deg);
+}
+.playertableau .resource_card_wrap[data-state="2"] { /*CARD_RESOURCE_STATE_DISABLED*/
+    transform: rotate(+90deg);
+}
+.resource_card_wrap[data-state="2"] .resource_card:before  {/*CARD_RESOURCE_STATE_DISABLED*/
+    content: '';
+    position: absolute;
+    top: 1%;
+    left: 1%;
+    bottom: 0;
+    right: 1%;
+    width: 98%;
+    height: 98%;
+    border-radius: 6px 6px 6px 6px;
+    background-color: #131219;
+    opacity: 0.7;
+    box-shadow: 0 25px 25px 0px rgb(0 0 0 / 75%) inset;
+    -webkit-box-shadow: 0px 25px 25px 0px rgba(0,0,0,0.75) inset;
+    -moz-box-shadow: 0 25px 25px 0px rgba(0,0,0,0.75) inset;
+}
+.resource_card_wrap[data-state="2"] .resource_card:after {/*CARD_RESOURCE_STATE_DISABLED*/
+    /* green */
+    content: '';
+    position: absolute;
+    top: 30%;
+    left: 20%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url('img/sprite_rewards.png');
+    background-position: -420px 0;
+    width: 60px;
+    height: 60px;
 }
 
 .resource_card[data-type="901"] { /*police Station*/
