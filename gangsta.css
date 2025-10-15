@@ -893,6 +893,7 @@ body[data-resources_variant="1"] .player_points_resources_separator {
     border-radius: 6px !important;
     border: 0 !important;
     background: #d2cbc6 !important;
+    color: black;
 }
 .cardTip {
     border-radius: 6px !important;
