@@ -191,7 +191,7 @@ div.tableWindow table {
 .playertableau .resource_card_wrap[data-state="2"] { /*CARD_RESOURCE_STATE_DISABLED*/
     transform: rotate(+90deg);
 }
-.resource_card_wrap[data-state="2"] .resource_card:before  {/*CARD_RESOURCE_STATE_DISABLED*/
+.playertableau .resource_card_wrap[data-state="2"] .resource_card:before  {/*CARD_RESOURCE_STATE_DISABLED*/
     content: '';
     position: absolute;
     top: 1%;
@@ -207,8 +207,7 @@ div.tableWindow table {
     -webkit-box-shadow: 0px 25px 25px 0px rgba(0,0,0,0.75) inset;
     -moz-box-shadow: 0 25px 25px 0px rgba(0,0,0,0.75) inset;
 }
-.resource_card_wrap[data-state="2"] .resource_card:after {/*CARD_RESOURCE_STATE_DISABLED*/
-    /* green */
+.playertableau .resource_card_wrap[data-state="2"] .resource_card:after {/*CARD_RESOURCE_STATE_DISABLED*/
     content: '';
     position: absolute;
     top: 30%;
@@ -216,10 +215,13 @@ div.tableWindow table {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-image: url('img/sprite_rewards.png');
-    background-position: -420px 0;
     width: 60px;
     height: 60px;
+    /*Display a garbage icon over the card*/
+    content: "\f1f8";
+    font: normal normal normal 60px/1 FontAwesome;
+    color: white;
+    transform: rotate(-90deg);
 }
 
 .resource_card[data-type="901"] { /*police Station*/
