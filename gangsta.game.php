@@ -1148,7 +1148,7 @@ class Gangsta extends Table {
         for ($i = 1; $i < 7; $i++) {
             $scount += $this->gangster_type[$gangster['type']]['stats'][$i];
         }
-        if ($scount != 2) {
+        if ($scount != 2 || $this->gangster_type[$gangster['type']]['type'] == 'boss') {
             throw new BgaUserException(self::_("You can only discard a gangster with exactly 2 skills who isn't a Boss"));
         }
 
