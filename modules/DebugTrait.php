@@ -11,14 +11,14 @@ trait DebugTrait
  
   ////////////////////////////////////////////////////
 
-  function debug_ReSetup(bool $draft = true){
+  function debug_ReSetup(bool $draft = true,bool $visibleHeistScore = true){
     $this->trace("debug_ReSetup - START ////////////////////////////////////////////////////");
     $players = self::loadPlayersBasicInfos();
     
     $options = ["DEBUG_SETUP"=> true,
       100 => 2,
       101 => 2,
-      102 => 2,
+      102 => ($visibleHeistScore ? 2 :1) ,
       103 => ($draft ? 2 :1) ,
     ];
     //CLEAR DATAS
@@ -26,9 +26,10 @@ trait DebugTrait
     self::DbQuery("DELETE FROM `stats` where stats_type >= 10 ");
     self::DbQuery("DELETE FROM `card`");
     //self::DbQuery("UPDATE `global` set global_value = 0 where global_id >= 10 AND global_id < 100 ");
-    self::DbQuery("DELETE FROM `global` where global_id >= 10 AND global_id < 100 or global_id = 103 ");
+    self::DbQuery("DELETE FROM `global` where global_id >= 10 AND global_id < 100 or global_id in( 102,103) ");
+    self::DbQuery("INSERT INTO `global` (global_id,global_value) VALUES ( 102,".$options[102]." )"); //NOT ENOUGH because of cache
     self::DbQuery("INSERT INTO `global` (global_id,global_value) VALUES ( 103,".$options[103]." )"); //NOT ENOUGH because of cache
-
+    self::setGameStateValue( 'publicvariant', $options[102]);
     self::setGameStateValue( 'resourcevariant', $options[103]);
 
     self::DbQuery("DELETE FROM `player`");
@@ -270,7 +271,7 @@ trait DebugTrait
     $this->notify->all('reloadPage', "/!\ : Refresh page to see gangsters card...", []);
   }
 
-  //TODO JSA FIX PRODUCTION BUG  when conceding
+  //Test PRODUCTION BUG "Unexpected Error - BIGINT UNSIGNED value is out of range"  when conceding -> fixed
   function debug_scoreOnConcede(){
     $player_id = $this->getCurrentPlayerId();
     

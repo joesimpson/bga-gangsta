@@ -314,7 +314,8 @@ class Gangsta extends Table {
         $result['private_score'] = 0;
         if (!self::isSpectator() && !self::isCurrentPlayerZombie()) {
             $result['private_score'] = self::getUniqueValueFromDB("SELECT player_score FROM player WHERE player_id='$current_player_id'");
-            $result['heist_score'] = self::getUniqueValueFromDB("SELECT player_score-public_score FROM player WHERE player_id='$current_player_id'");
+            //$result['heist_score'] = self::getUniqueValueFromDB("SELECT CAST(player_scoe AS SIGNED) - CAST(public_score AS SIGNED) FROM player WHERE player_id='$current_player_id'");
+            $result['heist_score'] = self::getStat('scoreFromHeist', $current_player_id);
         }
 
         // Get information about players
@@ -428,7 +429,8 @@ class Gangsta extends Table {
             $result["family_cartel_$pid"] = ["counter_name" => "family_cartel_$pid", "counter_value" => 0];
             $result["family_gang_$pid"] = ["counter_name" => "family_gang_$pid", "counter_value" => 0];
             if ($this->isPublic) {
-                $result["panel_h_pts_$pid"] = ["counter_name" => "panel_h_pts_$pid", "counter_value" => $pinfo['player_score'] - $pinfo['public_score']];
+                $heistScore = self::getStat('scoreFromHeist', $pid);
+                $result["panel_h_pts_$pid"] = ["counter_name" => "panel_h_pts_$pid", "counter_value" => $heistScore];
             }
             $result["panel_vault_$pid"] = ["counter_name" => "panel_vault_$pid", "counter_value" => $this->globals->get(GLOBAL_VAULT_MONEY,0)];
             $result["board_vault_$pid"] = ["counter_name" => "board_vault_$pid", "counter_value" => $this->globals->get(GLOBAL_VAULT_MONEY,0)];
