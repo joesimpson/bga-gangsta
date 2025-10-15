@@ -873,14 +873,43 @@ class Gangsta extends Table {
         );
     */
 
+        
+    /**
+     * @return int number of required skills to ignore
+     */
+    function playerMayIgnoreSkillsToPerformHeist(int $player_id, array $heistCard ){
+        $allowMissingSkills = 0;
+        $heistMaterial = $this->getHeistMaterialByType($heistCard['type']);
+
+        if(isset($heistMaterial['high_tech_target']) ){
+            $heist['high_tech_target'] = $heistMaterial['high_tech_target'];
+                
+            $resource = $this->getHandResourceCard($player_id);
+            if( isset($resource) 
+                && $resource['state'] == CARD_RESOURCE_STATE_ACTIVE 
+                && $resource['ability'] == 'high_tech_eq'
+            ){
+                $allowMissingSkills = 1;
+            }
+        }
+        return $allowMissingSkills;
+    }
+
     /**
      * @param array $gangster_ids : optional array to filter a given selection
+     * @param int $nbMissingSkillsAllowed  
      * 
      * @return true if this player may perform this heist
      */
-    function playerHasEnoughSkillsToPerformHeist(int $player_id, array $heistDatas, array|null $gangster_ids = null) : bool {
+    function playerHasEnoughSkillsToPerformHeist(int $player_id, 
+        array $heistDatas, 
+        array|null $gangster_ids = null,
+        int $nbMissingSkillsAllowed = 0
+    ) : bool {
         $heistMaterial = $this->getHeistMaterialByType($heistDatas['type']);
         $isCoopHeist = $heistMaterial['reward']['coopcash'] > 0;
+        
+        $allowMissingSkill = $nbMissingSkillsAllowed;
 
         //Get the sum of all the skills of recruited gangsters.
         // making this array 7 to be able to use 0 based index like the materials object for skill
@@ -912,14 +941,19 @@ class Gangsta extends Table {
         }
 
         //Check if that's enough to perform the selected heist.
-        $enoughSkillsToPerform = 1;
         foreach ($heistMaterial['cost'] as $sId => $sValue) {
-            if ($sValue > $availableSkills[$sId]) {
-                $enoughSkillsToPerform = 0;
+            $diffSkills = $sValue - $availableSkills[$sId];
+            if ($diffSkills > 0) {
+                if($diffSkills > $allowMissingSkill){
+                   return false;
+                }
+                else {
+                    $allowMissingSkill -= $diffSkills;
+                }
             }
         }
 
-        return $enoughSkillsToPerform > 0;
+        return true;
     }
         
     /**
@@ -1519,8 +1553,9 @@ class Gangsta extends Table {
         }
 
         $heistType = $heistdeck[$heistCard['type']];
+        $nbMissingSkillsAllowed = $this->playerMayIgnoreSkillsToPerformHeist($player_id,$heistCard);
 
-        if (!$this->playerHasEnoughSkillsToPerformHeist($player_id, $heistCard, $gangster_ids)) {
+        if (!$this->playerHasEnoughSkillsToPerformHeist($player_id, $heistCard, $gangster_ids,$nbMissingSkillsAllowed)) {
             throw new BgaUserException(self::_("You do not have enough skill to perform this heist"));
         }
 
@@ -1925,10 +1960,13 @@ class Gangsta extends Table {
         $player_id = self::getActivePlayerId();
         $possible_heists = [];
         $available_heists = $this->cards->getCardsInLocation('avheists');
+        $resource = $this->getHandResourceCard($player_id);
 
         foreach($available_heists as $heistId => &$heist){
-            if($this->playerHasEnoughSkillsToPerformHeist($player_id, $heist)){
-                $possible_heists[$heistId] = $heist;
+            $nbMissingSkillsAllowed = $this->playerMayIgnoreSkillsToPerformHeist($player_id,$heist);
+
+            if($this->playerHasEnoughSkillsToPerformHeist($player_id, $heist, null,$nbMissingSkillsAllowed)){
+                $possible_heists[$heistId] = ['heist' => $heist, 'ignore_skills'=>$nbMissingSkillsAllowed];
             }
         }
 

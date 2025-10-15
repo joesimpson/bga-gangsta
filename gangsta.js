@@ -51,23 +51,26 @@ define([
                 this.currentTap = 0;
                 this.possibleTargets = [];
                 this.currentHeist = null;
+                this.possible_heists = [];
                 this.isPublicVariant = false;
                 
                 this._connections = [];
                 this._selectableNodes = [];
                 this.skillCount = class {
                     needed = null;
+                    ignoreSkills = 0;
                     gangsters = [];
                     original = []
 
                     isComplete() {
-                        var result = true;
+                        let sumMissing = 0;
                         this.needed.forEach(element => {
                             if (element > 0) {
-                                result = false;
+                                sumMissing += element;
                             }
                         });
-                        return result;
+                        if(sumMissing> this.ignoreSkills) return false;
+                        return true;
                     }
 
                     hideSkill(skill) {
@@ -500,8 +503,8 @@ define([
             },
 
             enteringPlayerAction: function (args) {
-                let possible_heists = args.pHeists;
-                Object.entries(possible_heists).forEach(([card_id,card]) => {
+                this.possible_heists = args.pHeists;
+                Object.entries(this.possible_heists).forEach(([card_id,card]) => {
                     let divCard = document.getElementById(`avheists_item_${card_id}`);
                     if(divCard) divCard.classList.add("selectable");
                 });
@@ -1013,7 +1016,7 @@ define([
                     ['counterfeit_printing', this.format_string(_('Receive $${n} at the beginning of each of your turns. Discard the Counterfeit printing card during the gang war and place it with your stored Heist Cards.'),{n:1 })],
                     ['private_jet', this.format_string(_('If you just performed or participated in a Cooperative Heist ${icon_coop}, make any of your gangsters Available.'),{ icon_coop:'<span class="reward-icon reward-coop"></span>' })],
                     ['media', this.format_string(_('Receive ${n} influence ${icon_influence} at the end of the game for each stored heist wich includes Influence Points (with a maximum of ${max}).'),{n:1,max:7, icon_influence: '<span class="reward-icon reward-influence"></span>'})],
-                    [7, this.format_string(_(''),{ })],
+                    ['high_tech_eq', this.format_string(_('Ignore one requirement of your choice if you perform ${a} or ${b}.'),{ a:_('Art theft'), b: _('Hack attack')})],
                     ['private_society', this.format_string(_('At the end of your turn, make one of your leaders ${icon_leader} available for free.'),{icon_leader: `<span class="skill leader"></span>` })],
                     ['bank', this.format_string(_('Store up to $${n} in the bank vault ${icon_vault}. This money cannot be targeted by a Theft ${icon_theft}. Money will be transferred or withdrawn to or from the bank at any time during your turn.'),{n:10, icon_theft: '<span class="reward-icon reward-theft"></span>', icon_vault:'<span><i class="icon_vault fa6-solid fa6-vault fa6-lg"></i></span>' })],
                     [10, this.format_string(_(''),{ })],
@@ -1403,12 +1406,18 @@ define([
                 var costs = heist.cost;
                 this.currentHeist = heist;
                 this.neededHeistSkills = new this.skillCount(costs);
+                this.neededHeistSkills.ignoreSkills = this.possible_heists[ heistCard.id ].ignore_skills ;
 
                 dojo.query('#skillcounter').style("display", "");
                 dojo.addClass('commit_heist_button', 'disabled');
                 dojo.query('.gangster.selected').removeClass('selected');
                 dojo.query('.current_player .gangster').addClass('selectable');
                 dojo.query('.current_player .gangster:not(.mobilized)').addClass('selectable');
+                
+                if (this.neededHeistSkills.isComplete()) {
+                    //Rare case of 1 skill needed and ignored by ability
+                    dojo.removeClass('commit_heist_button', 'disabled');
+                }
             },
 
             hideSkillCounter: function () {
