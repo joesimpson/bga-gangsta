@@ -517,6 +517,8 @@ body[data-resources_variant="2"] .chapters_separator {
     display: inline-block;
     margin-right: 10px;
     margin-bottom: 30px;
+    /* give some time for rotation */
+    transition: transform 2s;
 }
 /*.card_wrap:first-of-type {
     margin-left: 10px;

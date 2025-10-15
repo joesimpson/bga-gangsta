@@ -1239,7 +1239,8 @@ define([
                     return;
                 }
                 if (this.avgangsters.getSelectedItems().length == 0) {
-                    dojo.addClass('confRecruit_button', 'disabled');
+                    let button = document.getElementById('confRecruit_button');
+                    if(button) button.classList.add('disabled');
                     return;
                 }
 
@@ -1901,7 +1902,6 @@ define([
                 let player_id = notif.args.player_id;
                 let cardDiv = $('card_wrap_' + card.id);
 
-                //TODO JSA ANIM ROTATE ?
                 cardDiv.dataset.state = card.state;
             },
 
