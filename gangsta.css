@@ -305,6 +305,9 @@ div.tableWindow table {
     margin-right: 20px;
     margin-left: 10px;
 }
+body[data-resources_variant="1"] .player_resource_cards {
+    display: none;
+}
 
 .gtip{
     background-size:1760px 1848px;
@@ -449,8 +452,10 @@ div.tableWindow table {
     top: 0px;
     left: 0px;
     background: url('img/chapters-separator.png') no-repeat;
-    /*
-    TODO JSA  ONLY WHEN RESOURCE CARD is displayed : offset of card height + margins when rotated
+}
+body[data-resources_variant="2"] .chapters_separator {
+    /* 
+    ONLY WHEN RESOURCE CARD is displayed : offset of card height + margins when rotated
     */
     background-position-x: 150px;
 }
@@ -810,6 +815,10 @@ div.tableWindow table {
 }
 .player_points_team, .player_points_heists, .player_points_resources {
     display: inline-block;
+}
+body[data-resources_variant="1"] .player_points_resources,
+body[data-resources_variant="1"] .player_points_resources_separator {
+    display: none;
 }
 .total_influence {
     width: 35px;

@@ -326,6 +326,8 @@ define([
                 if (this.gamedatas['public_variant'] == true) {
                     this.isPublicVariant = true;
                 }
+                $('ebd-body').dataset.resources_variant = this.gamedatas.resources_variant;
+                $('gangstainterface').dataset.resources_variant = this.gamedatas.resources_variant;
 
                 dojo.place('<a href="#" onclick="return false;" id="game_help_btn" class="action-button bgabutton bgabutton_blue">'+_('Player aid')+'</a>', "synchronous_notif_icon", "before");
                 dojo.connect($('game_help_btn'), 'onclick', this, 'createPlayerAid');
