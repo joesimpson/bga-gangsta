@@ -2869,6 +2869,7 @@ $this->resource_types = [
             6 => 1,
         ],
     ],
+    /*
     907 => [
         'ability' => 7,
         'influence' => 4,
@@ -2882,6 +2883,7 @@ $this->resource_types = [
             6 => 0,
         ],
     ],
+    */
     908 => [
         'ability' => 'private_society',
         'influence' => 3,
@@ -2908,6 +2910,7 @@ $this->resource_types = [
             6 => 2,
         ],
     ],
+    /*
     910 => [
         'ability' => 10,
         'influence' => 3,
@@ -2947,5 +2950,5 @@ $this->resource_types = [
             6 => 1,
         ],
     ],
-
+    */
 ];
