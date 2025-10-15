@@ -872,6 +872,55 @@ class Gangsta extends Table {
             123456 => 4     // and player 123456 has 4 cards in hand
         );
     */
+
+    /**
+     * @param array $gangster_ids : optional array to filter a given selection
+     * 
+     * @return true if this player may perform this heist
+     */
+    function playerHasEnoughSkillsToPerformHeist(int $player_id, array $heistDatas, array|null $gangster_ids = null) : bool {
+        $heistMaterial = $this->getHeistMaterialByType($heistDatas['type']);
+        $isCoopHeist = $heistMaterial['reward']['coopcash'] > 0;
+
+        //Get the sum of all the skills of recruited gangsters.
+        // making this array 7 to be able to use 0 based index like the materials object for skill
+        $availableSkills = [0, 0, 0, 0, 0, 0, 0];
+
+        if ($isCoopHeist) {
+            $gangsters = $this->getFullCardsInLocation('hand');
+            $gangstersInTeam = array_filter($gangsters, function ($item) use
+            (
+                $gangster_ids
+            ) {
+                return $item['state'] == 0 && (!isset($gangster_ids) || in_array($item['id'], $gangster_ids));
+            });
+        } else {
+            $gangsters = $this->getCardsForPlayer($player_id);
+            $gangstersInTeam = array_filter($gangsters, function ($item) use
+            (
+                $gangster_ids
+            ) {
+                return $item['state'] == 0 && (!isset($gangster_ids) || in_array($item['id'], $gangster_ids));
+            });
+        }
+
+        foreach ($gangstersInTeam as $gid => $gCard) {
+            for ($i = 1; $i < 7; $i++) {
+                $availableSkills[$i] += $this->gangster_type[$gCard['type']]['stats'][$i];
+            }
+            $availableSkills[$gCard['skill']] += 1; //this add 1 to dummy if they don't have an added skill
+        }
+
+        //Check if that's enough to perform the selected heist.
+        $enoughSkillsToPerform = 1;
+        foreach ($heistMaterial['cost'] as $sId => $sValue) {
+            if ($sValue > $availableSkills[$sId]) {
+                $enoughSkillsToPerform = 0;
+            }
+        }
+
+        return $enoughSkillsToPerform > 0;
+    }
         
     /**
      * Remove a specific action from endTurnActions phase 
@@ -1470,46 +1519,8 @@ class Gangsta extends Table {
         }
 
         $heistType = $heistdeck[$heistCard['type']];
-        $isCoopHeist = $heistType['reward']['coopcash'] > 0;
 
-        //Get the sum of all the skills of recruited gangsters.
-        // making this array 7 to be able to use 0 based index like the materials object for skill
-        $availableSkills = [0, 0, 0, 0, 0, 0, 0];
-
-        if ($isCoopHeist) {
-            $gangsters = $this->getFullCardsInLocation('hand');
-            $gangstersInTeam = array_filter($gangsters, function ($item) use
-            (
-                $gangster_ids
-            ) {
-                return $item['state'] == 0 && in_array($item['id'], $gangster_ids);
-            });
-        } else {
-            $gangsters = $this->getCardsForPlayer($player_id);
-            $gangstersInTeam = array_filter($gangsters, function ($item) use
-            (
-                $gangster_ids
-            ) {
-                return $item['state'] == 0 && in_array($item['id'], $gangster_ids);
-            });
-        }
-
-        foreach ($gangstersInTeam as $gid => $gCard) {
-            for ($i = 1; $i < 7; $i++) {
-                $availableSkills[$i] += $this->gangster_type[$gCard['type']]['stats'][$i];
-            }
-            $availableSkills[$gCard['skill']] += 1; //this add 1 to dummy if they don't have an added skill
-        }
-
-        //Check if that's enough to perform the selected heist.
-        $enoughSkillsToPerform = 1;
-        foreach ($heistType['cost'] as $sId => $sValue) {
-            if ($sValue > $availableSkills[$sId]) {
-                $enoughSkillsToPerform = 0;
-            }
-        }
-
-        if ($enoughSkillsToPerform == 0) {
+        if (!$this->playerHasEnoughSkillsToPerformHeist($player_id, $heistCard, $gangster_ids)) {
             throw new BgaUserException(self::_("You do not have enough skill to perform this heist"));
         }
 
@@ -1910,6 +1921,22 @@ class Gangsta extends Table {
         return $args;
     }
 
+    function argPlayerAction() {
+        $player_id = self::getActivePlayerId();
+        $possible_heists = [];
+        $available_heists = $this->cards->getCardsInLocation('avheists');
+
+        foreach($available_heists as $heistId => &$heist){
+            if($this->playerHasEnoughSkillsToPerformHeist($player_id, $heist)){
+                $possible_heists[$heistId] = $heist;
+            }
+        }
+
+        $args = [
+            'pHeists' => $possible_heists,
+        ];
+        return $args;
+    }
     function argPlayerMobilize() {
         $player_id = self::getActivePlayerId();
         $leaders = $this->getCompetenceCount($player_id, 1, true); //get leader count for untapped gangsters

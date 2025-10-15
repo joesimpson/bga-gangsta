@@ -104,7 +104,7 @@ trait DebugTrait
     $playerId = $this->getCurrentPlayerId();
     self::DbQuery("UPDATE `card` set card_location ='rc_draft', card_location_arg ='$playerId' where card_location ='rc_deck' ");
     
-    $this->notify->all('reloadPage', "/!\ : Refresh page to see cards...", []);
+    $this->notify->player($playerId,'reloadPage', "/!\ : Refresh page to see cards...", []);
   }
 
   function debug_actSelectResource(int $cardId = 0){

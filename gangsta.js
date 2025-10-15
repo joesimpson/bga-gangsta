@@ -234,6 +234,7 @@ define([
                 this.avheists.image_items_per_row = 9;
                 this.avheists.item_margin = 10;
                 this.avheists.setSelectionMode(1); //maximum of 1 item selected
+                this.avheists.setSelectionAppearance("class");//--> .stockitem_selected
                 //this.avheist.onItemCreate = dojo.hitch( this, 'setupNewHeist' );
                 dojo.connect(this.avheists, 'onChangeSelection', this, 'onPickAvHeist');
 
@@ -428,6 +429,9 @@ define([
                     case 'resourcesSelection':
                         this.enteringResourcesSelection(args.args);
                         break;
+                    case 'playerAction':
+                        this.enteringPlayerAction(args.args);
+                        break;
                     case 'rewardTap':
                         this.enteringRewardTap(args.args);
                         break;
@@ -492,6 +496,14 @@ define([
                             }
                         }
                     });
+                });
+            },
+
+            enteringPlayerAction: function (args) {
+                let possible_heists = args.pHeists;
+                Object.entries(possible_heists).forEach(([card_id,card]) => {
+                    let divCard = document.getElementById(`avheists_item_${card_id}`);
+                    if(divCard) divCard.classList.add("selectable");
                 });
             },
 
@@ -1382,7 +1394,11 @@ define([
                 if (this.isReadOnly()) {
                     return;
                 }
-                //console.log("onSelectHeist");
+                let avheistDiv = document.getElementById(`avheists_item_${heistCard.id}`);
+                if(!avheistDiv.classList.contains("selectable")){
+                    this.avheists.unselectItem(heistCard.id);
+                    return;
+                }
                 var heist = this.gamedatas[this.gamedatas.activePhaseName + '_type'][heistCard.type]
                 var costs = heist.cost;
                 this.currentHeist = heist;

@@ -148,6 +148,7 @@ $machinestates = array(
 
     4 => array(
         "name" => "playerAction",
+        "args" => "argPlayerAction",
         "description" => clienttranslate('${actplayer} must perform an action or pass'),
         "descriptionmyturn" => clienttranslate('${you} must recruit, perform a heist, or Pass'),
         "type" => "activeplayer",

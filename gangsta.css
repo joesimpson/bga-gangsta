@@ -642,6 +642,14 @@ body[data-resources_variant="2"] .chapters_separator {
 .stockitem_selected {
 	border: 3px solid red ! important;
 }
+#heists .selectable{
+    box-shadow: 0px 0px 0px 3px yellow;
+}
+#heists .stockitem_selected{
+	border: 0 solid green ! important;
+    box-shadow: 0px 0px 0px 4px green;
+}
+
 .player-board {
     background-color: #c7bab0;
     padding-top: 10px;
