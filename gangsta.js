@@ -838,12 +838,25 @@ define([
                     classes: "htip " + this.gamedatas.activePhaseName,
                     backx: this.getHeistHorizontalOffset(cardTypeId) * 100,
                     backy: this.getHeistVerticalOffset(cardTypeId) * 100,
+                    title: "",
                 };
 
                 if (type === 'gangster') {
                     tpl.classes = "gtip";
                     tpl.backx = this.getGangsterHorizontalOffset(cardTypeId) * 100;
                     tpl.backy = this.getGangsterVerticalOffset(cardTypeId) * 100;
+                    if(this.gamedatas.gangster_type[cardTypeId].type == 'boss'){
+                        tpl.title = _("BOSS");
+                    }
+                } 
+                else if(type === 'heist') {
+                    if (this.gamedatas.genesis_type[cardTypeId]) {
+                        tpl.title = _(this.gamedatas.genesis_type[cardTypeId].name);
+                    } else  if (this.gamedatas.gangwars_type[cardTypeId]) {
+                        tpl.title = _(this.gamedatas.gangwars_type[cardTypeId].name);
+                    } else  if (this.gamedatas.domination_type[cardTypeId]) {
+                        tpl.title = _(this.gamedatas.domination_type[cardTypeId].name);
+                    }
                 }
                 var tipHtml = this.format_block('jstpl_tooltip', tpl);
                 this.addTooltipHtml(divId, tipHtml);

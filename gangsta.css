@@ -276,7 +276,7 @@ div.tableWindow table {
 .resource_card_tooltip .card_wrap{
     margin-bottom: 5px !important; 
 }
-.resource_card_tooltip{
+.resource_card_tooltip, .card_tooltip{
     display: flex;
     flex-direction: column;
     justify-content: center;

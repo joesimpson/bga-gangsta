@@ -113,7 +113,10 @@
       </div>\
     </div>\
     </div>';
-  var jstpl_tooltip = '<div class="cardTip ${classes}" style="background-position: -${backx}% -${backy}%;"></div>';
+  var jstpl_tooltip = '<div class="card_tooltip">\
+      <h1 class="card_title">${title}</h1>\
+      <div class="cardTip ${classes}" style="background-position: -${backx}% -${backy}%;"></div>\
+    </div>';
 
   var jstpl_coin = '<div class="coin" style="z-index:10"></div>';
   var jstpl_money = '<div class="money" style="z-index:10"></div>';
