@@ -1234,10 +1234,12 @@ define([
             */
 
             onPickAvGangster: function () {
+                debug("onPickAvGangster");
                 if (this.isReadOnly()) {
                     return;
                 }
                 if (this.avgangsters.getSelectedItems().length == 0) {
+                    dojo.addClass('confRecruit_button', 'disabled');
                     return;
                 }
 
@@ -1260,11 +1262,13 @@ define([
             },
 
             onPickAvHeist: function (evt) {
+                debug("onPickAvHeist",evt);
                 if (this.isReadOnly()) {
                     return;
                 }
 
                 if (this.avheists.getSelectedItems().length == 0) {
+                    this.onCancelHeist();
                     return;
                 }
 
@@ -1373,6 +1377,7 @@ define([
             },
 
             onSelectHeist: function (heistCard) {
+                debug("onSelectHeist",heistCard);
                 if (this.isReadOnly()) {
                     return;
                 }
