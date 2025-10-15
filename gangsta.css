@@ -50,6 +50,7 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap');
 
+@import url(modules/bga-help/bga-help.css);
 
 html {
     padding: 0;
@@ -280,9 +281,29 @@ div.tableWindow table {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    color: black;
 }
 .resource_card_tooltip hr{
     width: 100%;
+}
+
+.resource_card_tooltip .resource_card_tooltip_block1{
+    display: flex;
+    flex-direction: column;
+}
+.resource_card_tooltip .resource_card_tooltip_block2{
+    display: flex;
+    flex-direction: column;
+}
+.resource_card_tooltip .resource_card_title{
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+.resource_card_tooltip .resource_card_img_wrap{
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
 .resource_card_tooltip .resource_card_details{
     font-size: 1.5em;
@@ -1200,6 +1221,48 @@ body[data-resources_variant="1"] .player_points_resources_separator {
 #game-help .reward-learning.learning-mercenary {
     background-position: -100px -40px;
 }
+
+/* bga-help  -------------------------------------- */
+#gng_resources_help_popin{
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+.gng_resourcesHelp {
+    border: 1px solid;
+    width: max-content;
+    background-color: #eeeae7;
+    color: black;
+}
+.gng_resourcesHelp .gng_resourcesHelp_title{
+    font-size: 130%;
+    margin-left: 50px;
+}
+.gng_resourcesHelp .resource_card_title{
+    font-size: 1.5em;
+}
+.gng_resourcesHelp .resource_card_details{
+    font-size: 1em;
+}
+.gng_resourcesHelp .resource_card_img_wrap{
+    order: 1;
+    margin-right: 2px;
+}
+.gng_resourcesHelp .resource_card_tooltip_block2 {
+    flex-direction: row;
+    width: max-content;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+.gng_resourcesHelp .resource_card_text{
+    width: 280px;
+    order: 2;
+}
+.gng_resourcesHelp .resource_card_tooltip .resource_card_img_wrap .card_sized  {
+    width: 196px;
+    height: 274px;
+} 
 
 /* -------------------- MOBILE -------------------- */
 

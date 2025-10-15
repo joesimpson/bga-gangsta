@@ -97,16 +97,22 @@
           </span>\
       </span>';
   var jstpl_tooltip_resource = '<div class="resource_card_tooltip">\
-    <h1>${name}</h1>'+jstpl_resource_card+'\
-    <div class="resource_card_details">\
-      <span class="resource_required_skills">\
-        ${required_skills_label}\
-        '+jstpl_required_skills+'\
-      <hr>\
-      <span class="resource_influence_label">${LABEL_INFLUENCE}</span>\
-      <hr>\
-      <span class="resource_ability">${ability}</span>\
-    </div></div>';
+    <div class="resource_card_tooltip_block1"><h1 class="resource_card_title">${name}</h1></div>\
+    <div class="resource_card_tooltip_block2">\
+      <div class="resource_card_img_wrap">'+jstpl_resource_card+'</div>\
+      <div class="resource_card_text">\
+        <div class="resource_card_details">\
+          <span class="resource_required_skills">\
+            ${required_skills_label}\
+            '+jstpl_required_skills+'\
+          <hr>\
+          <span class="resource_influence_label">${LABEL_INFLUENCE}</span>\
+          <hr>\
+          <span class="resource_ability">${ability}</span>\
+        </div>\
+      </div>\
+    </div>\
+    </div>';
   var jstpl_tooltip = '<div class="cardTip ${classes}" style="background-position: -${backx}% -${backy}%;"></div>';
 
   var jstpl_coin = '<div class="coin" style="z-index:10"></div>';

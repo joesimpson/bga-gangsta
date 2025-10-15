@@ -24,6 +24,7 @@ define([
         "ebg/core/gamegui",
         "ebg/counter",
         "ebg/stock",
+        g_gamethemeurl + "modules/bga-help/bga-help.js",
     ],
     function (dojo, declare, BgaAnimations) {
         return declare("bgagame.gangsta", ebg.core.gamegui, {
@@ -331,11 +332,53 @@ define([
 
                 dojo.place('<a href="#" onclick="return false;" id="game_help_btn" class="action-button bgabutton bgabutton_blue">'+_('Player aid')+'</a>', "synchronous_notif_icon", "before");
                 dojo.connect($('game_help_btn'), 'onclick', this, 'createPlayerAid');
+                
+                if(this.gamedatas.resources_variant != 1){
+                    this.helpManager = new HelpManager(ebg.core.gamegui, {
+                        buttons: [
+                            new BgaHelpPopinButton({
+                                title: _("Player aid"),
+                                html: `<div id='gng_resources_help_popin'>
+                                    ${this.formatResourcesHelp()}
+                                </div>`,
+                            })
+                        ],
+                    });
+                }
 
                 // Setup game notifications to handle (see "setupNotifications" method below)
                 this.setupNotifications();
 
                 //console.log( "Ending game setup" );
+            },
+            
+            formatResourceCardHelp: function(cardDatas)
+            {
+                let tplCardDatas = this.prepareTplDatasForResourceCard(cardDatas);
+                let tooltipHtml = this.format_block('jstpl_tooltip_resource', tplCardDatas);
+                return tooltipHtml;
+            },
+            formatResourcesHelp: function()
+            {
+                let list = "";
+                let k = 0;
+                Object.entries(this.gamedatas.resources_type).forEach(([type,resource_type]) => {
+                    let resourceDatas = resource_type;
+                    resourceDatas.id = 0;
+                    resourceDatas.state = 0;
+                    resourceDatas.type = type;
+                    if(k>0){
+                        list = list.concat('<hr>');
+                    }
+                    list = list.concat( this.formatResourceCardHelp(resourceDatas));
+                    k++; 
+                });
+                return `
+                    <h1 class='gng_resourcesHelp_title'>${_("Resource cards") }</h1>
+                    <div class='gng_resourcesHelp'>
+                        ${list}
+                    </div>
+                `;
             },
 
             createPlayerAid: function (evt) {

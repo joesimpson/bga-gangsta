@@ -333,6 +333,7 @@ class Gangsta extends Table {
         $result['gangwars_type'] = $this->heist_gangwars_type;
         $result['domination_type'] = $this->heist_domination_type;
         $result['gangster_type'] = $this->gangster_type;
+        $result['resources_type'] = $this->resource_types;
 
         // Cards in locations.
         $visibleResources = $this->cards->getCardsInLocation([CARD_RESOURCE_LOCATION_FUTURE_HAND,CARD_RESOURCE_LOCATION_HAND]);
