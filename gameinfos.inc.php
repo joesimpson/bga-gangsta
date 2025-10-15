@@ -15,15 +15,6 @@ $gameinfos = array(
 // Name of the game in English (will serve as the basis for translation) 
 'game_name' => 'Gangsta!',
 
-// Game designer (or game designers, separated by commas)
-'designer' => 'Yves Rosenbaum',       
-
-// Game artist (or game artists, separated by commas)
-'artist' => 'Fred Navez',         
-
-// Year of FIRST publication of this game. Can be negative.
-'year' => 2019,                 
-
 // Game publisher (use empty string if there is no publisher)
 'publisher' => 'Schmeta Games',
 
@@ -75,9 +66,6 @@ $gameinfos = array(
 // Allow to rank solo games for games where it's the only available mode (ex: Thermopyles). Should be left to false for games where solo mode exists in addition to multiple players mode.
 'solo_mode_ranked' => false,
 
-// Game is "beta". A game MUST set is_beta=1 when published on BGA for the first time, and must remains like this until all bugs are fixed.
-'is_beta' => 1,                     
-
 // Is this game cooperative (all players wins together or loose together)
 'is_coop' => 0,
 
@@ -85,18 +73,6 @@ $gameinfos = array(
 // If an array of shortcode languages such as array( 1 => 'en', 2 => 'fr', 3 => 'it' ) then all players at the table must speak the same language, and this language must be one of the listed languages.
 // NB: the default will be the first language in this list spoken by the player, so you should list them by popularity/preference.
 'language_dependency' => false,
-
-// Complexity of the game, from 0 (extremely simple) to 5 (extremely complex)
-'complexity' => 3,    
-
-// Luck of the game, from 0 (absolutely no luck in this game) to 5 (totally luck driven)
-'luck' => 3,    
-
-// Strategy of the game, from 0 (no strategy can be setup) to 5 (totally based on strategy)
-'strategy' => 3,    
-
-// Diplomacy of the game, from 0 (no interaction in this game) to 5 (totally based on interaction and discussion between players)
-'diplomacy' => 3,    
 
 // Colors attributed to players
 'player_colors' => array( "ff0000", "008000", "0000ff", "ffa500", "773300" ),
@@ -126,33 +102,4 @@ $gameinfos = array(
     'max' => null
 ),
 
-// Game presentation
-// Short game presentation text that will appear on the game description page, structured as an array of paragraphs.
-// Each paragraph must be wrapped with totranslate() for translation and should not contain html (plain text without formatting).
-// A good length for this text is between 100 and 150 words (about 6 to 9 lines on a standard display)
-'presentation' => array(
-    totranslate("Gangsta! is a card game in which each player embodies a mafia boss who is determined to expand his/her influence in the criminal world."),
-    totranslate("To do so, players will have to recruit additional gangsters based on their unique skills which will enable them to increase their number of profitable robberies and expand their influence further. But these operations do not go unnoticed, and players must quickly escape the police and informers responsible for exposing them. As the rivalry between the gangs grows, players will also have to prepare for the upcoming gang war."),
-//    ...
-),
-
-// Games categories
-//  You can attribute a maximum of FIVE "tags" for your game.
-//  Each tag has a specific ID (ex: 22 for the category "Prototype", 101 for the tag "Science-fiction theme game")
-//  Please see the "Game meta information" entry in the BGA Studio documentation for a full list of available tags:
-//  http://en.doc.boardgamearena.com/Game_meta-information:_gameinfos.inc.php
-//  IMPORTANT: this list should be ORDERED, with the most important tag first.
-//  IMPORTANT: it is mandatory that the FIRST tag is 1, 2, 3 and 4 (= game category)
-'tags' => array( 2, 11, 200, 228 ),
-
-
-//////// BGA SANDBOX ONLY PARAMETERS (DO NOT MODIFY)
-
-// simple : A plays, B plays, C plays, A plays, B plays, ...
-// circuit : A plays and choose the next player C, C plays and choose the next player D, ...
-// complex : A+B+C plays and says that the next player is A+B
-'is_sandbox' => false,
-'turnControl' => 'simple'
-
-////////
 );
