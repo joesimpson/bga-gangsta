@@ -8,7 +8,9 @@
         <div class="cardlist_wrapper"><div id="avheists"></div></div>
       </div>
       <div id="gangsters" class="whiteblock">
-        <div id="gangstersdeck" class="deck"></div>
+        <div id="gangstersdeck" class="deck">
+          <div id="gangsters_deck_topcard" class="gangster card_sized deck_topcard no_display"></div>
+        </div>
         <div class="cardlist_wrapper"><div id="avgangsters"></div></div>
       </div>
     </div>

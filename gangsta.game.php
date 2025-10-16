@@ -396,9 +396,9 @@ class Gangsta extends Table {
         In this space, you can put any utility methods useful for your game logic
     */
     function checkIfSameClan($playerId,
-                             $gangsterclan) {
+                             $gangsterclan, bool $considerGameOption = true) {
         //if($this->getGameStateValue('clanvariant') == 1){
-        if ($this->isClan == false) {
+        if ($this->isClan == false && $considerGameOption) {
             return false;
         }
         $boss = self::getObjectFromDB("SELECT card_id id, card_type 'type', card_type_arg type_arg from card WHERE card_type_arg=1 and card_location='hand' and card_location_arg=$playerId");
@@ -784,6 +784,36 @@ class Gangsta extends Table {
         return $skills;
     }
 
+    /**
+     * @return array|null card datas if any
+     * [
+     *      'gangster' => $topDeckGangster,
+     *      'cost' => $cost,
+     *      'possible' => $possibleBuy,
+     *  ]
+     * , else null 
+     */
+    function getGangsterDeckRecruitableTopCard($player_id) : array|null {
+        $topDeckGangster = null;
+        $resource = $this->getHandResourceCard($player_id);
+        if( isset($resource) 
+            && $resource['state'] == CARD_RESOURCE_STATE_ACTIVE 
+        ){
+            if($resource['ability'] == 'indicator_network'){
+                $topDeckGangster = $this->cards->getCardOnTop('deckgangsters');
+                if(!isset($topDeckGangster)) return null;
+                $mayRecruit = $this->playerMayRecruit($player_id, $topDeckGangster,true);
+                [$cost, $rebate, $possibleBuy] = [$mayRecruit['cost'],$mayRecruit['rebate'],$mayRecruit['possible']];
+                $topDeckGangster = [
+                    'gangster' => $topDeckGangster,
+                    'cost' => $cost,
+                    'possible' => $possibleBuy,
+                ];
+            }
+        }
+        return $topDeckGangster;
+    }
+
     function untapGangster($gangster_id,
                            $player_id) {
         $sql = "UPDATE card SET card_state=0 WHERE card_id='$gangster_id' and card_location_arg='$player_id'";
@@ -876,20 +906,24 @@ class Gangsta extends Table {
     /**
      * @return array [ 
      *  'cost' => int, 
-     *  'rebate' => bool, // true if player has a rebate
+     *  'rebate' => int, // number if player has a rebate
      *  'possible' => bool, // true if player has enough money 
      * ] 
      */
-    function playerMayRecruit(int $player_id, array $gangster ) : array {
+    function playerMayRecruit(int $player_id, array $gangster, bool $rebateWithClanCard = false ) : array {
         
         $material = $this->gangster_type[$gangster['type']];
         $cost = $material['cost'];
-        $rebate = false;
+        $rebate = 0;
         $possibleBuy = true;
 
         if ($this->checkIfSameClan($player_id, $material['clan'])) {
             $cost = $cost - 1;
-            $rebate = true;
+            $rebate++;
+        }
+        if($rebateWithClanCard && $this->checkIfSameClan($player_id, $material['clan'], false)){
+            $cost = $cost - 1;
+            $rebate++;
         }
 
         //Check if you have enough money
@@ -1425,8 +1459,15 @@ class Gangsta extends Table {
         if ($gangster == null) {
             throw new feException("This card does not exists");
         }
+        $fromDeck = false;
         if ($gangster['location'] != 'avgangsters') {
-            throw new feException("This gangster is not available");
+            $topDeckGangster = $this->getGangsterDeckRecruitableTopCard($player_id);
+            if(!isset($topDeckGangster) || $topDeckGangster['gangster']['id'] != $gangster_id){
+                throw new feException("This gangster is not available");
+            }
+            else {
+                $fromDeck = true;
+            }
         }
 
         $score = $this->gangster_type[$gangster['type']]['influence'];
@@ -1435,7 +1476,7 @@ class Gangsta extends Table {
         $old_values = self::getCollectionFromDB("SELECT player_id, player_score, public_score, player_money FROM player  WHERE player_id='$player_id'");
         $current_money = $old_values[$player_id]['player_money'];
 
-        $mayRecruit = $this->playerMayRecruit($player_id, $gangster);
+        $mayRecruit = $this->playerMayRecruit($player_id, $gangster,$fromDeck);
         [$cost, $rebate, $possibleBuy] = [$mayRecruit['cost'],$mayRecruit['rebate'],$mayRecruit['possible']];
         if (!$possibleBuy) {
             throw new feException(sprintf(self::_("You need %s <span class=\"money\" style=\"z-index:10\"></span> to pay this gangster"),
@@ -1461,7 +1502,7 @@ class Gangsta extends Table {
         $gansterorder = self::getUniqueValueFromDB("SELECT max(card_order) FROM card WHERE card_location = 'hand' AND card_location_arg='$player_id'") + 1;
         self::dbQuery("UPDATE card SET card_order =$gansterorder where card_id=$gangster_id");
 
-        if ($rebate) {
+        for($k=1;$k<=$rebate;$k++) {
             self::notifyAllPlayers('message',
                                    clienttranslate('${player_name} saves 1$ for recruiting from the same clan'), [
                                        'player_id' => $player_id,
@@ -1482,6 +1523,7 @@ class Gangsta extends Table {
                                    'new_influence' => $current_score,
                                    'team_score' => $team_score,
                                    'order' => $gansterorder,
+                                   'fromDeck' => $fromDeck
                                ]);
         $this->updatePlayerVault($player_id);
 
@@ -2009,9 +2051,18 @@ class Gangsta extends Table {
             }
         }
 
+        $topDeckGangster = $this->getGangsterDeckRecruitableTopCard($player_id);
+        
         $args = [
             'pHeists' => $possible_heists,
             'pRecruits' => $possible_recruits,
+            '_private' => [
+                $player_id => [ 
+                    'top_deck' => [
+                        'gangster' => $topDeckGangster,
+                    ],
+                ],
+            ],
         ];
         return $args;
     }
@@ -2032,8 +2083,17 @@ class Gangsta extends Table {
             }
         }
 
+        $topDeckGangster = $this->getGangsterDeckRecruitableTopCard($player_id);
+         
         $args = [
             'pRecruits' => $possible_recruits,
+            '_private' => [
+                $player_id => [ 
+                    'top_deck' => [
+                        'gangster' => $topDeckGangster,
+                    ],
+                ],
+            ],
         ];
         return $args;
     }
@@ -2042,12 +2102,22 @@ class Gangsta extends Table {
         $leaders = $this->getCompetenceCount($player_id, 1, true); //get leader count for untapped gangsters
         $money = self::getUniqueValueFromDB("SELECT player_money FROM player WHERE player_id='$player_id'");
         $tapped = $this->getTappedGangstersForPlayer($player_id);
-        return [
+        $topDeckGangster = $this->getGangsterDeckRecruitableTopCard($player_id);
+        
+        $args = [
             'player_id' => $player_id,
             'leader' => $leaders,
             'money' => $money,
             'tapped' => $tapped,
+            '_private' => [
+                $player_id => [ 
+                    'top_deck' => [
+                        'gangster' => $topDeckGangster,
+                    ],
+                ],
+            ],
         ];
+        return $args;
     }
 
     function argRewardTap() {
@@ -2363,14 +2433,17 @@ class Gangsta extends Table {
         $new_gangster = ['id' => 0];
         $new_heist = ['id' => 0];
 
+        if ($this->cards->countCardInLocation('deckgangsters') < 1) {
+            //REFILL deck for next turn in case we need to look at first cards of the deck
+            $this->trace("stRevealCards()... refill deckgangsters");
+            $this->cards->moveAllCardsInLocation('gdiscard', 'deckgangsters');
+            $this->cards->shuffle('deckgangsters');
+        }
+        
         // Place a new gangster on available gangsters
         // count cards in location gangster, shouldn't ever be more than one
         $count = $this->cards->countCardInLocation('avgangsters');
         if ($count < 5) {
-            if ($this->cards->countCardInLocation('deckgangsters') < 1) {
-                $this->cards->moveAllCardsInLocation('gdiscard', 'deckgangsters');
-                $this->cards->shuffle('deckgangsters');
-            }
             $new_gangster = $this->cards->pickCardForLocation('deckgangsters', 'avgangsters');
         }
 

@@ -2954,8 +2954,9 @@ $this->resource_types = [
             6 => 1,
         ],
     ],
+    */
     912 => [
-        'ability' => 12,
+        'ability' => 'indicator_network',
         'influence' => 2,
         'name' => clienttranslate('Indicator Network'),
         'cost' => [
@@ -2967,5 +2968,4 @@ $this->resource_types = [
             6 => 1,
         ],
     ],
-    */
 ];

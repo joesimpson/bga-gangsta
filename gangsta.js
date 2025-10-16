@@ -54,6 +54,7 @@ define([
                 this.possible_heists = [];
                 this.isPublicVariant = false;
                 
+                this._connectionsGangsters = [];
                 this._connections = [];
                 this._selectableNodes = [];
                 this.skillCount = class {
@@ -517,6 +518,9 @@ define([
                     let divCard = document.getElementById(`avgangsters_item_${card_id}`);
                     if(divCard) divCard.classList.add("selectable");
                 });
+                if(args._private){
+                    this.displayTopDeckGangster(args._private, true);
+                }
             },
             enteringRewardRecruit: function (args) {
                 this.possible_gangsters = args.pRecruits;
@@ -524,6 +528,9 @@ define([
                     let divCard = document.getElementById(`avgangsters_item_${card_id}`);
                     if(divCard) divCard.classList.add("selectable");
                 });
+                if(args._private){
+                    this.displayTopDeckGangster(args._private, true);
+                }
             },
 
             enteringPlayerMobilize: function (args) {
@@ -547,6 +554,7 @@ define([
                     dojo.addClass($('gangster_' + gangster), 'mobilized selectable');
                 }
                 this.currentMobilize = {free: args.leaders, gangsters: [], money: 0};
+                this.displayTopDeckGangster(args._private, false);
             },
 
             enteringRewardTap: function (args) {
@@ -836,6 +844,8 @@ define([
                 this._selectableNodes = [];
                 dojo.query('.selectable').removeClass('selectable');
                 dojo.query('.selected').removeClass('selected');
+                dojo.empty('gangsters_deck_topcard');
+                document.getElementById("gangsters_deck_topcard").classList.add('no_display');
             },
             /*
             * Custom connect that keep track of the connections
@@ -910,6 +920,27 @@ define([
                     this.addGangstaTip(gangster.type, 'gangster', this.avgangsters.getItemDivId(gangster.id));
                 }
                 this.avgangsters.updateDisplay();
+            },
+            displayTopDeckGangster: function (privatesDatas, withClickHandler = true) {
+                debug("displayTopDeckGangster",privatesDatas,withClickHandler);
+                this.possible_topdeck_gangster = null;
+                if(!privatesDatas.top_deck){ 
+                    return;
+                }
+                if(privatesDatas.top_deck.gangster){
+                    let topDeckGangster = privatesDatas.top_deck.gangster.gangster;
+                    this.possible_topdeck_gangster = topDeckGangster;
+                    let topDeckGangsterDiv = document.getElementById("gangsters_deck_topcard");
+                    topDeckGangsterDiv.classList.remove('no_display');
+                    //this.avgangsters.addToStockWithId(topDeckGangster.type, topDeckGangster.id, 'gangstersdeck');
+                    let divGangster = this.addGangster(this.player_id, topDeckGangster.type, topDeckGangster.id, topDeckGangster.state, {'skill': "0"}, 'gangsters_deck_topcard');
+                    if(privatesDatas.top_deck.gangster.possible && withClickHandler) divGangster.classList.add("selectable");
+                    divGangster.dataset.id = topDeckGangster.id;
+                    dojo.disconnect(this._connectionsGangsters[divGangster.id]);
+                    if(withClickHandler) dojo.connect(divGangster, 'onclick', this, 'onPickAvGangster');
+                    
+
+                }
             },
 
             isReadOnly: function () {
@@ -1037,7 +1068,7 @@ define([
                     ['bank', this.format_string(_('Store up to $${n} in the bank vault ${icon_vault}. This money cannot be targeted by a Theft ${icon_theft}. Money will be transferred or withdrawn to or from the bank at any time during your turn.'),{n:10, icon_theft: '<span class="reward-icon reward-theft"></span>', icon_vault:'<span><i class="icon_vault fa6-solid fa6-vault fa6-lg"></i></span>' })],
                     [10, this.format_string(_(''),{ })],
                     [11, this.format_string(_(''),{ })],
-                    [12, this.format_string(_(''),{ })],
+                    ['indicator_network', this.format_string(_('At the beginning of your turn, you can look at the first gangster from the stack. You can recruit them during this turn. Should they belong to the same family as your Boss, they will cost you $ ${n} less.'),{n:1 })],
                 ]);
                 let description = descriptionMap.get(abilityValue);
                 return description;
@@ -1116,10 +1147,20 @@ define([
                 vault = document.getElementById(`playerboard_vault_wrap_${player_id}`);
                 vault.classList.remove("no_display");
             },
-            
 
+            cancelRecruitSelection: function () {
+                debug("cancelRecruitSelection");
+                this.avgangsters.unselectAll();
+                dojo.addClass('confRecruit_button', 'disabled');
+                this.cancelTopDeckRecruitSelection();
+            },
+            cancelTopDeckRecruitSelection: function () {
+                debug("cancelTopDeckRecruitSelection");
+                let topDeckGangsterDiv = document.getElementById("gangsters_deck_topcard").querySelector(".gangster") ;
+                if(topDeckGangsterDiv) topDeckGangsterDiv.classList.remove('selected');
+            },
 
-            addGangster: function (player_id, type, id, gangsterState, fullCard) {
+            addGangster: function (player_id, type, id, gangsterState, fullCard, forceTarget = null) {
                 // Standard case
                 var tpl = {
                     id: id,
@@ -1138,7 +1179,9 @@ define([
                 }
                 //console.log('Add gangster type:'+type+' id:'+id+'boss: '+tpl.boss+' extra: '+tpl.extra) ;
 
-                dojo.place(this.format_block('jstpl_gangster', tpl), 'recruited_gangsters_' + player_id);
+                let targetPlace = 'recruited_gangsters_' + player_id;
+                if(forceTarget) targetPlace = forceTarget;
+                dojo.place(this.format_block('jstpl_gangster', tpl), targetPlace);
 
                 if (parseInt(fullCard['skill']) > 0) {
                     var theSkill = this.gamedatas.skill_name_invariant[fullCard['skill']];
@@ -1151,7 +1194,7 @@ define([
                 //     //dojo.addClass( 'gangster_'+id, 'selectable' );
                 //     dojo.connect( $(gangsterid), 'onclick', this, 'onSelectGangster' );
                 // }
-                dojo.connect($(gangsterid), 'onclick', this, 'onSelectGangster');
+                this._connectionsGangsters[gangsterid] = dojo.connect($(gangsterid), 'onclick', this, 'onSelectGangster');
                 if ($('avgangsters_item_' + id)) {
                     this.placeOnObject(gangsterid, 'avgangsters_item_' + id);
                     this.slideToObject(gangsterid, 'card_wrap_' + id).play();
@@ -1160,6 +1203,7 @@ define([
                     dojo.addClass(gangsterid, 'mobilized');
                 }
                 this.addGangstaTip(type, 'gangster', gangsterid);
+                return $(gangsterid);
             },
 
             getGangsterVerticalOffset(typeid) {
@@ -1264,12 +1308,31 @@ define([
 
             */
 
-            onPickAvGangster: function () {
-                debug("onPickAvGangster");
+            onPickAvGangster: function (evt) {
+                debug("onPickAvGangster",evt);
                 if (this.isReadOnly()) {
                     return;
                 }
-                if (this.avgangsters.getSelectedItems().length == 0) {
+                let selectedTopDeck = false;
+                if(this.possible_topdeck_gangster && evt != "avgangsters"){
+                    this.avgangsters.unselectAll();
+                    //If we select the top deck card
+                    let targetGangsterDiv = evt.currentTarget;
+                    let targetGangsterId = targetGangsterDiv.id.split("_")[1];
+                    if(this.possible_topdeck_gangster.id == targetGangsterId){
+                        if(targetGangsterDiv.classList.contains("selected")){
+                            targetGangsterDiv.classList.remove("selected");
+                        }
+                        else {
+                            selectedTopDeck = true;
+                            targetGangsterDiv.classList.add("selected");
+                        }
+                    }
+                }
+                else if(evt == "avgangsters"){
+                    this.cancelTopDeckRecruitSelection();
+                }
+                if (this.avgangsters.getSelectedItems().length == 0 && !selectedTopDeck) {
                     let button = document.getElementById('confRecruit_button');
                     if(button) button.classList.add('disabled');
                     return;
@@ -1286,9 +1349,10 @@ define([
                     return;
                 }
 
-                this.avheists.unselectAll();
                 this.onCancelHeist();
                 if (this.avgangsters.getSelectedItems().length == 1) {
+                    dojo.removeClass('confRecruit_button', 'disabled');
+                } else if(selectedTopDeck){
                     dojo.removeClass('confRecruit_button', 'disabled');
                 }
             },
@@ -1315,8 +1379,7 @@ define([
                     return;
                 }
 
-                this.avgangsters.unselectAll();
-                dojo.addClass('confRecruit_button', 'disabled');
+                this.cancelRecruitSelection();
                 var selected = this.avheists.getSelectedItems();
                 if (selected.length == 1) {
                     this.onSelectHeist(selected[0]);
@@ -1392,6 +1455,7 @@ define([
             }, 
 
             onConfRecruit: function () {
+                debug("onConfRecruit");
                 let selected = this.avgangsters.getSelectedItems();
                 if (selected.length == 1) {
                     var gangster_id = selected[0].id;
@@ -1399,12 +1463,16 @@ define([
                         id: gangster_id,
                         lock: true
                     }, this, function (result) {
-                        this.avgangsters.unselectAll();
-                        dojo.addClass('confRecruit_button', 'disabled');
+                        this.cancelRecruitSelection();
                     });
                 } else {
-                    this.avgangsters.unselectAll();
-                    dojo.addClass('confRecruit_button', 'disabled');
+                    let topDeckGangsterDiv =  document.getElementById("gangsters_deck_topcard").querySelector(".gangster") ;
+                    if(topDeckGangsterDiv && topDeckGangsterDiv.classList.contains("selected")) {
+                        this.bgaPerformAction('recruitGangster',{'id': topDeckGangsterDiv.dataset.id});
+                    }
+                    else{
+                        this.cancelRecruitSelection();
+                    }
                 }
             },
 
@@ -1426,7 +1494,7 @@ define([
 
                 dojo.query('#skillcounter').style("display", "");
                 dojo.addClass('commit_heist_button', 'disabled');
-                dojo.query('.gangster.selected').removeClass('selected');
+                dojo.query('.current_player .gangster.selected').removeClass('selected');
                 dojo.query('.current_player .gangster').addClass('selectable');
                 dojo.query('.current_player .gangster:not(.mobilized)').addClass('selectable');
                 
@@ -1439,7 +1507,7 @@ define([
             hideSkillCounter: function () {
                 this.neededHeistSkills = {};
                 this.currentHeist = null;
-                dojo.query('.gangster.selected').removeClass('selected');
+                dojo.query('.current_player .gangster.selected').removeClass('selected');
                 dojo.query('#skillcounter').style('display', 'none');
             },
 
@@ -1538,7 +1606,7 @@ define([
                     dojo.removeClass(evt.currentTarget.id, 'selected');
                     if (this.currentHeist['reward']['coopcash'] > 0 && this.neededHeistSkills.gangsters.indexOf(gangsterid) === 0) {
                         this.neededHeistSkills.clearGangsters();
-                        dojo.query('.gangster').removeClass('selected selectable');
+                        dojo.query('.current_player .gangster').removeClass('selected selectable');
                         dojo.query('.current_player .gangster:not(.mobilized)').addClass('selectable');
                     } else {
                         this.neededHeistSkills.removeGangster(
@@ -1552,7 +1620,7 @@ define([
                     }
                     dojo.addClass(evt.currentTarget.id, 'selected');
                     if (this.currentHeist['reward']['coopcash'] > 0 && this.neededHeistSkills.gangsters.length === 1) {
-                        dojo.query('.gangster:not(.mobilized)').addClass('selectable');
+                        dojo.query('.current_player .gangster:not(.mobilized)').addClass('selectable');
                     }
                 }
                 if (this.neededHeistSkills.isComplete()) {
@@ -1570,7 +1638,7 @@ define([
                 if (!dojo.hasClass(evt.currentTarget.id, 'selectable')) {
                     return;
                 }
-                dojo.query('.gangster.selected').removeClass('selected');
+                dojo.query('.current_player .gangster.selected').removeClass('selected');
                 dojo.toggleClass(evt.currentTarget.id, 'selected');
             },
 
@@ -1586,7 +1654,7 @@ define([
                 if (dojo.hasClass(evt.currentTarget.id, 'selected')) {
                     dojo.removeClass(evt.currentTarget.id, 'selected');
                 } else {
-                    if (dojo.query('.gangster.selectable.selected').length < this.currentTap) {
+                    if (dojo.query('.current_player .gangster.selectable.selected').length < this.currentTap) {
                         dojo.addClass(evt.currentTarget.id, 'selected');
                     }
                 }
@@ -1601,7 +1669,7 @@ define([
                     return;
                 }
 
-                dojo.query('.gangster.selected').removeClass('selected');
+                dojo.query('.current_player .gangster.selected').removeClass('selected');
                 dojo.addClass(evt.currentTarget.id, 'selected');
             },
 
@@ -1640,11 +1708,11 @@ define([
                 //console.log("confirm Tap");
 
                 if (!this.checkAction('tap')) {
-                    dojo.query('.gangster').removeClass('selected selectable');
+                    dojo.query('.current_player .gangster').removeClass('selected selectable');
                     return;
                 }
 
-                var selected = dojo.query('.gangster.selectable.selected');
+                var selected = dojo.query('.current_player .gangster.selectable.selected');
                 if (selected.length > 0 && selected.length <= this.currentTap) {
                     var selectedGangsters = dojo.query(".gangster.selectable.selected").map(function (node) {
                         return node.id.split("_")[1];
@@ -1662,11 +1730,11 @@ define([
                 //console.log("confirm Kill");
 
                 if (!this.checkAction('kill')) {
-                    dojo.query('.gangster').removeClass('selected selectable');
+                    dojo.query('.current_player .gangster').removeClass('selected selectable');
                     return;
                 }
 
-                var selected = dojo.query('.gangster.selectable.selected');
+                var selected = dojo.query('.current_player .gangster.selectable.selected');
                 if (selected.length == 1) {
                     var theId = selected[0].id.split("_")[1]
                     if (this.possibleTargets.indexOf(theId) > -1) {
@@ -1683,11 +1751,11 @@ define([
                 //console.log("confirm Teach");
 
                 if (!this.checkAction('teach')) {
-                    dojo.query('.gangster').removeClass('selected selectable');
+                    dojo.query('.current_player .gangster').removeClass('selected selectable');
                     return;
                 }
 
-                var selected = dojo.query('.gangster.selectable.selected');
+                var selected = dojo.query('.current_player .gangster.selectable.selected');
 
                 if (selected.length == 1) {
                     var theId = selected[0].id.split("_")[1];
@@ -1707,7 +1775,7 @@ define([
                 if (!this.checkAction('snitchKill')) {
                     return;
                 }
-                var selected = dojo.query('.gangster.selectable.selected');
+                var selected = dojo.query('.current_player .gangster.selectable.selected');
                 if (selected.length == 1) {
                     var theId = selected[0].id.split("_")[1]
                     this.ajaxcall("/gangsta/gangsta/snitchKill.html", {
@@ -1721,7 +1789,7 @@ define([
             onConfirmGdg() {
                 //console.log("confirm Gdg");
 
-                var selected = dojo.query('.gangster.selectable.selected');
+                var selected = dojo.query('.current_player .gangster.selectable.selected');
                 if (selected.length == 1) {
                     var theId = selected[0].id.split("_")[1];
                     this.ajaxcall("/gangsta/gangsta/gdgKill.html", {
@@ -1751,7 +1819,7 @@ define([
                 //console.log("Cancel Heist");
                 this.avheists.unselectAll();
                 this.hideSkillCounter();
-                dojo.query('.gangster').removeClass('selectable selected');
+                dojo.query('.current_player .gangster').removeClass('selectable selected');
             },
 
             onSkipDiscard: function () {
@@ -1946,9 +2014,7 @@ define([
                 cardDiv.dataset.state = card.state;
             },
 
-            notif_recruitGangster: function (notif) {
-                //console.log( 'notif_recruit' );
-                //console.log( notif );
+            notif_recruitGangster: async function (notif) {
 
                 // var delay = 0;
                 // for( let i = toint( $('playermoney_'+notif.args.player_id).innerHTML ); i> toint( notif.args.new_money ); i-- )
@@ -1965,8 +2031,19 @@ define([
                 this.changePlayerScore(notif.args.player_id, notif.args.new_influence);
                 this.changePlayerTeamScore(notif.args.player_id, notif.args.team_score)
 
-                this.addGangster(notif.args.player_id, notif.args.gangster_type, notif.args.gangster_id, "0", {'skill': "0"});
-                this.avgangsters.removeFromStockById(notif.args.gangster_id);
+                if(notif.args.fromDeck){
+                    let topDeckGangsterDiv = document.getElementById("gangsters_deck_topcard").querySelector(".card_wrap");
+                    if(!topDeckGangsterDiv){
+                        topDeckGangsterDiv = this.addGangster(this.player_id, notif.args.gangster_type, notif.args.gangster_id, 0, {'skill': "0"}, 'gangsters_deck_topcard')
+                                            .parentNode;
+                    }
+                    topDeckGangsterDiv.querySelector(".gangster").classList.remove("selected");
+                    await this.animationManager.slideAndAttach(topDeckGangsterDiv, $(`recruited_gangsters_${notif.args.player_id}`));
+                }
+                else {
+                    this.addGangster(notif.args.player_id, notif.args.gangster_type, notif.args.gangster_id, "0", {'skill': "0"});
+                    this.avgangsters.removeFromStockById(notif.args.gangster_id);
+                }
                 this.addToTableau(notif.args.gangster_type, notif.args.gangster_id, 0, notif.args.player_id, notif.args.order);
             },
 
@@ -2002,7 +2079,7 @@ define([
 
                 this.avheists.unselectAll();
                 this.avheists.removeFromStockById(notif.args.heist_id);
-                dojo.query('.gangster.selected').removeClass('selected');
+                dojo.query('.current_player .gangster.selected').removeClass('selected');
                 notif.args.gangsters.forEach(element => {
                     dojo.addClass('gangster_' + element, 'mobilized');
                 });
@@ -2143,7 +2220,7 @@ define([
                 // 'skill_name' => $this->skill_name[$skill_id],
                 // 'gangster' => $gangster_id,
                 this.possibleTargets = [];
-                dojo.query('.gangster').removeClass('selectable selected');
+                dojo.query('.current_player .gangster').removeClass('selectable selected');
                 var theSkill = this.gamedatas.skill_name_invariant[notif.args.skill];
                 var gangster = notif.args.gangster;
                 this.gamedatas.tableau[gangster]['skill'] = notif.args.skill;

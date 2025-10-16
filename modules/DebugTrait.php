@@ -133,7 +133,7 @@ trait DebugTrait
   
   function debug_teachSkill(){
     $playerId = $this->getCurrentPlayerId();
-    self::DbQuery("UPDATE `card` set card_location ='discard' where card_location ='avheists' ");
+    self::DbQuery("UPDATE `card` set card_location ='hdiscard' where card_location ='avheists' ");
     //some cards can teach : 313
     self::DbQuery("UPDATE `card` set card_location ='avheists' where card_type in (313,326,301) ");
     //Several gangsters are needed to attack
@@ -150,7 +150,7 @@ trait DebugTrait
     $money = 0;//we need 3 and we will earn 3 with big heist -> we must be able to buy a gangster and not notif 'cannot recruit a gangster'
     $this->globals->set('vault_money',intval($money));
 
-    self::DbQuery("UPDATE `card` set card_location ='discard' where card_location ='avheists' ");
+    self::DbQuery("UPDATE `card` set card_location ='hdiscard' where card_location ='avheists' ");
     // cards "Inmate transfer" can reward recruits : 
     self::DbQuery("UPDATE `card` set card_location ='avheists' where card_type in (207,208,209) ");
     //Several gangsters are needed to attack
@@ -167,6 +167,25 @@ trait DebugTrait
     self::DbQuery("UPDATE player SET player_money=$money where player_id = $playerId");
 
     $this->gamestate->jumpToState(4);//playerAction
+
+    $this->notify->all( 'reloadPage', "/!\ : Refresh page to see gangsters...", []);
+  }
+  
+  function debug_EmptyHand(){
+    $playerId = $this->getCurrentPlayerId();
+    
+    //empty players'hand to continue playing...
+    self::DbQuery("UPDATE `card` set card_location ='deckgangsters',card_state =0,card_location_arg=0 where card_location ='hand' and card_type_arg=0"); 
+    $this->gamestate->jumpToState(4);//playerAction
+
+    $this->notify->all( 'reloadPage', "/!\ : Refresh page to see gangsters...", []);
+  }
+  function debug_EmptyDeck(){
+    $playerId = $this->getCurrentPlayerId();
+    
+    //empty players'hand to continue playing...
+    self::DbQuery("UPDATE `card` set card_location ='gdiscard',card_state =0,card_location_arg=0 where card_location ='deckgangsters'"); 
+    $this->gamestate->jumpToState(3);
 
     $this->notify->all( 'reloadPage', "/!\ : Refresh page to see gangsters...", []);
   }
