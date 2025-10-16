@@ -2927,9 +2927,8 @@ $this->resource_types = [
             6 => 2,
         ],
     ],
-    /*
     910 => [
-        'ability' => 10,
+        'ability' => 'bikers_gang',
         'influence' => 3,
         'name' => clienttranslate('Bikers gang'),
         'cost' => [
@@ -2941,6 +2940,7 @@ $this->resource_types = [
             6 => 1,
         ],
     ],
+    /*
     911 => [
         'ability' => 11,
         'influence' => 5,

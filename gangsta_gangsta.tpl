@@ -4,7 +4,9 @@
   <div id="avdecks">
     <div id="twodecks">
       <div id="heists" class="whiteblock genesis">
-        <div id="heistsdeck" class="deck"></div>
+        <div id="heistsdeck" class="deck">
+          <div id="heists_deck_topcard" class="heist card_sized deck_topcard no_display"></div>
+        </div>
         <div class="cardlist_wrapper"><div id="avheists"></div></div>
       </div>
       <div id="gangsters" class="whiteblock">
@@ -62,11 +64,9 @@
                          </div>';
 
   var jstpl_heist =
-    '<div class="heist_space justplaced heist_${type}" id="heist_space_${id}">\
-                        <div class="heist_wrap" id="heist_wrap_${id}">\
-                            <div class="heist heist_${type}" id="heist_${id}" style="background-position: -${backx}% -${backy}%"></div>\
-                        </div>\
-                    </div>';
+    '<div class="heist_wrap card_sized" id="heist_wrap_${id}" data-id="${id}">\
+      <div class="heist card_sized ${chapter_phase}" id="heist_${id}" data-id="${id}" data-type="${type}" style="background-position: -${backx}% -${backy}%"></div>\
+    </div>';
 
   var jstpl_extraskill = '<div class="contain_skill"><span class="skill ${skill}"></span></div>';
 

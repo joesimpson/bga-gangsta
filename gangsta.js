@@ -518,9 +518,8 @@ define([
                     let divCard = document.getElementById(`avgangsters_item_${card_id}`);
                     if(divCard) divCard.classList.add("selectable");
                 });
-                if(args._private){
-                    this.displayTopDeckGangster(args._private, true);
-                }
+                this.displayTopDeckGangster(args._private, true);
+                this.displayTopDeckHeist(args._private, true);
             },
             enteringRewardRecruit: function (args) {
                 this.possible_gangsters = args.pRecruits;
@@ -528,9 +527,7 @@ define([
                     let divCard = document.getElementById(`avgangsters_item_${card_id}`);
                     if(divCard) divCard.classList.add("selectable");
                 });
-                if(args._private){
-                    this.displayTopDeckGangster(args._private, true);
-                }
+                this.displayTopDeckGangster(args._private, true);
             },
 
             enteringPlayerMobilize: function (args) {
@@ -555,6 +552,7 @@ define([
                 }
                 this.currentMobilize = {free: args.leaders, gangsters: [], money: 0};
                 this.displayTopDeckGangster(args._private, false);
+                this.displayTopDeckHeist(args._private, true);
             },
 
             enteringRewardTap: function (args) {
@@ -845,7 +843,9 @@ define([
                 dojo.query('.selectable').removeClass('selectable');
                 dojo.query('.selected').removeClass('selected');
                 dojo.empty('gangsters_deck_topcard');
+                dojo.empty('heists_deck_topcard');
                 document.getElementById("gangsters_deck_topcard").classList.add('no_display');
+                document.getElementById("heists_deck_topcard").classList.add('no_display');
             },
             /*
             * Custom connect that keep track of the connections
@@ -924,11 +924,11 @@ define([
             displayTopDeckGangster: function (privatesDatas, withClickHandler = true) {
                 debug("displayTopDeckGangster",privatesDatas,withClickHandler);
                 this.possible_topdeck_gangster = null;
-                if(!privatesDatas.top_deck){ 
+                if(!privatesDatas || !privatesDatas.top_deck){ 
                     return;
                 }
                 if(privatesDatas.top_deck.gangster){
-                    let topDeckGangster = privatesDatas.top_deck.gangster.gangster;
+                    let topDeckGangster = privatesDatas.top_deck.gangster.card;
                     this.possible_topdeck_gangster = topDeckGangster;
                     let topDeckGangsterDiv = document.getElementById("gangsters_deck_topcard");
                     topDeckGangsterDiv.classList.remove('no_display');
@@ -940,6 +940,25 @@ define([
                     if(withClickHandler) dojo.connect(divGangster, 'onclick', this, 'onPickAvGangster');
                     
 
+                }
+            },
+            displayTopDeckHeist: function (privatesDatas, withClickHandler = true) {
+                debug("displayTopDeckHeist",privatesDatas,withClickHandler);
+                this.possible_topdeck_heist = null;
+                if(!privatesDatas || !privatesDatas.top_deck){ 
+                    return;
+                }
+                if(privatesDatas.top_deck.heist){
+                    let top_deck_datas = privatesDatas.top_deck.heist;
+                    let topDeckHeist = top_deck_datas.card;
+                    this.possible_topdeck_heist = topDeckHeist;
+                    let topDeckHeistDiv = document.getElementById("heists_deck_topcard");
+                    topDeckHeistDiv.classList.remove('no_display');
+                    let divHeist = this.addHeist(this.player_id, topDeckHeist, 'heists_deck_topcard');
+                    if(top_deck_datas.possible && withClickHandler) divHeist.classList.add("selectable");
+                    this.possible_heists[topDeckHeist.id] = topDeckHeist;
+                    this.possible_heists[topDeckHeist.id].ignore_skills = 0;
+                    if(withClickHandler) this._connections[divHeist.id] = dojo.connect(divHeist, 'onclick', this, 'onPickAvHeist');
                 }
             },
 
@@ -1066,7 +1085,7 @@ define([
                     ['high_tech_eq', this.format_string(_('Ignore one requirement of your choice if you perform ${a} or ${b}.'),{ a:_('Art theft'), b: _('Hack attack')})],
                     ['private_society', this.format_string(_('At the end of your turn, make one of your leaders ${icon_leader} available for free.'),{icon_leader: `<span class="skill leader"></span>` })],
                     ['bank', this.format_string(_('Store up to $${n} in the bank vault ${icon_vault}. This money cannot be targeted by a Theft ${icon_theft}. Money will be transferred or withdrawn to or from the bank at any time during your turn.'),{n:10, icon_theft: '<span class="reward-icon reward-theft"></span>', icon_vault:'<span><i class="icon_vault fa6-solid fa6-vault fa6-lg"></i></span>' })],
-                    [10, this.format_string(_(''),{ })],
+                    ['bikers_gang', this.format_string(_(''),{ })],
                     [11, this.format_string(_(''),{ })],
                     ['indicator_network', this.format_string(_('At the beginning of your turn, you can look at the first gangster from the stack. You can recruit them during this turn. Should they belong to the same family as your Boss, they will cost you $ ${n} less.'),{n:1 })],
                 ]);
@@ -1158,6 +1177,37 @@ define([
                 debug("cancelTopDeckRecruitSelection");
                 let topDeckGangsterDiv = document.getElementById("gangsters_deck_topcard").querySelector(".gangster") ;
                 if(topDeckGangsterDiv) topDeckGangsterDiv.classList.remove('selected');
+            },
+            cancelTopDeckHeistSelection: function () {
+                debug("cancelTopDeckHeistSelection");
+                let targetHeistDiv = document.getElementById("heists_deck_topcard").querySelector(".heist") ;
+                if(targetHeistDiv) targetHeistDiv.classList.remove('selected');
+            },
+
+            addHeist: function (player_id, heistDatas, targetPlace ) {
+                debug("addHeist",player_id, heistDatas, targetPlace);
+                let cardTypeId = heistDatas.type;
+                let chapter_phase = this.gamedatas.activePhaseName;
+                //if (this.gamedatas.genesis_type[cardTypeId]) {
+                //    chapter_phase = this.gamedatas.genesis_type[cardTypeId].chapter;
+                //} else  if (this.gamedatas.gangwars_type[cardTypeId]) {
+                //    chapter_phase = this.gamedatas.gangwars_type[cardTypeId].chapter;
+                //} else  if (this.gamedatas.domination_type[cardTypeId]) {
+                //    chapter_phase = this.gamedatas.domination_type[cardTypeId].chapter;
+                //}
+                let tpl = {
+                    id: heistDatas.id,
+                    type: cardTypeId,
+                    chapter_phase: chapter_phase,
+                    backx: this.getHeistHorizontalOffset(cardTypeId) * 100,
+                    backy: this.getHeistVerticalOffset(cardTypeId) * 100,
+                };
+                let heistId = 'heist_' + heistDatas.id;
+
+                dojo.place(this.format_block('jstpl_heist', tpl), targetPlace);
+
+                this.addGangstaTip(cardTypeId, 'heist', heistId);
+                return $(heistId);
             },
 
             addGangster: function (player_id, type, id, gangsterState, fullCard, forceTarget = null) {
@@ -1362,8 +1412,26 @@ define([
                 if (this.isReadOnly()) {
                     return;
                 }
-
-                if (this.avheists.getSelectedItems().length == 0) {
+                let selectedTopDeck = false;
+                if(this.possible_topdeck_heist && evt != "avheists"){
+                    this.avheists.unselectAll();
+                    //If we select the top deck card
+                    let targetHeistDiv = evt.currentTarget;
+                    let targetHeistId = targetHeistDiv.dataset.id;
+                    if(this.possible_topdeck_heist.id == targetHeistId){
+                        if(targetHeistDiv.classList.contains("selected")){
+                            targetHeistDiv.classList.remove("selected");
+                        }
+                        else {
+                            selectedTopDeck = true;
+                            targetHeistDiv.classList.add("selected");
+                        }
+                    }
+                }
+                else if(evt == "avheists"){
+                    this.cancelTopDeckHeistSelection();
+                }
+                if (this.avheists.getSelectedItems().length == 0 && !selectedTopDeck) {
                     this.onCancelHeist();
                     return;
                 }
@@ -1385,6 +1453,8 @@ define([
                     this.onSelectHeist(selected[0]);
                     // var heist_id = selected[0].id;
                     // this.ajaxcall( "/gangsta/gangsta/performHeist.html", { id: heist_id, lock: true }, this, function(result){} );
+                }  else if(selectedTopDeck){
+                    this.onSelectHeist(this.possible_topdeck_heist, true);
                 } else {
                     this.avheists.unselectAll();
                 }
@@ -1476,15 +1546,17 @@ define([
                 }
             },
 
-            onSelectHeist: function (heistCard) {
-                debug("onSelectHeist",heistCard);
+            onSelectHeist: function (heistCard, fromDeck = false) {
+                debug("onSelectHeist",heistCard,fromDeck);
                 if (this.isReadOnly()) {
                     return;
                 }
-                let avheistDiv = document.getElementById(`avheists_item_${heistCard.id}`);
-                if(!avheistDiv.classList.contains("selectable")){
-                    this.avheists.unselectItem(heistCard.id);
-                    return;
+                if(!fromDeck){
+                    let avheistDiv = document.getElementById(`avheists_item_${heistCard.id}`);
+                    if(!avheistDiv.classList.contains("selectable")){
+                        this.avheists.unselectItem(heistCard.id);
+                        return;
+                    }
                 }
                 var heist = this.gamedatas[this.gamedatas.activePhaseName + '_type'][heistCard.type]
                 var costs = heist.cost;
@@ -1497,6 +1569,9 @@ define([
                 dojo.query('.current_player .gangster.selected').removeClass('selected');
                 dojo.query('.current_player .gangster').addClass('selectable');
                 dojo.query('.current_player .gangster:not(.mobilized)').addClass('selectable');
+                dojo.query('.opposing_player .gangster.selected').removeClass('selected');
+                dojo.query('.opposing_player .gangster').addClass('selectable');
+                dojo.query('.opposing_player .gangster:not(.mobilized)').addClass('selectable');
                 
                 if (this.neededHeistSkills.isComplete()) {
                     //Rare case of 1 skill needed and ignored by ability
@@ -1507,7 +1582,8 @@ define([
             hideSkillCounter: function () {
                 this.neededHeistSkills = {};
                 this.currentHeist = null;
-                dojo.query('.current_player .gangster.selected').removeClass('selected');
+                dojo.query('current_player .gangster.selected').removeClass('selected');
+                dojo.query('opposing_player .gangster.selected').removeClass('selected');
                 dojo.query('#skillcounter').style('display', 'none');
             },
 
@@ -1584,11 +1660,11 @@ define([
             },
 
             onClickGangsterForHeist: function (evt) {
-                //console.log("onClickGangsterForHeist");
+                debug("onClickGangsterForHeist",evt);
                 if (!this.isCurrentPlayerActive()) {
                     return;
                 }
-                if (this.avheists.getSelectedItems().length == 0) {
+                if (this.avheists.getSelectedItems().length == 0 && !this.possible_topdeck_heist) {
                     return;
                 }
                 //console.log("onClickGangsterForHeist");
@@ -1606,8 +1682,8 @@ define([
                     dojo.removeClass(evt.currentTarget.id, 'selected');
                     if (this.currentHeist['reward']['coopcash'] > 0 && this.neededHeistSkills.gangsters.indexOf(gangsterid) === 0) {
                         this.neededHeistSkills.clearGangsters();
-                        dojo.query('.current_player .gangster').removeClass('selected selectable');
-                        dojo.query('.current_player .gangster:not(.mobilized)').addClass('selectable');
+                        dojo.query('.current_player .gangster, .opposing_player .gangster').removeClass('selected selectable');
+                        dojo.query('.current_player .gangster:not(.mobilized), .opposing_player .gangster:not(.mobilized)').addClass('selectable');
                     } else {
                         this.neededHeistSkills.removeGangster(
                             this.gamedatas.gangster_type[this.gamedatas.tableau[gangsterid].type], gangsterid, this.gamedatas.tableau);
@@ -1620,7 +1696,7 @@ define([
                     }
                     dojo.addClass(evt.currentTarget.id, 'selected');
                     if (this.currentHeist['reward']['coopcash'] > 0 && this.neededHeistSkills.gangsters.length === 1) {
-                        dojo.query('.current_player .gangster:not(.mobilized)').addClass('selectable');
+                        dojo.query('.current_player .gangster:not(.mobilized), .opposing_player .gangster:not(.mobilized)').addClass('selectable');
                     }
                 }
                 if (this.neededHeistSkills.isComplete()) {
@@ -1654,7 +1730,7 @@ define([
                 if (dojo.hasClass(evt.currentTarget.id, 'selected')) {
                     dojo.removeClass(evt.currentTarget.id, 'selected');
                 } else {
-                    if (dojo.query('.current_player .gangster.selectable.selected').length < this.currentTap) {
+                    if (dojo.query('.gangster.selectable.selected').length < this.currentTap) {
                         dojo.addClass(evt.currentTarget.id, 'selected');
                     }
                 }
@@ -1669,7 +1745,7 @@ define([
                     return;
                 }
 
-                dojo.query('.current_player .gangster.selected').removeClass('selected');
+                dojo.query('.gangster.selected').removeClass('selected');
                 dojo.addClass(evt.currentTarget.id, 'selected');
             },
 
@@ -1677,7 +1753,7 @@ define([
                 //console.log("Confirm Heist");
                 var selected = this.avheists.getSelectedItems();
 
-                if (selected.length == 0) {
+                if (selected.length == 0 && !this.possible_topdeck_heist) {
                     return;
                 }
 
@@ -1686,21 +1762,19 @@ define([
                     return;
                 }
 
+                //dojo.query(".gangster.selected").forEach(function(element){console.log(element.id);});
+                var selectedGangsters = dojo.query(".gangster.selected").map(function (node) {
+                    return node.id.split("_")[1];
+                });
+                //console.log(selectedGangsters.join(";"));
                 if (selected.length == 1) {
                     var heist_id = selected[0].id;
-                    //dojo.query(".gangster.selected").forEach(function(element){console.log(element.id);});
-                    var selectedGangsters = dojo.query(".gangster.selected").map(function (node) {
-                        return node.id.split("_")[1];
-                    });
-                    //console.log(selectedGangsters.join(";"));
-                    this.ajaxcall("/gangsta/gangsta/performHeist.html", {
-                        id: heist_id,
-                        gangsters: selectedGangsters.join(";"),
-                        lock: true
-                    }, this, function (result) {
-                    });
+                    this.bgaPerformAction('performHeist',{'id': heist_id,gangsters: selectedGangsters.join(";"),});
                 } else {
-                    this.avheists.unselectAll();
+                    let topDeckHeistDiv =  document.getElementById("heists_deck_topcard").querySelector(".heist") ;
+                    if(topDeckHeistDiv && topDeckHeistDiv.classList.contains("selected")) {
+                        this.bgaPerformAction('performHeist',{'id': topDeckHeistDiv.dataset.id,gangsters: selectedGangsters.join(";"),});
+                    }
                 }
             },
 
@@ -1708,11 +1782,11 @@ define([
                 //console.log("confirm Tap");
 
                 if (!this.checkAction('tap')) {
-                    dojo.query('.current_player .gangster').removeClass('selected selectable');
+                    dojo.query('.gangster').removeClass('selected selectable');
                     return;
                 }
 
-                var selected = dojo.query('.current_player .gangster.selectable.selected');
+                var selected = dojo.query('.gangster.selectable.selected');
                 if (selected.length > 0 && selected.length <= this.currentTap) {
                     var selectedGangsters = dojo.query(".gangster.selectable.selected").map(function (node) {
                         return node.id.split("_")[1];
@@ -1730,11 +1804,11 @@ define([
                 //console.log("confirm Kill");
 
                 if (!this.checkAction('kill')) {
-                    dojo.query('.current_player .gangster').removeClass('selected selectable');
+                    dojo.query('.gangster').removeClass('selected selectable');
                     return;
                 }
 
-                var selected = dojo.query('.current_player .gangster.selectable.selected');
+                var selected = dojo.query('.gangster.selectable.selected');
                 if (selected.length == 1) {
                     var theId = selected[0].id.split("_")[1]
                     if (this.possibleTargets.indexOf(theId) > -1) {
@@ -1751,11 +1825,11 @@ define([
                 //console.log("confirm Teach");
 
                 if (!this.checkAction('teach')) {
-                    dojo.query('.current_player .gangster').removeClass('selected selectable');
+                    dojo.query('.gangster').removeClass('selected selectable');
                     return;
                 }
 
-                var selected = dojo.query('.current_player .gangster.selectable.selected');
+                var selected = dojo.query('.gangster.selectable.selected');
 
                 if (selected.length == 1) {
                     var theId = selected[0].id.split("_")[1];
@@ -1775,7 +1849,7 @@ define([
                 if (!this.checkAction('snitchKill')) {
                     return;
                 }
-                var selected = dojo.query('.current_player .gangster.selectable.selected');
+                var selected = dojo.query('.gangster.selectable.selected');
                 if (selected.length == 1) {
                     var theId = selected[0].id.split("_")[1]
                     this.ajaxcall("/gangsta/gangsta/snitchKill.html", {
@@ -1789,7 +1863,7 @@ define([
             onConfirmGdg() {
                 //console.log("confirm Gdg");
 
-                var selected = dojo.query('.current_player .gangster.selectable.selected');
+                var selected = dojo.query('.gangster.selectable.selected');
                 if (selected.length == 1) {
                     var theId = selected[0].id.split("_")[1];
                     this.ajaxcall("/gangsta/gangsta/gdgKill.html", {
@@ -1820,6 +1894,8 @@ define([
                 this.avheists.unselectAll();
                 this.hideSkillCounter();
                 dojo.query('.current_player .gangster').removeClass('selectable selected');
+                dojo.query('.opposing_player .gangster').removeClass('selectable selected');
+                this.cancelTopDeckHeistSelection();
             },
 
             onSkipDiscard: function () {
@@ -1899,6 +1975,8 @@ define([
                 dojo.subscribe('gainMoney', this, "notif_gainMoney");
                 dojo.subscribe('gainReward', this, "notif_gainReward");
                 this.notifqueue.setSynchronous('gainReward', 500);
+                dojo.subscribe('performedHeistFromDeck', this, "notif_performedHeistFromDeck");
+                this.notifqueue.setSynchronous('performedHeistFromDeck', 1000);
                 dojo.subscribe('discardHeist', this, "notif_discardHeist");
                 this.notifqueue.setSynchronous('discardHeist', 1000);
                 dojo.subscribe('discardGangster', this, "notif_discardGangster");
@@ -2073,12 +2151,27 @@ define([
                 this.changePlayerMoney(notif.args.player_id, notif.args.new_money);
             },
 
-            notif_gainReward: function (notif) {
-                // console.log( 'notif_gainReward' );
-                // console.log( notif );
+            notif_performedHeistFromDeck: async function (notif) {
+                debug("notif_performedHeistFromDeck", notif);
+                let topDeckHeistDiv = document.getElementById("heists_deck_topcard").querySelector(".heist_wrap");
+                if(!topDeckHeistDiv){
+                    topDeckHeistDiv = this.addHeist(this.player_id, notif.args.heist, 'heists_deck_topcard').parentNode;
+                }
+                topDeckHeistDiv.querySelector(".heist").classList.remove("selected");
+                await this.animationManager.slideAndAttach(topDeckHeistDiv, $(`panel_h_pts_${notif.args.player_id}`));
+                
+                this.changePlayerMoney(notif.args.player_id, notif.args.new_money);
+            },
+            notif_gainReward: async function (notif) {
+                debug("notif_gainReward", notif);
 
                 this.avheists.unselectAll();
-                this.avheists.removeFromStockById(notif.args.heist_id);
+                if(notif.args.fromDeck){
+                    //see notif_performedHeistFromDeck
+                }
+                else {
+                    this.avheists.removeFromStockById(notif.args.heist_id);
+                }
                 dojo.query('.current_player .gangster.selected').removeClass('selected');
                 notif.args.gangsters.forEach(element => {
                     dojo.addClass('gangster_' + element, 'mobilized');

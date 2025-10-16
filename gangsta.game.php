@@ -787,7 +787,7 @@ class Gangsta extends Table {
     /**
      * @return array|null card datas if any
      * [
-     *      'gangster' => $topDeckGangster,
+     *      'card' => $topDeckGangster,
      *      'cost' => $cost,
      *      'possible' => $possibleBuy,
      *  ]
@@ -805,13 +805,45 @@ class Gangsta extends Table {
                 $mayRecruit = $this->playerMayRecruit($player_id, $topDeckGangster,true);
                 [$cost, $rebate, $possibleBuy] = [$mayRecruit['cost'],$mayRecruit['rebate'],$mayRecruit['possible']];
                 $topDeckGangster = [
-                    'gangster' => $topDeckGangster,
+                    'card' => $topDeckGangster,
                     'cost' => $cost,
                     'possible' => $possibleBuy,
                 ];
             }
         }
         return $topDeckGangster;
+    }
+    
+    /**
+     * @return array|null card datas if any
+     * [
+     *      'card' => $topDeckHeist,
+     *      'cost' => $cost,
+     *      'possible' => $possibleBuy,
+     *  ]
+     * , else null 
+     */
+    function getHeistDeckPerformableTopCard($player_id) : array|null {
+        $topDeckCard = null;
+        $resource = $this->getHandResourceCard($player_id);
+        if( isset($resource) 
+            && $resource['state'] == CARD_RESOURCE_STATE_ACTIVE 
+        ){
+            if($resource['ability'] == 'bikers_gang'){
+                $heistdeck = $this->getChapterDeckName();
+                $topDeckCard = $this->cards->getCardOnTop($heistdeck);
+                if(!isset($topDeckCard)) return null;
+                $cost = 1;
+                $current_money = self::getUniqueValueFromDB("SELECT player_money FROM player WHERE player_id='$player_id'");
+                $possible = $current_money >= $cost && $this->playerHasEnoughSkillsToPerformHeist($player_id, $topDeckCard);
+                $topDeckCard = [
+                    'card' => $topDeckCard,
+                    'cost' => $cost,
+                    'possible' => $possible,
+                ];
+            }
+        }
+        return $topDeckCard;
     }
 
     function untapGangster($gangster_id,
@@ -1462,7 +1494,7 @@ class Gangsta extends Table {
         $fromDeck = false;
         if ($gangster['location'] != 'avgangsters') {
             $topDeckGangster = $this->getGangsterDeckRecruitableTopCard($player_id);
-            if(!isset($topDeckGangster) || $topDeckGangster['gangster']['id'] != $gangster_id){
+            if(!isset($topDeckGangster) || $topDeckGangster['card']['id'] != $gangster_id){
                 throw new feException("This gangster is not available");
             }
             else {
@@ -1523,7 +1555,7 @@ class Gangsta extends Table {
                                    'new_influence' => $current_score,
                                    'team_score' => $team_score,
                                    'order' => $gansterorder,
-                                   'fromDeck' => $fromDeck
+                                   'fromDeck' => $fromDeck,
                                ]);
         $this->updatePlayerVault($player_id);
 
@@ -1615,8 +1647,17 @@ class Gangsta extends Table {
         if ($heistCard == null) {
             throw new feException("This card does not exist");
         }
+        $fromDeck = false;
+        $payCost = 0;
         if ($heistCard['location'] != 'avheists') {
-            throw new feException("This heist is not available");
+            $topDeckHeist = $this->getHeistDeckPerformableTopCard($player_id);
+            if(!isset($topDeckHeist) || $topDeckHeist['card']['id'] != $heist_id){
+                throw new feException("This heist is not available");
+            }
+            else {
+                $fromDeck = true;
+                $payCost = $topDeckHeist['cost'];
+            }
         }
 
         $heistType = $heistdeck[$heistCard['type']];
@@ -1639,8 +1680,24 @@ class Gangsta extends Table {
 
         self::setGameStateValue('lastPerformedHeist', $heist_id);
 
+        if($fromDeck ) {
+            $current_money = self::getUniqueValueFromDB("SELECT player_money FROM player WHERE player_id='$player_id'");
+            if($current_money < $payCost){
+                throw new BgaVisibleSystemException(("You do not have enough money to perform this heist"));
+            }
+            $current_money -= $payCost;
+            self::DbQuery("UPDATE player SET player_money='$current_money' WHERE player_id='$player_id'");
+            $heist = $this->getFullCardInfo($heist_id);
+            $this->notify->all("performedHeistFromDeck",clienttranslate('${player_name} pays $ ${n} for performing a future heist'),[
+                'player_id' => $player_id,
+                'player_name' => self::getPlayerNameById($player_id),
+                'heist' => $heist,
+                'new_money' => $current_money,
+                'n' => $payCost,
+            ]);
+        }
         //Add Reward
-        $workdone = self::applyRewards($player_id, $heistType, $heist_id, $gangster_ids);
+        $workdone = self::applyRewards($player_id, $heistType, $heist_id, $gangster_ids,$fromDeck);
 
         $this->gamestate->nextState($workdone);
     }
@@ -1648,7 +1705,8 @@ class Gangsta extends Table {
     function applyRewards($player_id,
                           $heistType,
                           $heist_id,
-                          $gangster_ids) {
+                          $gangster_ids, 
+                          bool $fromDeck) {
         $heistreward = $heistType['reward'];
         $score = 0;
         $money = 0;
@@ -1691,6 +1749,7 @@ class Gangsta extends Table {
                                    'money' => $money,
                                    'new_money' => $newvalues[$player_id]['player_money'],
                                    'gangsters' => $gangster_ids,
+                                   'fromDeck' => $fromDeck,
                                ]);
         $this->updatePlayerVault($player_id);
 
@@ -2051,6 +2110,7 @@ class Gangsta extends Table {
             }
         }
 
+        $topDeckHeist = $this->getHeistDeckPerformableTopCard($player_id);
         $topDeckGangster = $this->getGangsterDeckRecruitableTopCard($player_id);
         
         $args = [
@@ -2060,6 +2120,7 @@ class Gangsta extends Table {
                 $player_id => [ 
                     'top_deck' => [
                         'gangster' => $topDeckGangster,
+                        'heist' => $topDeckHeist,
                     ],
                 ],
             ],
@@ -2103,6 +2164,7 @@ class Gangsta extends Table {
         $money = self::getUniqueValueFromDB("SELECT player_money FROM player WHERE player_id='$player_id'");
         $tapped = $this->getTappedGangstersForPlayer($player_id);
         $topDeckGangster = $this->getGangsterDeckRecruitableTopCard($player_id);
+        $topDeckHeist = $this->getHeistDeckPerformableTopCard($player_id);
         
         $args = [
             'player_id' => $player_id,
@@ -2113,6 +2175,7 @@ class Gangsta extends Table {
                 $player_id => [ 
                     'top_deck' => [
                         'gangster' => $topDeckGangster,
+                        'heist' => $topDeckHeist,
                     ],
                 ],
             ],
@@ -2439,7 +2502,7 @@ class Gangsta extends Table {
             $this->cards->moveAllCardsInLocation('gdiscard', 'deckgangsters');
             $this->cards->shuffle('deckgangsters');
         }
-        
+
         // Place a new gangster on available gangsters
         // count cards in location gangster, shouldn't ever be more than one
         $count = $this->cards->countCardInLocation('avgangsters');
