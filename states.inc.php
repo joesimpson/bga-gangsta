@@ -179,6 +179,7 @@ $machinestates = array(
 
     7 => array(
         "name" => "rewardRecruit",
+        "args" => "argRewardRecruit",
         "description" => clienttranslate('${actplayer} can recruit an additional gangster'),
         "descriptionmyturn" => clienttranslate('${you} may recruit an additional gangster'),
         "type" => "activeplayer",

@@ -436,6 +436,9 @@ define([
                     case 'playerAction':
                         this.enteringPlayerAction(args.args);
                         break;
+                    case 'rewardRecruit':
+                        this.enteringRewardRecruit(args.args);
+                        break;
                     case 'rewardTap':
                         this.enteringRewardTap(args.args);
                         break;
@@ -509,8 +512,15 @@ define([
                     let divCard = document.getElementById(`avheists_item_${card_id}`);
                     if(divCard) divCard.classList.add("selectable");
                 });
-                let possible_gangsters = args.pRecruits;
-                Object.entries(possible_gangsters).forEach(([card_id,card]) => {
+                this.possible_gangsters = args.pRecruits;
+                Object.entries(this.possible_gangsters).forEach(([card_id,card]) => {
+                    let divCard = document.getElementById(`avgangsters_item_${card_id}`);
+                    if(divCard) divCard.classList.add("selectable");
+                });
+            },
+            enteringRewardRecruit: function (args) {
+                this.possible_gangsters = args.pRecruits;
+                Object.entries(this.possible_gangsters).forEach(([card_id,card]) => {
                     let divCard = document.getElementById(`avgangsters_item_${card_id}`);
                     if(divCard) divCard.classList.add("selectable");
                 });

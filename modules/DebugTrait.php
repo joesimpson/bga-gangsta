@@ -145,6 +145,32 @@ trait DebugTrait
     $this->notify->all( 'reloadPage', "/!\ : Refresh page to see resource card...", []);
   }
   
+  function debug_rewardRecruit(){
+    $playerId = $this->getCurrentPlayerId();
+    $money = 0;//we need 3 and we will earn 3 with big heist -> we must be able to buy a gangster and not notif 'cannot recruit a gangster'
+    $this->globals->set('vault_money',intval($money));
+
+    self::DbQuery("UPDATE `card` set card_location ='discard' where card_location ='avheists' ");
+    // cards "Inmate transfer" can reward recruits : 
+    self::DbQuery("UPDATE `card` set card_location ='avheists' where card_type in (207,208,209) ");
+    //Several gangsters are needed to attack
+    self::DbQuery("UPDATE `card` set card_location ='hand', card_location_arg=$playerId, card_state=0 where card_type in (152,111,135) ");
+    
+    //Go to phase 1
+    self::DbQuery("UPDATE `global` set global_value = 0 where global_id = 12 ");
+
+    //change available recruits for next step
+    self::DbQuery("UPDATE `card` set card_location ='deckgangsters' where card_location ='avgangsters'");
+    self::DbQuery("UPDATE `card` set card_location ='avgangsters' where card_type in (112,146,147,155,157) ");
+    //RED Boss : 
+    self::DbQuery("UPDATE `card` set card_location ='hand', card_location_arg=$playerId, card_state=0 where card_type in (101) ");
+    self::DbQuery("UPDATE player SET player_money=$money where player_id = $playerId");
+
+    $this->gamestate->jumpToState(4);//playerAction
+
+    $this->notify->all( 'reloadPage', "/!\ : Refresh page to see gangsters...", []);
+  }
+  
   function debug_inactivateResource(){
     $playerId = $this->getCurrentPlayerId();
     $resource = $this->getHandResourceCard($playerId);

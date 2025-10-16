@@ -1751,10 +1751,11 @@ class Gangsta extends Table {
                 // $result='rewardRecruit';
                 // return $result;
                 $avgangsters = $this->cards->getCardsInLocation('avgangsters');
-                $money = (int)($newvalues[$player_id]['player_money']);
                 $count = 0;
                 foreach ($avgangsters as $gid => $gcard) {
-                    if ($this->gangster_type[$gcard['type']]['cost'] <= $money) {
+                    $mayRecruit = $this->playerMayRecruit($player_id, $gcard);
+                    $possibleBuy = $mayRecruit['possible'];
+                    if ($possibleBuy) {
                         $count += 1;
                     }
                 }
@@ -1980,7 +1981,6 @@ class Gangsta extends Table {
         ];
         return $args;
     }
-
     function argPlayerAction() {
         $player_id = self::getActivePlayerId();
         $possible_heists = [];
@@ -2011,6 +2011,28 @@ class Gangsta extends Table {
 
         $args = [
             'pHeists' => $possible_heists,
+            'pRecruits' => $possible_recruits,
+        ];
+        return $args;
+    }
+
+    function argRewardRecruit() {
+        $player_id = self::getActivePlayerId();
+        $possible_recruits = [];
+        $available_recruits = $this->cards->getCardsInLocation('avgangsters');
+ 
+        foreach($available_recruits as $gangsterId => &$gangster){
+            $mayRecruit = $this->playerMayRecruit($player_id, $gangster);
+            [$cost, $rebate, $possibleBuy] = [$mayRecruit['cost'],$mayRecruit['rebate'],$mayRecruit['possible']];
+            if($possibleBuy){
+                $possible_recruits[$gangsterId] = [
+                    'gangster' => $gangster,
+                    'cost' => $cost,
+                ];
+            }
+        }
+
+        $args = [
             'pRecruits' => $possible_recruits,
         ];
         return $args;
