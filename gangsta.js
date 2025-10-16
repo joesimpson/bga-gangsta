@@ -274,6 +274,7 @@ define([
                 this.avgangsters.image_items_per_row = 8;
                 this.avgangsters.item_margin = 10;
                 this.avgangsters.setSelectionMode(1); //maximum of 1 item selected
+                this.avgangsters.setSelectionAppearance("class");//--> .stockitem_selected
                 //this.avgangsters.onItemCreate = dojo.hitch( this, 'setupNewGangster' );
                 dojo.connect(this.avgangsters, 'onChangeSelection', this, 'onPickAvGangster');
 
@@ -506,6 +507,11 @@ define([
                 this.possible_heists = args.pHeists;
                 Object.entries(this.possible_heists).forEach(([card_id,card]) => {
                     let divCard = document.getElementById(`avheists_item_${card_id}`);
+                    if(divCard) divCard.classList.add("selectable");
+                });
+                let possible_gangsters = args.pRecruits;
+                Object.entries(possible_gangsters).forEach(([card_id,card]) => {
+                    let divCard = document.getElementById(`avgangsters_item_${card_id}`);
                     if(divCard) divCard.classList.add("selectable");
                 });
             },

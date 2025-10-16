@@ -873,11 +873,41 @@ class Gangsta extends Table {
         );
     */
 
+    /**
+     * @return array [ 
+     *  'cost' => int, 
+     *  'rebate' => bool, // true if player has a rebate
+     *  'possible' => bool, // true if player has enough money 
+     * ] 
+     */
+    function playerMayRecruit(int $player_id, array $gangster ) : array {
+        
+        $material = $this->gangster_type[$gangster['type']];
+        $cost = $material['cost'];
+        $rebate = false;
+        $possibleBuy = true;
+
+        if ($this->checkIfSameClan($player_id, $material['clan'])) {
+            $cost = $cost - 1;
+            $rebate = true;
+        }
+
+        //Check if you have enough money
+        $old_values = self::getCollectionFromDB("SELECT player_id, player_money FROM player  WHERE player_id='$player_id'");
+        $current_money = $old_values[$player_id]['player_money'];
+
+        if($cost > $current_money ) $possibleBuy = false;
+        return [
+            'cost' => $cost, 
+            'rebate' => $rebate,
+            'possible' => $possibleBuy,
+        ];
+    }
         
     /**
      * @return int number of required skills to ignore
      */
-    function playerMayIgnoreSkillsToPerformHeist(int $player_id, array $heistCard ){
+    function playerMayIgnoreSkillsToPerformHeist(int $player_id, array $heistCard ) : int {
         $allowMissingSkills = 0;
         $heistMaterial = $this->getHeistMaterialByType($heistCard['type']);
 
@@ -1399,20 +1429,15 @@ class Gangsta extends Table {
             throw new feException("This gangster is not available");
         }
 
-        $cost = $this->gangster_type[$gangster['type']]['cost'];
         $score = $this->gangster_type[$gangster['type']]['influence'];
-        $rebate = false;
-
-        if ($this->checkIfSameClan($player_id, $this->gangster_type[$gangster['type']]['clan'])) {
-            $cost = $cost - 1;
-            $rebate = true;
-        }
 
         //Check if you have enough money
         $old_values = self::getCollectionFromDB("SELECT player_id, player_score, public_score, player_money FROM player  WHERE player_id='$player_id'");
         $current_money = $old_values[$player_id]['player_money'];
 
-        if ($cost > $current_money) {
+        $mayRecruit = $this->playerMayRecruit($player_id, $gangster);
+        [$cost, $rebate, $possibleBuy] = [$mayRecruit['cost'],$mayRecruit['rebate'],$mayRecruit['possible']];
+        if (!$possibleBuy) {
             throw new feException(sprintf(self::_("You need %s <span class=\"money\" style=\"z-index:10\"></span> to pay this gangster"),
                                           $cost), true);
         }
@@ -1960,18 +1985,33 @@ class Gangsta extends Table {
         $player_id = self::getActivePlayerId();
         $possible_heists = [];
         $available_heists = $this->cards->getCardsInLocation('avheists');
-        $resource = $this->getHandResourceCard($player_id);
+        $possible_recruits = [];
+        $available_recruits = $this->cards->getCardsInLocation('avgangsters');
 
         foreach($available_heists as $heistId => &$heist){
             $nbMissingSkillsAllowed = $this->playerMayIgnoreSkillsToPerformHeist($player_id,$heist);
 
             if($this->playerHasEnoughSkillsToPerformHeist($player_id, $heist, null,$nbMissingSkillsAllowed)){
-                $possible_heists[$heistId] = ['heist' => $heist, 'ignore_skills'=>$nbMissingSkillsAllowed];
+                $possible_heists[$heistId] = [
+                    'heist' => $heist,
+                    'ignore_skills'=>$nbMissingSkillsAllowed
+                ];
+            }
+        }
+        foreach($available_recruits as $gangsterId => &$gangster){
+            $mayRecruit = $this->playerMayRecruit($player_id, $gangster);
+            [$cost, $rebate, $possibleBuy] = [$mayRecruit['cost'],$mayRecruit['rebate'],$mayRecruit['possible']];
+            if($possibleBuy){
+                $possible_recruits[$gangsterId] = [
+                    'gangster' => $gangster,
+                    'cost' => $cost,
+                ];
             }
         }
 
         $args = [
             'pHeists' => $possible_heists,
+            'pRecruits' => $possible_recruits,
         ];
         return $args;
     }

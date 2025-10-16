@@ -640,16 +640,21 @@ body[data-resources_variant="2"] .chapters_separator {
     position: absolute;
 }
 .stockitem_selected {
-	border: 3px solid red ! important;
+	border-width: 0px !important;
+    box-shadow: 0px 0px 0px 4px rgb(124,252,0);
 }
-#heists .selectable{
-    box-shadow: 0px 0px 0px 3px yellow;
+#heists .selectable, 
+#gangsters .selectable{
+    box-shadow: 0px 0px 0px 4px rgb(243,156,18);
 }
-#heists .stockitem_selected{
-	border: 0 solid green ! important;
-    box-shadow: 0px 0px 0px 4px green;
+#heists .stockitem_selected,
+#gangsters .stockitem_selected
+{
+    border: 0 solid rgb(124,252,0) ! important;
+    box-shadow: 0px 0px 0px 4px rgb(124,252,0);
 }
-#heists :not(.selectable){
+#heists :not(.selectable),
+#gangsters :not(.selectable){
 	cursor: inherit;
 }
 
