@@ -16,6 +16,7 @@
  *
  */
 
+use Bga\GameFramework\Actions\Types\BoolParam;
 use Bga\GameFramework\Actions\Types\IntArrayParam;
 use Bga\GameFramework\Actions\Types\StringParam;
 
@@ -349,6 +350,7 @@ class Gangsta extends Table {
 
         //$result['tableau'] = $this->cards->getCardsInLocation( 'hand' );
         $result['tableau'] = $this->getFullCardsInLocation('hand');
+        $result['wounded'] = $this->getFullCardsInLocation('wounded');
 
         $result['firstPlayer'] = self::getGameStateValue('firstPlayer');
         $result['activePhaseId'] = self::getGameStateValue('activePhase');
@@ -1114,6 +1116,60 @@ class Gangsta extends Table {
         return $endTurnActions;
     }
 
+    /**
+     * Check if player has an active hospital + save the gangster
+     * 
+     * @param int $player_id 
+     * @param array $gangster card infos
+     * @return bool true if saved, false otherwise
+     */
+    function saveGangsterToHospital(int $player_id, array $gangster) : bool {
+        $resource = $this->getHandResourceCard($player_id);
+        if(!isset($resource)) return false;
+        if($resource['ability'] != 'hospital') return false;
+        if($resource['state'] != CARD_RESOURCE_STATE_ACTIVE ) return false;
+        $this->trace("saveGangsterToHospital($player_id)".json_encode($gangster));
+
+        $gangster_id = $gangster['id'];
+        self::dbQuery("UPDATE card SET card_location='wounded', card_state = 0, card_order = 0 WHERE card_id='$gangster_id'");
+
+        $this->notify->all('movedToHospital', clienttranslate('${player_name} places a gangster in the hospital'), [
+            'player_id' => $player_id,
+            'player_name' => $this->getPlayerNameById($player_id),
+            'gangster' => $gangster,
+            'resource_id' => $resource['id'],
+        ]);
+
+        return true;
+    }
+    
+    /**
+     * Recover gangster from hospital, doing almost the same actions as when we recruit them  + reverse some actions we did when we killed them
+     * 
+     * @param int $player_id 
+     * @param int $gangster_id 
+     * @return array $gangster card infos
+     */
+    function recoverGangsterFromHospital(int $player_id, int $gangster_id)  {
+        $this->trace("recoverGangsterFromHospital($player_id,$gangster_id)");
+        $gangster = $this->getFullCardInfo($gangster_id);
+        
+        $score = $this->gangster_type[$gangster['type']]['influence'];
+        self::incStat($score, 'scoreFromGangster', $player_id);
+        self::DbQuery("UPDATE player SET player_score=player_score+$score, public_score=public_score+$score WHERE player_id='$player_id'");
+
+        $newOrder = self::getUniqueValueFromDB("SELECT max(card_order) + 1 FROM card WHERE card_location = 'hand' AND card_location_arg='$player_id'") ;
+        self::dbQuery("UPDATE card SET card_location='hand', card_state = 0, card_order = $newOrder WHERE card_id='$gangster_id'");
+        //REFRESH object
+        $gangster['card_order'] = $newOrder;
+        $gangster['card_state'] = 0;
+        $gangster['card_location'] = 'hand';
+        
+        self::incStat(-1, 'gangsterLost', $player_id);
+
+        return $gangster;
+    }
+
 //////////////////////////////////////////////////////////////////////////////
 //////////// Player actions
 ////////////
@@ -1169,6 +1225,63 @@ class Gangsta extends Table {
 
         // END PLAYER turn and go to next state when everyone is ready
         $this->gamestate->setPlayerNonMultiactive( $player_id, 'next');
+    }
+    
+    function actSkipRecover() {
+        self::checkAction('actSkipRecover');
+        $player_id = $this->getCurrentPlayerId();
+        $this->trace("actSkipRecover() $player_id ");
+        
+        $this->notify->all('skipRecover',
+                clienttranslate('${player_name} skips and doesn\'t recover any gangster'), [
+                    'player_id' => $player_id,
+                    'player_name' => $this->getPlayerNameById($player_id),
+                ]
+            );
+
+        $this->gamestate->nextState('afterRecover');
+    }
+
+    function actRecover(#[BoolParam()] bool $all, #[IntArrayParam(name:'g_ids')] array $gangster_ids) {
+        self::checkAction('actRecover');
+        $player_id = $this->getCurrentPlayerId();
+        $this->trace("actRecover($all) $player_id, ",json_encode($gangster_ids));
+        
+        $args = $this->argRecovering();
+
+        if(!$all && 0 >= count($gangster_ids)) {
+            throw new BgaVisibleSystemException("You cannot recover less than 1 gangster");
+        } 
+        $gangstersDatas = [];
+        $possibleGangsterIds = $args['g_ids'];
+        if($all) $gangster_ids = $possibleGangsterIds;
+        foreach($gangster_ids as $asked_gangster_id){
+            if(!in_array($asked_gangster_id, $possibleGangsterIds)){
+                throw new BgaVisibleSystemException("You cannot recover gangster $asked_gangster_id");
+            }
+
+            $gangstersDatas[$asked_gangster_id] = $this->recoverGangsterFromHospital($player_id, $asked_gangster_id);
+        }
+        
+        $team_score = self::getStat('scoreFromGangster', $player_id);
+        $new_values = self::getCollectionFromDB("SELECT player_id, player_score, public_score FROM player WHERE player_id='$player_id'");
+        $current_score = $new_values[$player_id]['public_score'];
+        if ($this->isPublic) {
+            $current_score = $new_values[$player_id]['player_score'];
+        }
+    
+        $this->notify->all('recoverGangsters',
+                clienttranslate('${player_name} recover ${n} gangster(s)'), [
+                    'player_id' => $player_id,
+                    'player_name' => $this->getPlayerNameById($player_id),
+                    'gangsters' => $gangstersDatas,
+                    'n' => count($gangster_ids),
+                    'new_influence' => $current_score,
+                    'team_score' => $team_score,
+                ]
+            );
+
+        $this->gamestate->nextState('afterRecover');
     }
 
     function actionUntapGangsters($gangster_ids) {
@@ -1341,12 +1454,14 @@ class Gangsta extends Table {
 
         self::dbQuery("UPDATE player SET public_score=public_score-$gscore, player_score=player_score-$gscore WHERE player_id='$player_id'");
 
-        self::notifyAllPlayers('kill', clienttranslate('${player_name} discards a gangster'), [
+        $this->notify->all('kill', clienttranslate('${player_name} discards a gangster'), [
             'player_id' => $player_id,
             'player_name' => $players[$player_id]['player_name'],
             'score_loss' => $gscore,
             'gangster' => $gangster_id,
         ]);
+        
+        $gangsterInHospital = $this->saveGangsterToHospital($player_id, $gangster);
 
         self::incStat(1, 'gangsterLost', $player_id);
         self::incStat(-1 * $gscore, 'scoreFromGangster', $player_id);
@@ -1440,6 +1555,8 @@ class Gangsta extends Table {
                 'score_loss' => $gscore,
             ]);
         }
+        
+        $gangsterInHospital = $this->saveGangsterToHospital($owner_id, $gangster);
 
         self::incStat(1, 'gangsterLost', $owner_id);
         self::incStat(-1 * $gscore, 'scoreFromGangster', $owner_id);
@@ -1590,6 +1707,8 @@ class Gangsta extends Table {
         $player_id = self::getActivePlayerId();
         $this->trace("passForMoney($player_id) ");
 
+        $nextState = 'discard';
+
         $gangstersInTeam = $this->getCardsForPlayer($player_id);
         self::incStat(1, 'passedForMoney', $player_id);
         $leaderComps = 0;
@@ -1617,23 +1736,28 @@ class Gangsta extends Table {
         $this->updatePlayerVault($player_id);
         
         $resource = $this->getHandResourceCard($player_id);
-        if( isset($resource) && $resource['ability'] == 'black_market'
-            && $resource['state'] == CARD_RESOURCE_STATE_ACTIVE 
+        if( isset($resource) && $resource['state'] == CARD_RESOURCE_STATE_ACTIVE 
         ){
-            $blackMarketMoney = 2;
-            $current_money += $blackMarketMoney;
-            self::DbQuery("UPDATE player SET player_money='$current_money' WHERE player_id='$player_id'");
-            $this->notify->all('pass', clienttranslate('${player_name} receives $${money} with the resource card ${resource_name}'), [
-                'i18n' => ['resource_name'],
-                'player_id' => $player_id,
-                'player_name' => self::getActivePlayerName(),
-                'new_money' => $current_money,
-                'money' => $blackMarketMoney,
-                'resource_name'=> $resource['name'],
-            ]);
+            if( $resource['ability'] == 'black_market' ){
+                $blackMarketMoney = 2;
+                $current_money += $blackMarketMoney;
+                self::DbQuery("UPDATE player SET player_money='$current_money' WHERE player_id='$player_id'");
+                $this->notify->all('pass', clienttranslate('${player_name} receives $${money} with the resource card ${resource_name}'), [
+                    'i18n' => ['resource_name'],
+                    'player_id' => $player_id,
+                    'player_name' => self::getActivePlayerName(),
+                    'new_money' => $current_money,
+                    'money' => $blackMarketMoney,
+                    'resource_name'=> $resource['name'],
+                ]);
+
+            }
+            else if( $resource['ability'] == 'hospital' ){
+                $nextState = 'recovering';
+            }
         }
 
-        $this->gamestate->nextState('discard');
+        $this->gamestate->nextState($nextState);
     }
 
     function performHeist($heist_id,
@@ -2181,6 +2305,15 @@ class Gangsta extends Table {
                     ],
                 ],
             ],
+        ];
+        return $args;
+    }
+
+    function argRecovering() {
+        $gangster_ids = array_keys($this->cards->getCardsInLocation('wounded'));
+
+        $args = [
+            'g_ids' => $gangster_ids,
         ];
         return $args;
     }
@@ -2892,6 +3025,7 @@ class Gangsta extends Table {
         }
         self::setGameStateValue('GDGWinner', $mid);
 
+        $this->trace("stComputeGDG() --> isTie=$isTie with skillCount=".json_encode($skillCount)." maxskills=".json_encode($maxskills));
         if ($isTie == true) {
             self::setGameStateValue('GDGStatus', 1);
         } else {

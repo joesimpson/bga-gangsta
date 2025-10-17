@@ -338,6 +338,13 @@ div.tableWindow table {
     flex-direction: row;
     flex-wrap: nowrap;
 }
+.dead_gangsters{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    /* same margin as hospital card */
+    margin-left: 10px;
+}
 
 .player_resource_cards{
     flex-shrink: 1;
@@ -377,12 +384,12 @@ body[data-resources_variant="1"] .player_resource_cards {
 }
 @keyframes animateSelected {
     0%,100% {
-        box-shadow: 0 0 0 0 rgb(243,156,18) inset,
-                    0 0 4px 0 rgb(230,126,34);
-        -webkit-box-shadowbox-shadow: 0 0 0 0 rgb(243,156,18) inset,
-                    0 0 4px 0 rgb(230,126,34);
-        -moz-box-shadowbox-shadow: 0 0 0 0 	rgb(243,156,18) inset,
-                    0 0 4px 0px rgb(230,126,34);
+        box-shadow: 0 0 0 5px rgb(243,156,18) inset,
+                    0 0 4px 4px rgb(230,126,34);
+        -webkit-box-shadowbox-shadow: 0 0 0 5px rgb(243,156,18) inset,
+                    0 0 4px 4px rgb(230,126,34);
+        -moz-box-shadowbox-shadow: 0 0 0 5px rgb(243,156,18) inset,
+                    0 0 4px 4px rgb(230,126,34);
     }
     50% {
         box-shadow: 0 0 0 2px rgb(243,156,18) inset,
@@ -418,7 +425,8 @@ body[data-resources_variant="1"] .player_resource_cards {
     justify-content: center;
     align-items: center;
     position: relative;
-    box-shadow: 0 0 0 2px rgb(124,252,0) inset;
+    box-shadow: 0 0 0 4px rgb(124,252,0);
+    animation: none;
 }
 .gangster.selected:after {
     /* green */

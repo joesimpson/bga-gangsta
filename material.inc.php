@@ -2940,9 +2940,8 @@ $this->resource_types = [
             6 => 1,
         ],
     ],
-    /*
     911 => [
-        'ability' => 11,
+        'ability' => 'hospital',
         'influence' => 5,
         'name' => clienttranslate('Hospital'),
         'cost' => [
@@ -2954,7 +2953,6 @@ $this->resource_types = [
             6 => 1,
         ],
     ],
-    */
     912 => [
         'ability' => 'indicator_network',
         'influence' => 2,

@@ -49,6 +49,8 @@
           <div id="player_resource_cards_{PLAYER_ID}" class="player_resource_cards"></div>
           <div id="recruited_gangsters_{PLAYER_ID}" class="cardlist_wrapper"></div>
       </div>
+      <div id="dead_gangsters_{PLAYER_ID}" class="dead_gangsters cardlist_wrapper"></div>
+
       <div class="clear"></div>
     </div>
   </div>

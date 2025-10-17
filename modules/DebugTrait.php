@@ -203,13 +203,13 @@ trait DebugTrait
     $this->notify->player($playerId, 'reloadPage', "/!\ : Refresh page to see resource card...", []);
   }
   
-  function debug_EndOfChapter(int $chap = 1){
+  function debug_EndOfChapter(int $chap = 1, int $addSkills = 2){
     $playerId = $this->getCurrentPlayerId();
 
     //set bank
-    $cardType = 909;
-    self::DbQuery("UPDATE `card` set card_location ='rc_discard', card_location_arg = 0 where card_location ='rc_hand' and card_location_arg = $playerId ");
-    self::DbQuery("UPDATE `card` set card_location ='rc_hand', card_location_arg = $playerId, card_state = 1 where card_type = $cardType ");
+    //$cardType = 909;
+    //self::DbQuery("UPDATE `card` set card_location ='rc_discard', card_location_arg = 0 where card_location ='rc_hand' and card_location_arg = $playerId ");
+    //self::DbQuery("UPDATE `card` set card_location ='rc_hand', card_location_arg = $playerId, card_state = 1 where card_type = $cardType ");
     
     //Go to phase 2
     $phase = $chap -1;
@@ -222,9 +222,23 @@ trait DebugTrait
     foreach($players as $pId => $player){
       $gangsters = $this->cards->getPlayerHand($pId);
       if(count($gangsters) < $countForChap ){
-        $this->cards->pickCardsForLocation($countForChap-count($gangsters) ,'deckgenesis','hand',$pId);
+        $this->cards->pickCardsForLocation($countForChap-count($gangsters) ,'deckgangsters','hand',$pId);
       } else if(count($gangsters) > $countForChap ){
-        $this->cards->pickCardsForLocation(count($gangsters) - $countForChap ,'hand','deckgenesis',$pId);
+        $this->cards->pickCardsForLocation(count($gangsters) - $countForChap ,'hand','deckgangsters',$pId);
+      }
+
+      //Test with added skills
+      $gangsters = $this->cards->getPlayerHand($pId);
+      $k = 0;
+      foreach($gangsters as $gId => $gangster){
+        if($k>$addSkills){
+          self::dbQuery("UPDATE card SET card_skills=0 where card_id = $gId");
+        }
+        else {
+          $skill_id = $k;
+          self::dbQuery("UPDATE card SET card_skills=$skill_id where card_id = $gId");
+        }
+        $k++;
       }
     }
 
@@ -328,4 +342,7 @@ trait DebugTrait
     $this->notify->player($player_id,'reloadPage', "/!\ : Refresh page to see score...", []);
   }
  
+  function debug_jumpToState(int $jumpState = 25){
+    $this->gamestate->jumpToState($jumpState);
+  }
 }

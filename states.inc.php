@@ -60,13 +60,13 @@
                 v       
     2 -> 3 -> 4 playerAction
     ^ \----->/     |   |                             
-    |              |   |-----------------------------
-    |              |   |           |                |
-    |              |   v           v                v            
-    |   /------>6  |   5,7,9,11   10  ->12->13->14  8
-    |   ^       |  |   |           |            |   |
-    |   |       v  v   v           v            v   v
-    |   |       -------------------------------------
+    |              |   |-------------------------------------
+    |              |   |           |                |   |   |
+    |              |   v           v                v   v   v            
+    |   /------>6  |   7,9,11     10  ->12->13->14  8   5 <-15
+    |   ^       |  |   |           |            |   |   |    
+    |   |       v  v   v           v            v   v   v    
+    |   |       -----------------------------------------    
     |   |               |
     |   |               |   40 endTurnActions <->41
     |   |               |   ^   |
@@ -154,9 +154,11 @@ $machinestates = array(
         "type" => "activeplayer",
         "possibleactions" => array( "recruitGangster", "performHeist", "pass" ),
         "transitions" => array( "discard" => 5, "checkPhase" => 25, "replay"=> 25, "zombiePass"=>25,
-                                "rewardRecruit" => 7, "rewardSteal" => 8, "rewardTap" => 9, "markForKill" => 10, "rewardSkill" => 11)
+                                "rewardRecruit" => 7, "rewardSteal" => 8, "rewardTap" => 9, "markForKill" => 10, "rewardSkill" => 11,
+                                "recovering" => 15,
+                            ),
     ),
-
+    
     5 => array(
         "name" => "discard",
         "description" => clienttranslate('${actplayer} may discard a card from the available heists or gangsters'),
@@ -253,6 +255,16 @@ $machinestates = array(
         "type" => "game",
         "action" => "stGoBackToActive",
         "transitions" => array( "checkPhase" => 25 ),
+    ),
+
+    15 => array(
+        "name" => "recovering",
+        "args" => "argRecovering",
+        "description" => clienttranslate('${actplayer} may recover some eliminated gangsters'),
+        "descriptionmyturn" => clienttranslate('${you} may recover some eliminated gangsters'),
+        "type" => "activeplayer",
+        "possibleactions" => [ "actRecover", "actSkipRecover" ],
+        "transitions" => [ "afterRecover" => 5 ],
     ),
 
     20 => array(
