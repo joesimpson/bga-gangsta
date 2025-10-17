@@ -1359,7 +1359,7 @@ $this->heist_gangwars_type = array(
     ),
     331 => array(
         'type' => 'snitch',
-        'name' => 'Snitch',
+        'name' => clienttranslate('Snitch'),
         'chapter' => 'gangwar',
         'cost' => array(
             1 => 0,
@@ -1372,7 +1372,7 @@ $this->heist_gangwars_type = array(
     ),
     332 => array(
         'type' => 'snitch',
-        'name' => 'Snitch',
+        'name' => clienttranslate('Snitch'),
         'chapter' => 'gangwar',
         'cost' => array(
             1 => 0,
@@ -1385,7 +1385,7 @@ $this->heist_gangwars_type = array(
     ),
     333 => array(
         'type' => 'snitch',
-        'name' => 'Snitch',
+        'name' => clienttranslate('Snitch'),
         'chapter' => 'gangwar',
         'cost' => array(
             1 => 0,
@@ -2179,7 +2179,7 @@ $this->heist_domination_type = array(
     ),
     431 => array(
         'type' => 'snitch',
-        'name' => 'Snitch',
+        'name' => clienttranslate('Snitch'),
         'chapter' => 'domination',
         'cost' => array(
             1 => 0,
@@ -2192,7 +2192,7 @@ $this->heist_domination_type = array(
     ),
     432 => array(
         'type' => 'snitch',
-        'name' => 'Snitch',
+        'name' => clienttranslate('Snitch'),
         'chapter' => 'domination',
         'cost' => array(
             1 => 0,
@@ -2205,7 +2205,7 @@ $this->heist_domination_type = array(
     ),
     433 => array(
         'type' => 'snitch',
-        'name' => 'Snitch',
+        'name' => clienttranslate('Snitch'),
         'chapter' => 'domination',
         'cost' => array(
             1 => 0,
@@ -2218,7 +2218,7 @@ $this->heist_domination_type = array(
     ),
     434 => array(
         'type' => 'snitch',
-        'name' => 'Snitch',
+        'name' => clienttranslate('Snitch'),
         'chapter' => 'domination',
         'cost' => array(
             1 => 0,
@@ -2231,7 +2231,7 @@ $this->heist_domination_type = array(
     ),
     435 => array(
         'type' => 'snitch',
-        'name' => 'Snitch',
+        'name' => clienttranslate('Snitch'),
         'chapter' => 'domination',
         'cost' => array(
             1 => 0,
