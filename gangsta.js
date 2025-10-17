@@ -1087,7 +1087,7 @@ define([
                     ['high_tech_eq', this.format_string(_('Ignore one requirement of your choice if you perform ${a} or ${b}.'),{ a:_('Art theft'), b: _('Hack attack')})],
                     ['private_society', this.format_string(_('At the end of your turn, make one of your leaders ${icon_leader} available for free.'),{icon_leader: `<span class="skill leader"></span>` })],
                     ['bank', this.format_string(_('Store up to $${n} in the bank vault ${icon_vault}. This money cannot be targeted by a Theft ${icon_theft}. Money will be transferred or withdrawn to or from the bank at any time during your turn.'),{n:10, icon_theft: '<span class="reward-icon reward-theft"></span>', icon_vault:'<span><i class="icon_vault fa6-solid fa6-vault fa6-lg"></i></span>' })],
-                    ['bikers_gang', this.format_string(_(''),{ })],
+                    ['bikers_gang', this.format_string(_('At the beginning of your turn, you can look at the first Heist Card from the stack. You will be allowed to perform the heist during this phase by paying $${n} in advance.'),{n:1 })],
                     [11, this.format_string(_(''),{ })],
                     ['indicator_network', this.format_string(_('At the beginning of your turn, you can look at the first gangster from the stack. You can recruit them during this turn. Should they belong to the same family as your Boss, they will cost you $ ${n} less.'),{n:1 })],
                 ]);
