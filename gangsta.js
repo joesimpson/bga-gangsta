@@ -552,7 +552,7 @@ define([
                 }
                 this.currentMobilize = {free: args.leaders, gangsters: [], money: 0};
                 this.displayTopDeckGangster(args._private, false);
-                this.displayTopDeckHeist(args._private, true);
+                this.displayTopDeckHeist(args._private, false);
             },
 
             enteringRewardTap: function (args) {
@@ -955,10 +955,12 @@ define([
                     let topDeckHeistDiv = document.getElementById("heists_deck_topcard");
                     topDeckHeistDiv.classList.remove('no_display');
                     let divHeist = this.addHeist(this.player_id, topDeckHeist, 'heists_deck_topcard');
-                    if(top_deck_datas.possible && withClickHandler) divHeist.classList.add("selectable");
-                    this.possible_heists[topDeckHeist.id] = topDeckHeist;
-                    this.possible_heists[topDeckHeist.id].ignore_skills = 0;
-                    if(withClickHandler) this._connections[divHeist.id] = dojo.connect(divHeist, 'onclick', this, 'onPickAvHeist');
+                    if(top_deck_datas.possible && withClickHandler){
+                        divHeist.classList.add("selectable");
+                        this._connections[divHeist.id] = dojo.connect(divHeist, 'onclick', this, 'onPickAvHeist');
+                        this.possible_heists[topDeckHeist.id] = topDeckHeist;
+                        this.possible_heists[topDeckHeist.id].ignore_skills = 0;
+                    }
                 }
             },
 

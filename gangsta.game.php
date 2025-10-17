@@ -1003,7 +1003,9 @@ class Gangsta extends Table {
         int $nbMissingSkillsAllowed = 0
     ) : bool {
         $heistMaterial = $this->getHeistMaterialByType($heistDatas['type']);
-        $isCoopHeist = $heistMaterial['reward']['coopcash'] > 0;
+        if(!isset($heistMaterial)) return false;
+        if(!isset($heistMaterial['reward'])) return false;
+        $isCoopHeist = isset($heistMaterial['reward']['coopcash']) && $heistMaterial['reward']['coopcash'] > 0;
         
         $allowMissingSkill = $nbMissingSkillsAllowed;
 
