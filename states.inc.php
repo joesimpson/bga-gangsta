@@ -165,7 +165,7 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} may discard a card from the available heists or gangsters'),
         "type" => "activeplayer",
         "possibleactions" => array( "discard", "skipDiscard" ),
-        "transitions" => array( "checkPhase" => 25 )
+        "transitions" => array( "checkPhase" => 25, "zombiePass"=>25, )
     ),
 
     6 => array(
@@ -186,7 +186,7 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} may recruit an additional gangster'),
         "type" => "activeplayer",
         "possibleactions" => array( "recruitGangster", "skip" ),
-        "transitions" => array( "checkPhase" => 25, "skip" => 25  ),
+        "transitions" => array( "checkPhase" => 25, "skip" => 25, "zombiePass"=>25,  ),
     ),
 
     8 => array(
@@ -196,6 +196,7 @@ $machinestates = array(
         "type" => "activeplayer",
         "possibleactions" => array( "steal", "skip" ),
         "transitions" => array( "checkPhase" => 25, "skip" => 25, 
+            "zombiePass"=>25,
             "replay" => 4  //Seems obsolete
         ),
         "args" => "argRewardSteal"
