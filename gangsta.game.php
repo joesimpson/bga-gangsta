@@ -1161,9 +1161,9 @@ class Gangsta extends Table {
         $newOrder = self::getUniqueValueFromDB("SELECT max(card_order) + 1 FROM card WHERE card_location = 'hand' AND card_location_arg='$player_id'") ;
         self::dbQuery("UPDATE card SET card_location='hand', card_state = 0, card_order = $newOrder WHERE card_id='$gangster_id'");
         //REFRESH object
-        $gangster['card_order'] = $newOrder;
-        $gangster['card_state'] = 0;
-        $gangster['card_location'] = 'hand';
+        $gangster['order'] = $newOrder;
+        $gangster['state'] = 0;
+        $gangster['location'] = 'hand';
         
         self::incStat(-1, 'gangsterLost', $player_id);
 
@@ -1269,6 +1269,12 @@ class Gangsta extends Table {
         if ($this->isPublic) {
             $current_score = $new_values[$player_id]['player_score'];
         }
+
+        //private notif before public one
+        $this->notify->player($player_id, 'scoreUpdate', "", [
+            'player_id' => $player_id,
+            'new_influence' => $new_values[$player_id]['player_score'],
+        ]);
     
         $this->notify->all('recoverGangsters',
                 clienttranslate('${player_name} recover ${n} gangster(s)'), [
@@ -1753,7 +1759,11 @@ class Gangsta extends Table {
 
             }
             else if( $resource['ability'] == 'hospital' ){
-                $nextState = 'recovering';
+                if($this->cards->countCardInLocation('wounded')>0){
+                    $nextState = 'recovering';
+                    $this->giveExtraTime($player_id);
+
+                }
             }
         }
 
@@ -2733,13 +2743,13 @@ class Gangsta extends Table {
             $this->gamestate->nextState('gameEnd');
         }
         //criteria for game end: 9 gangsters or 3 snitches
-        else if ($maxcount == 9 && ($currentphase == 2)) {
+        else if ($maxcount >= 9 && ($currentphase == 2)) {
             $this->gamestate->nextState('gameEnd');
-        } elseif ($maxcount == 7 && $currentphase == 1) {
+        } elseif ($maxcount >= 7 && $currentphase == 1) {
             //criteria for Domination: 7 gangsters
             self::setGameStateValue('nextPlayerId', self::getActivePlayerId());
             $this->gamestate->nextState('startDomination');
-        } elseif ($maxcount == 4 && $currentphase == 0) {
+        } elseif ($maxcount >= 4 && $currentphase == 0) {
             //criteria for GDG: 4 gangsters
             $this->gamestate->nextState('startGDG');
         } else {

@@ -215,6 +215,7 @@ trait DebugTrait
     $phase = $chap -1;
     self::DbQuery("UPDATE `global` set global_value = $phase where global_id = 12 ");
     self::setGameStateValue('activePhase', $phase);
+    self::setGameStateValue('GDGStatus', 0);
 
     $countForChap = [4,7,9][$phase];
 

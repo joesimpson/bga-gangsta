@@ -2108,11 +2108,11 @@ define([
             },
 
             notif_scoreUpdate: function (notif) {
-                debug( 'notif_scoreUpdate', notif );
+                debug( 'notif_scoreUpdate (private)', notif );
 
                 this.changePlayerScore(notif.args.player_id, notif.args.new_influence);
-                this.changePlayerHeistScore(notif.args.player_id, notif.args.heist_influence);
-                this.changePlayerTeamScore(notif.args.player_id, notif.args.gangster_influence);
+                if(notif.args.heist_influence !=undefined) this.changePlayerHeistScore(notif.args.player_id, notif.args.heist_influence);
+                if(notif.args.gangster_influence !=undefined) this.changePlayerTeamScore(notif.args.player_id, notif.args.gangster_influence);
             },
             notif_scoreResource: function (notif) {
                 debug( 'notif_scoreResource : increase +n', notif );
@@ -2218,12 +2218,29 @@ define([
                 this.addToTableau(notif.args.gangster_type, notif.args.gangster_id, 0, notif.args.player_id, notif.args.order);
             },
             notif_recoverGangsters: async function (notif) {
-                debug("notif_recoverGangsters",notif);
+                debug("notif_recoverGangsters (public)",notif);
 
-                this.changePlayerScore(notif.args.player_id, notif.args.new_influence);
-                this.changePlayerTeamScore(notif.args.player_id, notif.args.team_score);
+                let player_id = notif.args.player_id;
+                if(player_id != this.player_id){
+                    //in this case, current player will receives a private score update right before this notif
+                    this.changePlayerScore(player_id, notif.args.new_influence);
+                }
+                this.changePlayerTeamScore(player_id, notif.args.team_score);
 
-                //TODO JSA move all recovered gangsters at once
+                // move all recovered gangsters at once
+                let pcards = Object.values(notif.args.gangsters);
+                pcards.sort((a, b) => a.order - b.order);
+                await Promise.all(
+                    pcards.map(async (card, i) => {
+                        let gangsterDiv = $("card_wrap_"+card.id);
+                        gangsterDiv.querySelector(".gangster").classList.remove("dead");
+                        this.addToTableau(card.type, card.id, 0, player_id, card.order);
+                        await this.wait(300 * i).then(async () => 
+                            await this.animationManager.slideAndAttach(gangsterDiv, $(`recruited_gangsters_${player_id}`))
+                        );
+                    })
+                );
+                
             },
 
             notif_endOfTurn: function (notif) {
