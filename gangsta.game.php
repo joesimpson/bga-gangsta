@@ -614,6 +614,8 @@ class Gangsta extends Table {
                 $this->increasePlayerResourceScore($player_id,$resourceCard);
             }
             $this->updatePlayerVault($player_id);
+
+            $this->trace("checkResourceCardActivation($player_id) - ACTIVATION because enough skills in ".json_encode($availableSkills)." for resource card type ".$resourceCard['type'] );
         }
         else {
             $this->trace("checkResourceCardActivation($player_id) - Not enough skills in ".json_encode($availableSkills)." for resource card type ".$resourceCard['type'] );
@@ -869,12 +871,12 @@ class Gangsta extends Table {
     }
 
     function clearCrew($playerid) {
-        $sql = "UPDATE card SET card_state=1 where card_state=2 and card_location_arg='$playerid'";
+        $sql = "UPDATE card SET card_state=1 where card_location = 'hand' AND card_state=2 and card_location_arg='$playerid'";
         self::DbQuery($sql);
     }
 
     function clearAllCrews() {
-        $sql = "UPDATE card SET card_state=1 where card_state=2";
+        $sql = "UPDATE card SET card_state=1 where card_location = 'hand' AND card_state=2";
         self::DbQuery($sql);
     }
 
