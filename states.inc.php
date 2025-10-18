@@ -264,7 +264,7 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} may recover some eliminated gangsters'),
         "type" => "activeplayer",
         "possibleactions" => [ "actRecover", "actSkipRecover" ],
-        "transitions" => [ "afterRecover" => 5 ],
+        "transitions" => [ "afterRecover" => 5, "zombiePass"=>5 ],
     ),
 
     20 => array(
@@ -357,7 +357,7 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} may perform an action at the end of this turn'),
         "type" => "activeplayer",
         "possibleactions" => array( "actEndUntapGangsters","actSkipEndTurn" ),
-        "transitions" => array( "stay" => 41,"next" => 40, "skip"=>40, "zombiePass"=> 40, ),
+        "transitions" => array( "stay" => 41,"next" => 40, "skip"=>40, ),
     ),
 
     98 => array(

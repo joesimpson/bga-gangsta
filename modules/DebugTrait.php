@@ -346,4 +346,13 @@ trait DebugTrait
   function debug_jumpToState(int $jumpState = 25){
     $this->gamestate->jumpToState($jumpState);
   }
+  
+  /**
+   * Test what happens if a zombie was there at current state
+   */
+  function debug_Zombie(){
+    $playerId = $this->getCurrentPlayerId();
+    $state = $this->gamestate->state();
+    $this->zombieTurn($state,$playerId);
+  }
 }

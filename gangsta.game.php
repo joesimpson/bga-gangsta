@@ -1184,18 +1184,24 @@ class Gangsta extends Table {
     /**
      * First user action : select a resource card
      * @param int $cardId
+     * @param int|null $force_player_id used to force action in this multiple active players state
      */
-    function actSelectResource(int $cardId){
+    function actSelectResource(int $cardId, int|null $force_player_id = null){
         self::checkAction( 'actSelectResource' ); 
         //$this->gamestate->checkPossibleAction( 'actSelectResource' );
         self::trace("actSelectResource($cardId)");
         
-        if($this->isSpectator() || $this->isCurrentPlayerZombie()){
+        if($this->isSpectator()){
             throw new \BgaVisibleSystemException("You cannot play now");
         }
 
         $card = $this->getFullCardInfo($cardId);
-        $player_id = self::getCurrentPlayerId();
+        if(isset($force_player_id) && $this->isCurrentPlayerZombie()) {
+            $player_id = $force_player_id;
+        }
+        else {
+            $player_id = self::getCurrentPlayerId();
+        }
         $args = $this->argResourcesSelection();
         $selectableCards = $args['_private'][$player_id]['cards'];
 
@@ -1393,7 +1399,7 @@ class Gangsta extends Table {
     
     function actSkipEndTurn() {
         self::checkAction('actSkipEndTurn');
-        $player_id = $this->getCurrentPlayerId();
+        $player_id = $this->getActivePlayerId();
         $this->trace("actSkipEndTurn()  $player_id");
         
         $this->removeAllActionsFromEndTurn($player_id);
@@ -3316,26 +3322,32 @@ class Gangsta extends Table {
 //////////// Zombie
 ////////////
 
-    /*
-        zombieTurn:
-
-        This method is called each time it is the turn of a player who has quit the game (= "zombie" player).
-        You can do whatever you want in order to make sure the turn of this player ends appropriately
-        (ex: pass).
-
-        Important: your zombie code will be called when the player leaves the game. This action is triggered
-        from the main site and propagated to the gameserver from a server, not from a browser.
-        As a consequence, there is no current player associated to this action. In your zombieTurn function,
-        you must _never_ use getCurrentPlayerId() or getCurrentPlayerName(), otherwise it will fail with a "Not logged" error message.
-    */
-
-    function zombieTurn($state,
-                        $active_player) {
+    /**
+     * This method is called each time it is the turn of a player who has quit the game (= "zombie" player).
+     * You can do whatever you want in order to make sure the turn of this player ends appropriately
+     * (ex: pass).
+     *
+     * Important: your zombie code will be called when the player leaves the game. This action is triggered
+     * from the main site and propagated to the gameserver from a server, not from a browser.
+     * As a consequence, there is no current player associated to this action. In your zombieTurn function,
+     * you must _never_ use `getCurrentPlayerId()` or `getCurrentPlayerName()`, otherwise it will fail with a
+     * "Not logged" error message.
+     *
+     * @param array{ type: string, name: string } $state
+     * @param int $active_player
+     * @return void
+     * @throws feException if the zombie mode is not supported at this game state.
+     */
+    function zombieTurn(array $state, 
+                        int $active_player) {
         $statename = $state['name'];
         $stType = $state['type'];
 
         if ($stType == "activeplayer") {
             switch ($statename) {
+                case "endTurnActions":
+                    $this->actSkipEndTurn();
+                    return;
                 default:
                     $this->gamestate->nextState("zombiePass");
                     break;
@@ -3345,17 +3357,26 @@ class Gangsta extends Table {
         }
 
         if ($stType == "multipleactiveplayer") {
-            // Make sure player is in a non blocking status for role turn
-            $sql = "
-                UPDATE  player
-                SET     player_is_multiactive = 0
-                WHERE   player_id = $active_player
-            ";
-            self::DbQuery($sql);
+            switch ($statename) {
+                case "resourcesSelection":
+                    $selectableCards = $state['args']['_private'][$active_player]['cards'];
+                    $cardId = array_keys($selectableCards)[0];
+                    $this->actSelectResource($cardId,$active_player);
+                    return;
+                default:
+                    // Make sure player is in a non blocking status for role turn
+                    $sql = "
+                        UPDATE  player
+                        SET     player_is_multiactive = 0
+                        WHERE   player_id = $active_player
+                    ";
+                    self::DbQuery($sql);
 
-            $this->gamestate->updateMultiactiveOrNextState('');
-            //$this->gamestate->setPlayerNonMultiactive( $active_player, 'zombiePass' );
+                    $this->gamestate->updateMultiactiveOrNextState('');
+                    //$this->gamestate->setPlayerNonMultiactive( $active_player, 'zombiePass' );
 
+                    break;
+            }
             return;
         }
 
