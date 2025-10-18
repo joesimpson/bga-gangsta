@@ -2210,11 +2210,13 @@ define([
                     }
                     topDeckGangsterDiv.querySelector(".gangster").classList.remove("selected");
                     await this.animationManager.slideAndAttach(topDeckGangsterDiv, $(`recruited_gangsters_${notif.args.player_id}`));
+                    //Destroy after animation in order to use same method and clickHandler as other case
+                    dojo.destroy(topDeckGangsterDiv);
                 }
                 else {
-                    this.addGangster(notif.args.player_id, notif.args.gangster_type, notif.args.gangster_id, "0", {'skill': "0"});
                     this.avgangsters.removeFromStockById(notif.args.gangster_id);
                 }
+                this.addGangster(notif.args.player_id, notif.args.gangster_type, notif.args.gangster_id, "0", {'skill': "0"});
                 this.addToTableau(notif.args.gangster_type, notif.args.gangster_id, 0, notif.args.player_id, notif.args.order);
             },
             notif_recoverGangsters: async function (notif) {

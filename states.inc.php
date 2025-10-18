@@ -366,7 +366,10 @@ $machinestates = array(
         "type" => "game",
         "action" => "stEndOfGame",
         "updateGameProgression" => true,
-        "transitions" => array( "gameEnd" => 99)
+        "transitions" => array(
+            "gameEnd" => 99,
+            //"gameEnd" => 2, //DEBUG ONLY
+        ) 
     ),
     // Final state.
     // Please do not modify (and do not overload action/args methods).
