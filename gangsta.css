@@ -184,7 +184,11 @@ div.tableWindow table {
     background: url('img/heist_sprite_chap3.jpg');
     background-size: 990px 616px; 
 }
-
+#av_resources .card_wrap{
+    margin-bottom: 10px;
+    margin-top: 10px;
+    margin-right: 20px;
+}
 .resource_card {
     position: absolute;
     top: 0;
@@ -195,6 +199,7 @@ div.tableWindow table {
 }
 .resource_card.selectable {
     cursor: pointer;
+    box-shadow: 0px 0px 0px 4px rgb(243,156,18);
 }
 .resource_card.selected {
     opacity: 1;
@@ -202,7 +207,7 @@ div.tableWindow table {
     justify-content: center;
     align-items: center;
     position: relative;
-    box-shadow: 0 0 0 2px rgb(124,252,0) inset;
+    box-shadow: 0 0 0 4px rgb(124,252,0) inset;
 }
 .playertableau .resource_card_wrap[data-state="0"] { /*CARD_RESOURCE_STATE_INACTIVE*/
     transform: rotate(-90deg);

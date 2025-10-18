@@ -497,7 +497,7 @@ define([
                             }
                             this.selectedResource = card.id;
                             cardDiv.classList.add('selected');
-                            this.confirmMessage = this.format_string(_('Confirm ${name}'), { name: _(card.name) });
+                            this.confirmMessage = this.format_string(_('Take ${name}'), { name: _(card.name) });
 
                             if($(`btnConfirmResource`)){
                                 $('btnConfirmResource').innerHTML = this.confirmMessage;
