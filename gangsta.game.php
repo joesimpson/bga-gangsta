@@ -1996,7 +1996,12 @@ class Gangsta extends Table {
                     $possibleBuy = $mayRecruit['possible'];
                     if ($possibleBuy) {
                         $count += 1;
+                        break;//No need to compute anything else for now we only search 1 or 0
                     }
+                }
+                if ($count == 0){
+                    $topDeckGangster = $this->getGangsterDeckRecruitableTopCard($player_id);
+                    if(isset($topDeckGangster) && $topDeckGangster['possible']) $count++;
                 }
                 if ($count > 0) {
                     $result = 'rewardRecruit';
