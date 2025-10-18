@@ -1551,7 +1551,7 @@ define([
             },
 
             onPickForDiscard: function (type) {
-                //console.log('on pick for Discard '+type);
+                debug('on pick for Discard ',type);
                 if (!this.checkAction('discard')) {
                     this.avgangsters.unselectAll();
                     this.avheists.unselectAll();
@@ -1574,32 +1574,20 @@ define([
                         this.avheists.unselectAll();
                     }
                 }
-                this.ajaxcall("/gangsta/gangsta/discard.html", {
+                this.bgaPerformAction('discard', {
                     gangster: gangster_id,
                     heist: heist_id,
-                    lock: true
-                }, this, function (result) {
-                });
+                }, {} );
             },
 
             onPickPlayerMoney: function (playerid, event) {
-                //console.log('on pick Boss Money');
+                debug('onPickPlayerMoney',playerid, event);
 
-                if (!this.checkAction('steal')) {
-                    return;
-                }
-
-                this.ajaxcall("/gangsta/gangsta/steal.html", {target: playerid, lock: true}, this, function (result) {
-                });
+                this.bgaPerformAction('steal', { target: playerid,} );
             },
 
             onPassForMoney: function () {
-                if (!this.checkAction('pass')) {
-                    return;
-                }
-
-                this.ajaxcall('/gangsta/gangsta/pass.html', {lock: true}, this, function (result) {
-                });
+                this.bgaPerformAction('pass' );
             }, 
 
             onConfirmResource: function () {
@@ -1631,12 +1619,7 @@ define([
                 let selected = this.avgangsters.getSelectedItems();
                 if (selected.length == 1) {
                     var gangster_id = selected[0].id;
-                    this.ajaxcall("/gangsta/gangsta/recruitGangster.html", {
-                        id: gangster_id,
-                        lock: true
-                    }, this, function (result) {
-                        this.cancelRecruitSelection();
-                    });
+                    this.bgaPerformAction('recruitGangster',{'id': gangster_id});
                 } else {
                     let topDeckGangsterDiv =  document.getElementById("gangsters_deck_topcard").querySelector(".gangster") ;
                     if(topDeckGangsterDiv && topDeckGangsterDiv.classList.contains("selected")) {
@@ -1686,6 +1669,7 @@ define([
             },
 
             onSelectGangster: function (evt) {
+                debug("onSelectGangster",evt);
                 if (this.isReadOnly()) {
                     return;
                 }
@@ -1877,7 +1861,7 @@ define([
             },
 
             onConfirmTap: function () {
-                //console.log("confirm Tap");
+                debug("confirm Tap");
 
                 if (!this.checkAction('tap')) {
                     dojo.query('.gangster').removeClass('selected selectable');
@@ -1889,12 +1873,9 @@ define([
                     var selectedGangsters = dojo.query(".gangster.selectable.selected").map(function (node) {
                         return node.id.split("_")[1];
                     });
-                    //console.log(selectedGangsters.join(";"));
-                    this.ajaxcall("/gangsta/gangsta/tapGangsters.html", {
+                    this.bgaPerformAction('tapGangsters',{
                         gangsters: selectedGangsters.join(";"),
-                        lock: true
-                    }, this, function (result) {
-                    });
+                    }, {checkAction: false});//check false because of different action name
                 }
             },
 
@@ -1910,6 +1891,7 @@ define([
                 if (selected.length == 1) {
                     var theId = selected[0].id.split("_")[1]
                     if (this.possibleTargets.indexOf(theId) > -1) {
+                        //check false because of different action name
                         this.bgaPerformAction('killGangster',{gangster: theId,},{checkAction: false});
                     }
                 }
@@ -1928,17 +1910,15 @@ define([
                 if (selected.length == 1) {
                     var theId = selected[0].id.split("_")[1];
                     if (this.possibleTargets.indexOf(theId) > -1) {
-                        this.ajaxcall("/gangsta/gangsta/teachGangster.html", {
+                        this.bgaPerformAction('teachGangster',{
                             gangster: theId,
-                            lock: true
-                        }, this, function (result) {
-                        });
+                        }, {checkAction: false});//check false because of different action name
                     }
                 }
             },
 
             onConfirmSnitch() {
-                //console.log("confirm Snitch");
+                debug("confirm Snitch");
 
                 if (!this.checkAction('snitchKill')) {
                     return;
@@ -1946,10 +1926,8 @@ define([
                 var selected = dojo.query('.playertableau .gangster.selectable.selected');
                 if (selected.length == 1) {
                     var theId = selected[0].id.split("_")[1]
-                    this.ajaxcall("/gangsta/gangsta/snitchKill.html", {
+                    this.bgaPerformAction('snitchKill',{
                         gangster: theId,
-                        lock: true
-                    }, this, function (result) {
                     });
                 }
             },
@@ -1960,27 +1938,25 @@ define([
                 var selected = dojo.query('.playertableau .gangster.selectable.selected');
                 if (selected.length == 1) {
                     var theId = selected[0].id.split("_")[1];
+                    //check false because of different action name
                     this.bgaPerformAction('gdgKill',{gangster: theId,},{checkAction: false});
                 }
             },
 
             onMobilize() {
-                //console.log("Confirm Mobilize");
+                debug("Confirm Mobilize");
                 if (this.checkAction('untapGangsters')) {
                     if (this.currentMobilize && this.currentMobilize.gangsters.length === 0) {
                         return;
                     } //misclick protection we do nothing.
-                    this.ajaxcall("/gangsta/gangsta/untapGangsters.html", {
+                    this.bgaPerformAction('untapGangsters',{
                         gangsters: this.currentMobilize.gangsters.join(";"),
-                        lock: true
-                    }, this, function (result) {
-                    }, function (error) {
                     });
                 }
             },
 
             onCancelHeist: function () {
-                //console.log("Cancel Heist");
+                debug("Cancel Heist");
                 this.avheists.unselectAll();
                 this.hideSkillCounter();
                 dojo.query('.playertableau .gangster').removeClass('selectable selected');
@@ -1988,36 +1964,32 @@ define([
             },
 
             onSkipDiscard: function () {
+                debug("onSkipDiscard");
                 if (!this.checkAction('discard')) {
                     return;
                 }
-                this.ajaxcall('/gangsta/gangsta/skipDiscard.html', {lock: true}, this, function (result) {
-                });
+                //check false because of different action name
+                this.bgaPerformAction('skipDiscard', {}, {checkAction: false} );
             },
 
             onSkip: function (isForced) {
-                if (!this.checkAction('skip')) {
-                    return;
-                }
-                this.ajaxcall('/gangsta/gangsta/skip.html', {
-                    forced: isForced == true,
-                    lock: true
-                }, this, function (result) {
-                });
+                debug("onSkip",isForced);
+                this.bgaPerformAction('skip', {forced: isForced == true} );
             },
 
             onSteal: function (player_id) {
-                if (!this.checkAction('steal')) {
-                    return;
-                }
-                this.ajaxcall('/gangsta/gangsta/steal.html', {target: player_id, lock: true}, this, function (result) {
+                debug("onSteal",player_id);
+                this.bgaPerformAction('steal',{
+                    target: player_id,
                 });
             },
 
             onMark: function (player_id) {
+                debug("onMark",player_id);
                 if (!this.checkAction('markForKill')) {
                     return;
                 }
+                //check false because of different action name
                 this.bgaPerformAction('mark',{target: player_id},{checkAction: false});
             },
 
