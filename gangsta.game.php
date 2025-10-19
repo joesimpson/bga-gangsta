@@ -18,6 +18,7 @@
 
 use Bga\GameFramework\Actions\Types\BoolParam;
 use Bga\GameFramework\Actions\Types\IntArrayParam;
+use Bga\GameFramework\Actions\Types\IntParam;
 use Bga\GameFramework\Actions\Types\StringParam;
 
 require_once (dirname(__FILE__) . '/modules/DebugTrait.php');
@@ -397,6 +398,11 @@ class Gangsta extends Table {
     /*
         In this space, you can put any utility methods useful for your game logic
     */
+    protected function isPlayerZombie(int $player_id) {
+       $players = $this->loadPlayersBasicInfos();
+       if (! isset($players[$player_id])) throw new BgaSystemException("Player $player_id is not playing here");
+       return ($players[$player_id]['player_zombie'] == 1);
+    }
     function checkIfSameClan($playerId,
                              $gangsterclan, bool $considerGameOption = true) {
         //if($this->getGameStateValue('clanvariant') == 1){
@@ -1184,20 +1190,20 @@ class Gangsta extends Table {
     /**
      * First user action : select a resource card
      * @param int $cardId
-     * @param int|null $force_player_id used to force action in this multiple active players state
+     * @param int|null $z_player_id used to force action of ZOMBIE in this multiple active players state
      */
-    function actSelectResource(int $cardId, int|null $force_player_id = null){
+    function actSelectResource(#[IntParam(name:'c')] int $cardId, int|null $z_player_id = null){
         self::checkAction( 'actSelectResource' ); 
         //$this->gamestate->checkPossibleAction( 'actSelectResource' );
-        self::trace("actSelectResource($cardId)");
+        self::trace("actSelectResource($cardId,$z_player_id)");
         
         if($this->isSpectator()){
             throw new \BgaVisibleSystemException("You cannot play now");
         }
 
         $card = $this->getFullCardInfo($cardId);
-        if(isset($force_player_id) && $this->isCurrentPlayerZombie()) {
-            $player_id = $force_player_id;
+        if(isset($z_player_id) && $this->isPlayerZombie($z_player_id)) {
+            $player_id = $z_player_id;
         }
         else {
             $player_id = self::getCurrentPlayerId();
@@ -3342,6 +3348,7 @@ class Gangsta extends Table {
                         int $active_player) {
         $statename = $state['name'];
         $stType = $state['type'];
+        $stateArgs = $state['args'];
 
         if ($stType == "activeplayer") {
             switch ($statename) {
@@ -3359,9 +3366,17 @@ class Gangsta extends Table {
         if ($stType == "multipleactiveplayer") {
             switch ($statename) {
                 case "resourcesSelection":
-                    $selectableCards = $state['args']['_private'][$active_player]['cards'];
-                    $cardId = array_keys($selectableCards)[0];
-                    $this->actSelectResource($cardId,$active_player);
+                    $selectableCards = [];
+                    if(isset($state['args']['_private'][$active_player])){
+                        $selectableCards = $state['args']['_private'][$active_player]['cards'];
+                    }
+                    if(count($selectableCards)>0){
+                        $cardId = array_keys($selectableCards)[0];
+                        $this->actSelectResource($cardId,$active_player);
+                    }
+                    else {
+                        $this->gamestate->setPlayerNonMultiactive( $active_player, 'next');
+                    }
                     return;
                 default:
                     // Make sure player is in a non blocking status for role turn

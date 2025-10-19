@@ -40,14 +40,6 @@
   	}
 
   	// TODO: defines your action entry points there
-    public function actSelectResource()
-    {
-      self::setAjaxMode();
-      $cardId = self::getArg( "c", AT_posint, true );
-      $this->game->actSelectResource($cardId);
-      self::ajaxResponse();
-    }
-
     public function recruitGangster()
     {
       self::setAjaxMode();
