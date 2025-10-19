@@ -2181,7 +2181,7 @@ class Gangsta extends Table {
 
             $this->cards->moveCard($gangster_id, 'gdiscard');
 
-            self::notifyAllPlayers('discardGangster', clienttranslate('${player_name} discards a gangster'), [
+            $this->notify->all('discardGangster', clienttranslate('${player_name} discards one of the available gangsters'), [
                 'gangster_id' => $gangster_id,
                 'player_id' => $player_id,
                 'player_name' => self::getActivePlayerName(),
