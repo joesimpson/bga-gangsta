@@ -3321,6 +3321,13 @@ class Gangsta extends Table {
                 self::setStat(1, 'scoreMostMoney', $pid);
             }
         }
+        
+        $playersInfo = $this->getPlayersCompleteInfos();
+        foreach ($playersInfo as $pid => $pinfo) {
+            $points = $playersInfo[$pid]['player_score'];
+            self::setStat($points, 'finalScore', $pid);
+        }
+
         $this->gamestate->nextState("gameEnd");
     }
 

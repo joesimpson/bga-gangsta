@@ -12,6 +12,11 @@
         }
     },
     "player": {
+        "finalScore": {
+            "id": 29,
+            "name": "Final score",
+            "type": "int"
+        },
         "gangsterRecruited": {
             "id": 10,
             "name": "Gangsters recruited",
