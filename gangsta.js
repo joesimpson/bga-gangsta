@@ -2092,6 +2092,8 @@ define([
                 this.notifqueue.setSynchronous('diversion', 500);
                 dojo.subscribe('gainCoop', this, "notif_gainCoop");
                 dojo.subscribe('snitchHandling', this, "notif_snitchHandling");
+                dojo.subscribe('endPointsMostGangsters', this, "notif_endPointsMostGangsters");
+                this.notifqueue.setSynchronous('endPointsMostGangsters', 500);
                 dojo.subscribe('endPointsMoney', this, "notif_endPointsMoney");
                 this.notifqueue.setSynchronous('endPointsMoney', 500);
                 dojo.subscribe('endPointsClan', this, "notif_endPointsClan");
@@ -2130,6 +2132,15 @@ define([
                 this.displayPlayerVault(playerid);
             },
 
+            notif_endPointsMostGangsters: async function (notif) {
+                debug( 'notif_endPointsMostGangsters' , notif);
+                let player_id = notif.args.player_id;
+                let player_color = this.gamedatas.players[player_id].color;
+                //animate scoring on panel icons
+                this.displayScoring( `playerteamicon_${player_id}`, player_color, notif.args.amount,200);
+                await this.wait(200); 
+                this.changePlayerScore(player_id, notif.args.new_amount);
+            },
             notif_endPointsMoney: async function (notif) {
                 debug( 'notif_endPointsMoney' , notif);
                 let player_id = notif.args.player_id;
@@ -2145,8 +2156,8 @@ define([
                 let player_color = this.gamedatas.players[player_id].color;
                 let clan_id = notif.args.clan_id;
                 //animate scoring on panel icons
-                this.displayScoring( `family-container-${player_id}-${clan_id}`, player_color, notif.args.amount,500);
-                await this.wait(500); 
+                this.displayScoring( `family-container-${player_id}-${clan_id}`, player_color, notif.args.amount,200);
+                await this.wait(200); 
                 this.changePlayerScore(player_id, notif.args.new_amount);
             },
 

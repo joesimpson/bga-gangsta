@@ -3189,8 +3189,9 @@ class Gangsta extends Table {
                 //one player received 2
                 $pid = $max["players"][0];
                 $vpoints = $playersInfo[$pid]['player_score'];
+                $playersInfo[$pid]['player_score'] += 2;
                 self::dbQuery("UPDATE player SET player_score = player_score+2,public_score=public_score+2 WHERE player_id = $pid");
-                self::notifyAllPlayers('endPoints',
+                $this->notify->all('endPointsMostGangsters',
                                        clienttranslate('${player_name} receives 2 influence for having the most gangsters'),
                                        [
                                            'player_name' => $playersInfo[$pid]['player_name'],
@@ -3203,8 +3204,9 @@ class Gangsta extends Table {
                 //all players receive 1
                 foreach ($max["players"] as $pid) {
                     $vpoints = $playersInfo[$pid]['player_score'];
+                    $playersInfo[$pid]['player_score'] += 1;
                     self::dbQuery("UPDATE player SET player_score = player_score+1,public_score=public_score+1 WHERE player_id = $pid");
-                    self::notifyAllPlayers('endPoints',
+                    $this->notify->all('endPointsMostGangsters',
                                            clienttranslate('${player_name} receives 1 influence for being tied for most gangsters'),
                                            [
                                                'player_name' => $playersInfo[$pid]['player_name'],
@@ -3256,6 +3258,7 @@ class Gangsta extends Table {
                     //one player received 2
                     $pid = $maxInfo["players"][0];
                     $vpoints = $playersInfo[$pid]['player_score'];
+                    $playersInfo[$pid]['player_score'] += 2;
                     self::dbQuery("UPDATE player SET player_score = player_score+2,public_score=public_score+2 WHERE player_id = $pid");
                     $this->notify->all('endPointsClan',
                                            clienttranslate('${player_name} receives 2 influence for having the most gangsters of the ${clan} clan'),
@@ -3275,6 +3278,7 @@ class Gangsta extends Table {
                     //all players receive 1
                     foreach ($maxInfo["players"] as $pid) {
                         $vpoints = $playersInfo[$pid]['player_score'];
+                        $playersInfo[$pid]['player_score'] += 1;
                         self::dbQuery("UPDATE player SET player_score = player_score+1,public_score=public_score+1 WHERE player_id = $pid");
                         $this->notify->all('endPointsClan',
                                                clienttranslate('${player_name} receives 1 influence for being tied for most gangsters of the ${clan} clan'),
@@ -3315,6 +3319,7 @@ class Gangsta extends Table {
             //one player received 2
             $pid = $max["players"][0];
             $vpoints = $playersInfo[$pid]['player_score'];
+            $playersInfo[$pid]['player_score'] += 2;
             self::dbQuery("UPDATE player SET player_score = player_score+2,public_score=public_score+2 WHERE player_id = $pid");
             $this->notify->all('endPointsMoney',
                                    clienttranslate('${player_name} receives 2 influence for being the richest'), [
@@ -3328,6 +3333,7 @@ class Gangsta extends Table {
             //all players receive 1
             foreach ($max["players"] as $pid) {
                 $vpoints = $playersInfo[$pid]['player_score'];
+                $playersInfo[$pid]['player_score'] += 1;
                 self::dbQuery("UPDATE player SET player_score = player_score+1,public_score=public_score+1 WHERE player_id = $pid");
                 $this->notify->all('endPointsMoney',
                                        clienttranslate('${player_name} receives 1 influence for being tied for richest'),
