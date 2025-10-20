@@ -3140,7 +3140,14 @@ class Gangsta extends Table {
     function stEndOfGame() {
         $allGangsters = $this->getFullCardsInLocation('hand');
         $gCount = [];
-        $clans = ['bratva' => [], 'cartel' => [], 'gang' => [], 'triad' => [], 'mafia' => []];
+        $clans = [
+            //reuse same order as player side panel icons for better understanding
+            'bratva' => [], 
+            'mafia' => [],
+            'triad' => [], 
+            'cartel' => [], 
+            'gang' => [], 
+        ];
         $pbInfos = $this->loadPlayersBasicInfos();
         foreach ($clans as $cname => $cplayers) { //init clan counter
             foreach ($pbInfos as $pid => $pinfo) {
@@ -3217,11 +3224,13 @@ class Gangsta extends Table {
                 $headerRow[] = ['str' => '${player_name}', 'args' => ['player_name' => $pinfo['player_name']], 'type' => 'header'];
             }
             $table[] = $headerRow;
-            $cmax = ['bratva' => ['count' => 0, 'players' => []],
-                     'cartel' => ['count' => 0, 'players' => []],
-                     'gang' => ['count' => 0, 'players' => []],
-                     'triad' => ['count' => 0, 'players' => []],
-                     'mafia' => ['count' => 0, 'players' => []]];
+            $cmax = [
+                    'bratva' => ['count' => 0, 'players' => []],
+                    'mafia' => ['count' => 0, 'players' => []],
+                    'triad' => ['count' => 0, 'players' => []],
+                    'cartel' => ['count' => 0, 'players' => []],
+                    'gang' => ['count' => 0, 'players' => []],
+                ];
             foreach ($clans as $cname => $c) {
                 foreach ($c as $pid => $pcount) {
                     if ($pcount > $cmax[$cname]['count']) {
