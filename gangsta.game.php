@@ -3316,7 +3316,7 @@ class Gangsta extends Table {
             $pid = $max["players"][0];
             $vpoints = $playersInfo[$pid]['player_score'];
             self::dbQuery("UPDATE player SET player_score = player_score+2,public_score=public_score+2 WHERE player_id = $pid");
-            self::notifyAllPlayers('endPoints',
+            $this->notify->all('endPointsMoney',
                                    clienttranslate('${player_name} receives 2 influence for being the richest'), [
                                        'player_name' => $playersInfo[$pid]['player_name'],
                                        'player_id' => $pid,
@@ -3329,7 +3329,7 @@ class Gangsta extends Table {
             foreach ($max["players"] as $pid) {
                 $vpoints = $playersInfo[$pid]['player_score'];
                 self::dbQuery("UPDATE player SET player_score = player_score+1,public_score=public_score+1 WHERE player_id = $pid");
-                self::notifyAllPlayers('endPoints',
+                $this->notify->all('endPointsMoney',
                                        clienttranslate('${player_name} receives 1 influence for being tied for richest'),
                                        [
                                            'player_name' => $playersInfo[$pid]['player_name'],

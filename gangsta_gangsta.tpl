@@ -159,7 +159,7 @@
                           <div class="skill hacker" title="${skill_name_6}"></div><span id="skill_hacker_${id}">5</span>\
                         </div>\
                       </div>\
-                      <div class="player_cash">\
+                      <div class="player_cash" id="player_cash_${id}">\
                           <div class="money" id="playermoneyicon_${id}"></div><span class="playermoney">&nbsp;<span class="boardValue" id="panel_money_${id}">10</span></span>\
                           <div class="player_vault ${vault_style}" id="player_vault_${id}">(<i class="icon_vault fa6-solid fa6-vault fa6-lg"></i><span class="boardValue panel_vault" id="panel_vault_${id}">0</span>)</div>\
                           <div class="team" id="playerteamicon_${id}"></div><span class="playerteam">&nbsp;<span class="boardValue" id="panel_team_${id}">0</span></span>\
