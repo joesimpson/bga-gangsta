@@ -2092,8 +2092,8 @@ define([
                 this.notifqueue.setSynchronous('diversion', 500);
                 dojo.subscribe('gainCoop', this, "notif_gainCoop");
                 dojo.subscribe('snitchHandling', this, "notif_snitchHandling");
-                dojo.subscribe('endPoints', this, "notif_endPoints");
-                this.notifqueue.setSynchronous('endPoints', 1000);
+                dojo.subscribe('endPointsClan', this, "notif_endPointsClan");
+                this.notifqueue.setSynchronous('endPointsClan', 1000);
                 dojo.subscribe('scoreUpdate', this, "notif_scoreUpdate");
                 dojo.subscribe('scoreResource', this, "notif_scoreResource");
                 this.notifqueue.setSynchronous('scoreResource', 300);
@@ -2128,9 +2128,14 @@ define([
                 this.displayPlayerVault(playerid);
             },
 
-            notif_endPoints: function (notif) {
-                // console.log( 'notif_endPoints' );
-                // console.log( notif );
+            notif_endPointsClan: async function (notif) {
+                debug( 'notif_endPointsClan' , notif);
+                let player_id = notif.args.player_id;
+                let player_color = this.gamedatas.players[player_id].color;
+                let clan_id = notif.args.clan_id;
+                //animate scoring on panel icons
+                this.displayScoring( `family-container-${player_id}-${clan_id}`, player_color, notif.args.amount,500);
+                await this.wait(500); 
             },
 
             notif_nothing: function (notif) {

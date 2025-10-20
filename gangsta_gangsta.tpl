@@ -137,8 +137,8 @@
   //var jstpl_player_board = '\<div class="cp_board">\
   //    <div id="stoneicon_p${id}" class="gmk_stoneicon gmk_stoneicon_${color}"></div><span id="stonecount_p${id}">0</span>\
   //</div>';
-  var jstpl_player_board = '\<div class="player-items">\
-                    <div class="board-items">\
+  var jstpl_player_board = '\<div class="player-items" id="player-items-${id}">\
+                    <div class="board-items" id="board-items-${id}">\
                       <div class="board-skills">\
                         <div class="skill-container">\
                           <div class="skill leader" title="${skill_name_1}"></div><span id="skill_leader_${id}">1</span>\
@@ -169,20 +169,20 @@
                           <span class="player_points_heists">${heistpoints}:&nbsp;<span class="boardValue" id="panel_h_pts_${id}">?</span></span>\
                           <span class="player_points_resources_separator">&nbsp;/&nbsp;</span><span  class="player_points_resources">${resourcepoints}:&nbsp;<span class="boardValue" id="panel_r_pts_${id}">0</span></span>\
                       </div>\
-                      <div class="board-family displaynone">\
-                        <div class="family-container">\
+                      <div id="board-family-${id}" class="board-family displaynone">\
+                        <div id="family-container-${id}-1" class="family-container">\
                           <div class="family bratva" title="${fname_bratva}"></div><span class="boardValue" id="family_bratva_${id}">1</span>\
                         </div>\
-                        <div class="family-container">\
+                        <div id="family-container-${id}-4" class="family-container">\
                           <div class="family mafia" title="${fname_mafia}"></div><span class="boardValue" id="family_mafia_${id}">2</span>\
                         </div>\
-                        <div class="family-container">\
+                        <div id="family-container-${id}-5" class="family-container">\
                           <div class="family triads" title="${fname_triad}"></div><span class="boardValue" id="family_triad_${id}">3</span>\
                         </div>\
-                        <div class="family-container">\
+                        <div id="family-container-${id}-2" class="family-container">\
                           <div class="family cartel" title="${fname_cartel}"></div><span class="boardValue" id="family_cartel_${id}">4</span>\
                         </div>\
-                        <div class="family-container">\
+                        <div id="family-container-${id}-3" class="family-container">\
                           <div class="family ghetto" title="${fname_gang}"></div><span class="boardValue" id="family_gang_${id}">5</span>\
                         </div>\
                       </div>\
