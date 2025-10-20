@@ -860,6 +860,7 @@ body[data-resources_variant="2"] .chapters_separator {
     margin-right: 4px;
     margin-bottom: 5px;
 }
+.familyIconLarge,
 .board-family .family {
     width: 21px;
     height: 21px;
@@ -870,18 +871,31 @@ body[data-resources_variant="2"] .chapters_separator {
     top: 0;
     margin-right: 3px;
 }
+.familyIconLarge{
+    /** X2 */
+    width: 42px;
+    height: 42px;
+    background-size: 420px 252px;
+}
+.familyIconLarge[data-type="1"],
 .family.bratva{
     background-position: 0% -500%;
 }
+.familyIconLarge[data-type="4"],
 .family.mafia{
     background-position: -100% -500%;
 }
+.familyIconLarge[data-type="5"],
 .family.triads{
     background-position: -200% -500%;
 }
 .family.cartel{
     background-position: -300% -500%;
 }
+.familyIconLarge[data-type="2"]{
+    background-position: -300.2% -500%;
+}
+.familyIconLarge[data-type="3"],
 .family.ghetto{
     background-position: -400% -500%;
 }
@@ -1448,3 +1462,10 @@ body[data-resources_variant="1"] .player_points_resources_separator {
 }
 
 /* -------------------- MOBILE -------------------- */
+
+/* Notif logs */
+.log .custom_icon{
+    margin-left: 0.3em;
+    margin-right: 0.1em;
+    vertical-align: middle;
+}

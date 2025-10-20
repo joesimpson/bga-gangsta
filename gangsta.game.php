@@ -3240,13 +3240,18 @@ class Gangsta extends Table {
                         $cmax[$cname]["players"][] = $pid;
                     }
                 }
-                $row = [[ 'str' => $this->Clan_type[$this->Clan_type_name[$cname]], 'args' => [] ]];
+                
+                $clanId = $this->Clan_type_name[$cname];
+                //$clanLabel = $this->Clan_type[$clanId];
+                $clanLabel = "<span data-type='$clanId' class='familyIconLarge'></span>"; 
+                $row = [[ 'str' => $clanLabel, 'args' => [] ]];
                 foreach ($pbInfos as $plid => $plinfos) {
                     $row[] = $c[$plid];
                 }
                 $table[] = $row;
             }
             foreach ($cmax as $cname => $maxInfo) {
+                $clanId = $this->Clan_type_name[$cname];
                 if ($maxInfo["count"] > 0 && count($maxInfo["players"]) == 1) {
                     //one player received 2
                     $pid = $maxInfo["players"][0];
@@ -3261,6 +3266,8 @@ class Gangsta extends Table {
                                                'amount' => 2,
                                                'new_amount' => $vpoints + 2,
                                                'clan' => $this->gameConstants['clanNames'][$cname],
+                                                'clan_id' => $clanId,
+                                                'preserve'=>['clan_id'],
                                            ]);
                     self::incStat(2, 'scoreMostGangster', $pid);
                 }
@@ -3278,6 +3285,8 @@ class Gangsta extends Table {
                                                    'amount' => 1,
                                                    'new_amount' => $vpoints + 1,
                                                    'clan' => $this->gameConstants['clanNames'][$cname],
+                                                    'clan_id' => $clanId,
+                                                    'preserve'=>['clan_id'],
                                                ]);
                         self::incStat(1, 'scoreMostGangster', $pid);
                     }

@@ -928,6 +928,26 @@ define([
                 }
             },
 
+            /** Declare this function to inject html into log items. */
+            bgaFormatText : function(log, args) {
+                debug("bgaFormatText",log, args);
+                try {
+                    if (log && args && !args.processed) {
+                        args.processed = true;
+
+                        ///
+                        let clan = 'clan';
+                        let clan_id = 'clan_id';
+                        if(clan in args && clan_id in args) {
+                            args.clan = _(args.clan) + this.formatIconClan(args.clan_id);
+                        }
+
+                    }
+                } catch (e) {
+                    console.error(log,args,"Exception thrown", e.stack);
+                }
+                return this.inherited(arguments);
+            },
             // Returns true for spectators, instant replay (during game), archive mode (after game end)
             addGangstaTip: function (cardTypeId, type, divId) {
                 //this.addGangstaTip(gangster.type, 'gangster',this.avgangsters.getItemDivId(gangster.id));
@@ -1137,7 +1157,10 @@ define([
             },
 
             formatIconSkill: function(skill_id){
-                return `<span data-type="${skill_id}" class="skill"></span>`;
+                return `<span data-type="${skill_id}" class="custom_icon skill"></span>`;
+            },
+            formatIconClan: function(clan_id){
+                return `<span data-type="${clan_id}" class="custom_icon familyIconLarge"></span>`;
             },
             
             formatResourceCardAbilityText: function (abilityValue) {
