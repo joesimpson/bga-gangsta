@@ -1289,6 +1289,9 @@ body[data-resources_variant="1"] .player_points_resources_separator {
 }
 
 /* bga-help  -------------------------------------- */
+.bga-help_button{
+    box-shadow: 0px 0px 5px 5px rgb(243,156,18);
+}
 #gng_resources_help_popin{
     align-items: center;
     display: flex;
