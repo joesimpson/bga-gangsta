@@ -719,9 +719,6 @@ define([
                     return;
                 }
                 //this.currentLearn={skill_id: args['skill_id'], skill_name: args['skill_name']};
-                //console.log(this.currentLearn);
-                // console.log("args: ");
-                // console.log(args);
                 this.possibleTargets = [];
                 for (var gangster in args.selectable) {
                     if (this.gangstersInLastHeist == undefined || this.gangstersInLastHeist.includes(gangster)) {
@@ -852,8 +849,10 @@ define([
                             this.addActionButton('confKill_button', _('Confirm'), 'onConfirmKill');
                             break;
                         case 'rewardSkill':
-                            this.addActionButton('confTeach_button', _('Confirm'), 'onConfirmTeach');
-                            this.addActionButton('skTeach_button', _('Skip'), 'onSkip');
+                            let iconSkill = this.formatIconSkill(args.skill_id);
+                            this.statusBar.addActionButton( "<span>"+_('Confirm')+"</span>"+iconSkill,  () => this.onConfirmTeach(),{id:'confTeach_button',destination:$('customActions')});
+                            this.statusBar.addActionButton( _('Skip'), () => this.onSkip(),{id:'skTeach_button',destination:$('customActions')});
+                            
                             break;
                         case 'playerMobilize':
                             this.addActionButton('confMob_button', _('Confirm'), 'onMobilize');
@@ -1137,6 +1136,9 @@ define([
                 delete this.gamedatas.tableau[cardid];
             },
 
+            formatIconSkill: function(skill_id){
+                return `<span data-type="${skill_id}" class="skill"></span>`;
+            },
             
             formatResourceCardAbilityText: function (abilityValue) {
                 let descriptionMap = new Map([

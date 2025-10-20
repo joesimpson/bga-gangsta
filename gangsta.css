@@ -617,6 +617,16 @@ body[data-resources_variant="2"] .chapters_separator {
 {
   text-shadow: 2px 0px 2px white, 0px 2px 2px white, -2px 0px 2px white, 0px -2px 2px white;
 }
+
+#confTeach_button{
+}
+#confTeach_button .skill{
+    vertical-align: inherit;
+    top: 0;
+    left: 5px;
+    margin-right: 5px;
+}
+
 .genesis .deck {
     background: url('img/heist_sprite_chap1.jpg');
     background-size: 990px 616px;
@@ -719,21 +729,27 @@ body[data-resources_variant="2"] .chapters_separator {
     position: relative;
     top: 8px;
 }
+.skill[data-type="1"],
 .skill.leader{
     background-position: 0% -200%;
 }
+.skill[data-type="6"],
 .skill.hacker{
     background-position: -100% -200%;
 }
+.skill[data-type="2"],
 .skill.mercenary{
     background-position: -500% -200%;
 }
+.skill[data-type="3"],
 .skill.informant{
     background-position: -400% -200%;
 }
+.skill[data-type="4"],
 .skill.sniper{
     background-position: -300% -200%;
 }
+.skill[data-type="5"],
 .skill.brawler{
     background-position: -200% -200%;
 }

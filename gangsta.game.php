@@ -2408,8 +2408,9 @@ class Gangsta extends Table {
         }
 
         return [
+            'i18n' => ['skill_name'],
             'skill_id' => $skill,
-            'skill_name' => $this->skill_name[$skill],
+            'skill_name' => $this->_($this->skill_name[$skill]),
             'selectable' => $possibleGangsters,
         ];
     }
