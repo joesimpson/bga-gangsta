@@ -1363,6 +1363,72 @@ body[data-resources_variant="1"] .player_points_resources_separator {
     height: 274px;
 } 
 
+
+
+
+
+#end_score_recap {
+  display: flex;
+  flex-flow: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+#end_score_recap table {
+  position: relative;
+  background-color: #ebd5bd;
+  color: black;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+#end_score_recap table th {
+  height: 20px;
+  min-width: 20px;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 20px;
+  padding: 0 5px;
+}
+#end_score_recap table th div {
+  display: inline-block;
+}
+#end_score_recap table thead {
+  background-color: #f3e5a9;
+}
+#end_score_recap table thead th {
+  padding: 0 5px;
+}
+#end_score_recap table td {
+  word-wrap: anywhere;
+  font-size: 20px;
+  padding: 5px 8px;
+  text-align: center;
+  vertical-align: middle;
+}
+#end_score_recap table tbody tr {
+  border-top: 1px solid rgba(0, 0, 0, 0.2);
+}
+#end_score_recap table .final_score {
+  color: black;
+  background-color:  rgb(243,156,18);
+  font-weight: bold;
+}
+body[data-resources_variant="1"] .row_recap_resources{
+    display: none;
+}
+body[data-clan_variant="true"] .row_recap_mostGangsters{
+    display: none;
+}
+body[data-clan_variant="false"] .row_recap_clans{
+    display: none;
+}
+#end_score_recap table div.counter_empty  {
+  opacity: 0.1;
+}
+
+
+
 /* -------------------- MOBILE -------------------- */
 
 @media only screen and (max-width: 1440px) {
@@ -1469,3 +1535,4 @@ body[data-resources_variant="1"] .player_points_resources_separator {
     margin-right: 0.1em;
     vertical-align: middle;
 }
+

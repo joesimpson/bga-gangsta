@@ -41,6 +41,7 @@ const GLOBAL_END_TURN_ACTIONS = 'endTurnActions';
 const GLOBAL_END_TURN_ACTIONS_DONE = 'endTurnActionsDone';
 const GLOBAL_END_TURN_CURRENT_PLAYER = 'endTurnActionsCurrentPlayer';
 const GLOBAL_VAULT_MONEY = 'vault_money';
+const GLOBAL_END_SCORING = 'end_scoring';
 
 //Pick 2 cards at setup
 const RESOURCE_CARDS_PER_PLAYER = 2;
@@ -359,6 +360,8 @@ class Gangsta extends Table {
         $result['activeSnitches'] = self::getGameStateValue('activeSnitches');
 
         $result['counters'] = $this->getCounters();
+        
+        $result['endScoring'] = $this->globals->get(GLOBAL_END_SCORING,[]);
 
         return $result;
     }
@@ -3140,6 +3143,8 @@ class Gangsta extends Table {
     function stEndOfGame() {
         $allGangsters = $this->getFullCardsInLocation('hand');
         $gCount = [];
+        $endScoringDatas = [];
+
         $clans = [
             //reuse same order as player side panel icons for better understanding
             'bratva' => [], 
@@ -3181,7 +3186,22 @@ class Gangsta extends Table {
             self::setStat($leaders, 'leaderComp', $pid);
             self::setStat($mercs, 'mercComp', $pid);
             self::setStat($infos, 'infoComp', $pid);
+            
+            //INIT Datas to save for end recap
+            $endScoringDatas[$pid] = [
+                'SCORING_TEAM' => $this->getStat('scoreFromGangster', $pid), 
+                'SCORING_HEIST' => $this->getStat('scoreFromHeist', $pid), 
+                'SCORING_RESOURCE' => null, 
+                'SCORING_MONEY' => 0,
+                'SCORING_MAJORITY' => null,
+                'SCORING_CLANS' => null,
+                'SCORING_FINAL' => $pinfo['player_score'],
+            ];
+            if($this->isResources) $endScoringDatas[$pid]['SCORING_RESOURCE'] = $this->getStat('scoreFromResource', $pid);
         }
+        $this->notify->all('computeFinalScore', clienttranslate('Computing final score...'),[
+            'datas' => $endScoringDatas,
+        ]);
 
         //if($this->getGameStateValue('clanvariant') == 1){
         if ($this->isClan == false) {
@@ -3200,6 +3220,7 @@ class Gangsta extends Table {
                                            'new_amount' => $vpoints + 2,
                                        ]);
                 self::incStat(2, 'scoreMostGangster', $pid);
+                $endScoringDatas[$pid]['SCORING_MAJORITY'] = 2;
             } else {
                 //all players receive 1
                 foreach ($max["players"] as $pid) {
@@ -3215,6 +3236,7 @@ class Gangsta extends Table {
                                                'new_amount' => $vpoints + 1,
                                            ]);
                     self::incStat(1, 'scoreMostGangster', $pid);
+                    $endScoringDatas[$pid]['SCORING_MAJORITY'] = 1;
                 }
             }
         }
@@ -3273,6 +3295,7 @@ class Gangsta extends Table {
                                                 'preserve'=>['clan_id'],
                                            ]);
                     self::incStat(2, 'scoreMostGangster', $pid);
+                    $endScoringDatas[$pid]['SCORING_CLANS'][$clanId] = 2;
                 }
                 if ($maxInfo["count"] > 0 && count($maxInfo["players"]) > 1) {
                     //all players receive 1
@@ -3293,9 +3316,11 @@ class Gangsta extends Table {
                                                     'preserve'=>['clan_id'],
                                                ]);
                         self::incStat(1, 'scoreMostGangster', $pid);
+                        $endScoringDatas[$pid]['SCORING_CLANS'][$clanId] = 1;
                     }
                 }
             }
+            /* Replace by a detailed scoring not in a popin
             self::notifyAllPlayers('tableWindow', '', [
                 "id" => 'clanScoring',
                 "title" => clienttranslate('Clan Scoring'),
@@ -3303,6 +3328,7 @@ class Gangsta extends Table {
                 "table" => $table,
                 "closing" => clienttranslate('Close'),
             ]);
+            */
         }
 
         $max = ["count" => 0, "players" => []];
@@ -3329,6 +3355,7 @@ class Gangsta extends Table {
                                        'new_amount' => $vpoints + 2,
                                    ]);
             self::setStat(2, 'scoreMostMoney', $pid);
+            $endScoringDatas[$pid]['SCORING_MONEY'] = 2;
         } else {
             //all players receive 1
             foreach ($max["players"] as $pid) {
@@ -3344,6 +3371,7 @@ class Gangsta extends Table {
                                            'new_amount' => $vpoints + 1,
                                        ]);
                 self::setStat(1, 'scoreMostMoney', $pid);
+                $endScoringDatas[$pid]['SCORING_MONEY'] = 1;
             }
         }
         
@@ -3351,7 +3379,9 @@ class Gangsta extends Table {
         foreach ($playersInfo as $pid => $pinfo) {
             $points = $playersInfo[$pid]['player_score'];
             self::setStat($points, 'finalScore', $pid);
+            $endScoringDatas[$pid]['SCORING_FINAL'] = $points;
         }
+        $this->globals->set(GLOBAL_END_SCORING,$endScoringDatas);
 
         $this->gamestate->nextState("gameEnd");
     }

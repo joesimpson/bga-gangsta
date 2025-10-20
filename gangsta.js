@@ -35,6 +35,7 @@ define([
                 this.avheists = null;
                 this.avgangsters = null;
                 this.playerTableau = {};
+                this._counters = {};
 
                 this.genesisdecksize = 30;
                 this.gangwarsdecksize = 33;
@@ -195,6 +196,8 @@ define([
                     player['fname_gang'] = _(this.gamedatas.constants.clanNames['gang']);
                     player['fname_mafia'] = _(this.gamedatas.constants.clanNames['mafia']);
                     player['fname_triad'] = _(this.gamedatas.constants.clanNames['triad']);
+                    
+                    this._counters[player_id] = {};
 
                     for(let k=1; k<this.gamedatas.skill_name.length;k++){
                         player['skill_name_'+k] = _("Skill: ") + _(this.gamedatas.skill_name[k]);
@@ -337,6 +340,7 @@ define([
                 if (this.gamedatas['public_variant'] == true) {
                     this.isPublicVariant = true;
                 }
+                $('ebd-body').dataset.clan_variant = this.gamedatas.clan_variant;
                 $('ebd-body').dataset.resources_variant = this.gamedatas.resources_variant;
                 $('gangstainterface').dataset.resources_variant = this.gamedatas.resources_variant;
 
@@ -355,6 +359,8 @@ define([
                         ],
                     });
                 }
+
+                if( Object.keys(this.gamedatas.endScoring).length ) this.displayFinalScoringTable(this.gamedatas.endScoring);
 
                 // Setup game notifications to handle (see "setupNotifications" method below)
                 this.setupNotifications();
@@ -1418,6 +1424,11 @@ define([
                 //this.gamedatas.counters['panel_t_pts_'+playerid].counter_value = score;
                 //this takes value from this.scoreCtl which is populated from the player_score and would this be the private score.
                 //this.scoreCtrl[notif.args.player_id].setValue(notif.args.player_score);
+
+                if(this._counters[playerid].scoringRecap !=undefined){
+                    //IF end scoring recap displayed
+                    this._counters[playerid].scoringRecap.total.toValue(score);
+                }
             },
             looseScoreFromGangster: function (player_id, score_loss) {
                 debug("looseScoreFromGangster",player_id, score_loss);
@@ -1434,6 +1445,11 @@ define([
                 debug("changePlayerTeamScore",playerid, score);
                 this.gamedatas.counters['panel_t_pts_' + playerid].counter_value = score;
                 this.updateCounters(this.gamedatas.counters);
+                
+                if(this._counters[playerid].scoringRecap !=undefined){
+                    //IF end scoring recap displayed
+                    this._counters[playerid].scoringRecap.teamScore.toValue(score);
+                }
             },
             changePlayerHeistScore: function (playerid, score) {
                 if (this.isPublicVariant == false) {
@@ -1442,10 +1458,136 @@ define([
                     this.gamedatas.counters['panel_h_pts_' + playerid].counter_value = score;
                     this.updateCounters(this.gamedatas.counters);
                 }
+                if(this._counters[playerid].scoringRecap !=undefined){
+                    //IF end scoring recap displayed
+                    this._counters[playerid].scoringRecap.heists.toValue(score);
+                }
             },
             changePlayerResourceScore: function (playerid, score) {
                 this.gamedatas.counters['panel_r_pts_' + playerid].counter_value = score;
                 this.updateCounters(this.gamedatas.counters);
+                if(this._counters[playerid].scoringRecap !=undefined){
+                    //IF end scoring recap displayed
+                    this._counters[playerid].scoringRecap.resources.toValue(score);
+                }
+            },
+
+            
+            prepareEndScoreCounter(endScoreDatas, playerId, divId, counterName, arrayKeyName, arrayKey2 = undefined){
+                if(!arrayKey2){
+                    this._counters[playerId].scoringRecap[counterName] = new ebg.counter();
+                    this._counters[playerId].scoringRecap[counterName].create(divId);
+                }
+                else {
+                    this._counters[playerId].scoringRecap[counterName][arrayKey2] = new ebg.counter();
+                    this._counters[playerId].scoringRecap[counterName][arrayKey2].create(divId);
+                }
+                if(endScoreDatas && endScoreDatas[arrayKeyName] ){
+                    let counterVal = endScoreDatas[arrayKeyName];
+                    let counterToUpdate = this._counters[playerId].scoringRecap[counterName];
+                    if(arrayKey2) {
+                        if( endScoreDatas[arrayKeyName][arrayKey2]) counterVal = endScoreDatas[arrayKeyName][arrayKey2];
+                        else counterVal = 0;
+                        counterToUpdate = this._counters[playerId].scoringRecap[counterName][arrayKey2];
+                    }
+                    counterToUpdate.setValue(counterVal);
+                    if(counterToUpdate.getValue()>0) document.getElementById(divId).classList.remove("counter_empty");
+                }
+            },
+            /**
+             * 
+             * @param {array} datas : if we already have computed datas
+             */
+            displayFinalScoringTable(datas = null){
+                debug("displayFinalScoringTable()",datas);
+                
+                dojo.empty('end_score_recap');
+                dojo.place(this.tplFinalScoringTable(),'end_score_recap');
+                
+                Object.values(this.gamedatas.players).forEach((player) => {
+                    let pId = player.id;
+                    let endScoreDatas = datas ? datas[pId] : undefined;
+                    this._counters[pId].scoringRecap = [];
+                    
+                    this.prepareEndScoreCounter(endScoreDatas,pId,`recap_teamScore_${pId}`,'teamScore','SCORING_TEAM');
+                    this.prepareEndScoreCounter(endScoreDatas,pId,`recap_heists_${pId}`,'heists','SCORING_HEIST');
+                    this.prepareEndScoreCounter(endScoreDatas,pId,`recap_resources_${pId}`,'resources','SCORING_RESOURCE');
+                    this.prepareEndScoreCounter(endScoreDatas,pId,`recap_mostMoney_${pId}`,'mostMoney','SCORING_MONEY');
+                    this.prepareEndScoreCounter(endScoreDatas,pId,`recap_mostGangsters_${pId}`,'mostGangsters','SCORING_MAJORITY');
+                    this.prepareEndScoreCounter(endScoreDatas,pId,`recap_total_${pId}`,'total','SCORING_FINAL');
+                    
+                    this._counters[pId].scoringRecap.clans = [];
+                    Object.values([1,2,3,4,5]).forEach((clanId) =>{
+                        this.prepareEndScoreCounter(endScoreDatas,pId,`recap_clanInfluence_${clanId}_${pId}`,'clans','SCORING_CLANS', clanId);
+                    });
+                });
+            },
+            tplFinalScoringTable(){
+                debug("tplFinalScoringTable()");
+                let playersNames = '';
+                let playersTeamScore = '';
+                let playersHeists = '';
+                let playersResources = '';
+                let playersTotal = '';
+                let clansInfluence = '';
+                let playersMostMoney = '';
+                let playersMostGangsters = '';
+                Object.values([1,4,5,2,3]).forEach((clanId) =>{ // LOOP CLANS
+                    let playersClansInfluence = '';
+                    Object.values(this.gamedatas.players).forEach((player) => {
+                        playersClansInfluence +=`<td><div id='recap_clanInfluence_${clanId}_${player.id}' class="counter_empty"></div></td>`;
+                    });
+                    let clanIcon = this.formatIconClan(clanId);
+                    clansInfluence += `<tr class="row_recap_clans">
+                        <th>${this.format_string(_('Influence: most Gangsters'),{}) + clanIcon}</th>
+                        ${playersClansInfluence}
+                    </tr>`;
+                });
+                Object.values(this.gamedatas.players).forEach((player) => {//LOOP PLAYERS
+                    let formattedName = `<span class='button_player_name' style='color:#${player.color};'>${player.name}</span>`;
+                    playersNames +=`<th>${formattedName}</th>`;
+                    playersTeamScore +=`<td><div id='recap_teamScore_${player.id}' class="counter_empty"></div></td>`;
+                    playersHeists +=`<td><div id='recap_heists_${player.id}' class="counter_empty"></div></td>`;
+                    playersResources += `<td><div id='recap_resources_${player.id}' class="counter_empty"></div></td>`;
+                    playersMostMoney += `<td><div id='recap_mostMoney_${player.id}' class="counter_empty"></div></td>`;
+                    playersMostGangsters += `<td><div id='recap_mostGangsters_${player.id}' class="counter_empty"></div></td>`;
+                    playersTotal +=`<td><div id='recap_total_${player.id}' class="counter_empty"></div></td>`;
+                });
+                let html = `<table id="end_score_recap_table">
+                        <thead>
+                            <th></th>
+                            ${playersNames}
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>${_('Team Points')}</th>
+                                ${playersTeamScore}
+                            </tr>
+                            <tr>
+                                <th>${_('Heist Points')}</div></th>
+                                ${playersHeists}
+                            </tr>
+                            <tr class="row_recap_resources">
+                                <th>${_('Resource Points')}</th>
+                                ${playersResources}
+                            </tr>
+                            <tr class="row_recap_mostGangsters">
+                                <th>${_('Influence: most Gangsters')}</th>
+                                ${playersMostGangsters}
+                            </tr>
+                            ${clansInfluence}}
+                            <tr>
+                                <th>${_('Influence: most money')}</th>
+                                ${playersMostMoney}
+                            </tr>
+                            <tr class ='final_score'>
+                                <th>${_('Final score')}</th>
+                                ${playersTotal}
+                            </tr>
+                        </tbody>
+                    </table>
+                `;
+                return html;
             },
 
             /* @Override BGA standard error handling (for specific errors only) */
@@ -2105,6 +2247,9 @@ define([
                 dojo.subscribe('vaultUpdate', this, "notif_vaultUpdate");
                 this.notifqueue.setSynchronous('vaultUpdate', 300);
                 
+                dojo.subscribe('computeFinalScore', this, "notif_computeFinalScore");
+                this.notifqueue.setSynchronous('computeFinalScore', 1000);
+                
                 dojo.subscribe('reloadPage', this, "notif_reloadPage");
             },
 
@@ -2139,6 +2284,8 @@ define([
                 //animate scoring on panel icons
                 this.displayScoring( `playerteamicon_${player_id}`, player_color, notif.args.amount,200);
                 await this.wait(200); 
+                this._counters[player_id].scoringRecap.mostGangsters.incValue(notif.args.amount);
+                document.getElementById(`recap_mostGangsters_${player_id}`).classList.remove("counter_empty");
                 this.changePlayerScore(player_id, notif.args.new_amount);
             },
             notif_endPointsMoney: async function (notif) {
@@ -2148,6 +2295,8 @@ define([
                 //animate scoring on panel icons
                 this.displayScoring( `player_cash_${player_id}`, player_color, notif.args.amount,200);
                 await this.wait(200); 
+                this._counters[player_id].scoringRecap.mostMoney.incValue(notif.args.amount);
+                document.getElementById(`recap_mostMoney_${player_id}`).classList.remove("counter_empty");
                 this.changePlayerScore(player_id, notif.args.new_amount);
             },
             notif_endPointsClan: async function (notif) {
@@ -2158,7 +2307,15 @@ define([
                 //animate scoring on panel icons
                 this.displayScoring( `family-container-${player_id}-${clan_id}`, player_color, notif.args.amount,200);
                 await this.wait(200); 
+                this._counters[player_id].scoringRecap.clans[clan_id].incValue(notif.args.amount);
+                document.getElementById(`recap_clanInfluence_${clan_id}_${player_id}`).classList.remove("counter_empty");
                 this.changePlayerScore(player_id, notif.args.new_amount);
+                
+            },
+            
+            notif_computeFinalScore(notif) {
+                debug('notif_computeFinalScore', notif);
+                this.displayFinalScoringTable(notif.args.datas);
             },
 
             notif_nothing: function (notif) {

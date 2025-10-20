@@ -1,5 +1,6 @@
 {OVERALL_GAME_HEADER}
 <div id="gangstainterface">
+  <div id="end_score_recap"></div>
   <div id="av_resources"></div>
   <div id="avdecks">
     <div id="twodecks">
