@@ -171,7 +171,7 @@
                           <span class="player_points_heists">${heistpoints}:&nbsp;<span class="boardValue" id="panel_h_pts_${id}">?</span></span>\
                           <span class="player_points_resources_separator">&nbsp;/&nbsp;</span><span  class="player_points_resources">${resourcepoints}:&nbsp;<span class="boardValue" id="panel_r_pts_${id}">0</span></span>\
                       </div>\
-                      <div id="board-family-${id}" class="board-family displaynone">\
+                      <div id="board-family-${id}" class="board-family no_display">\
                         <div id="family-container-${id}-1" class="family-container">\
                           <div class="family bratva" title="${fname_bratva}"></div><span class="boardValue" id="family_bratva_${id}">1</span>\
                         </div>\

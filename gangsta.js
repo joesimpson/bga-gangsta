@@ -335,7 +335,7 @@ define([
                 dojo.place("<div id='customActions' style='display:inline-block'></div>", $('generalactions'), 'after');
 
                 if (this.gamedatas['clan_variant'] == true) {
-                    dojo.query('.board-family').removeClass('displaynone');
+                    dojo.query('.board-family').removeClass('no_display');
                 }
 
                 if (this.gamedatas['public_variant'] == true) {
@@ -1175,6 +1175,12 @@ define([
                 delete this.gamedatas.tableau[cardid];
             },
 
+            formatIconMoney: function(){
+                return `<span class="custom_icon money largeIcon"></span>`;
+            },
+            formatIconTeam: function(){
+                return `<span class="custom_icon team largeIcon"></span>`;
+            },
             formatIconSkill: function(skill_id){
                 return `<span data-type="${skill_id}" class="custom_icon skill"></span>`;
             },
@@ -1567,6 +1573,8 @@ define([
                         ${playersClansInfluence}
                     </tr>`;
                 });
+                let moneyIcon = this.formatIconMoney();
+                let teamIcon = this.formatIconTeam();
                 Object.values(this.gamedatas.players).forEach((player) => {//LOOP PLAYERS
                     let formattedName = `<span class='button_player_name' style='color:#${player.color};'>${player.name}</span>`;
                     playersNames +=`<th>${formattedName}</th>`;
@@ -1596,12 +1604,12 @@ define([
                                 ${playersResources}
                             </tr>
                             <tr class="row_recap_mostGangsters">
-                                <th>${_('Influence: most Gangsters')}</th>
+                                <th>${_('Influence: most Gangsters')}${teamIcon}</th>
                                 ${playersMostGangsters}
                             </tr>
                             ${clansInfluence}}
                             <tr>
-                                <th>${_('Influence: most money')}</th>
+                                <th>${_('Influence: most money')}${moneyIcon}</th>
                                 ${playersMostMoney}
                             </tr>
                             <tr class ='final_score'>
