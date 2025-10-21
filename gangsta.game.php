@@ -3236,6 +3236,7 @@ class Gangsta extends Table {
         $this->notify->all('computeFinalScore', clienttranslate('Computing final score...'),[
             'datas' => $endScoringDatas,
         ]);
+        $this->notify->all( 'simplePause', '', [ 'time' => 1500] ); // time is in milliseconds
 
         //if($this->getGameStateValue('clanvariant') == 1){
         if ($this->isClan == false) {
@@ -3308,6 +3309,25 @@ class Gangsta extends Table {
                 }
                 $table[] = $row;
             }
+            /* Replace by a detailed scoring not in a popin
+            self::notifyAllPlayers('tableWindow', '', [
+                "id" => 'clanScoring',
+                "title" => clienttranslate('Clan Scoring'),
+                "header" => clienttranslate('Details of the clan scoring'),
+                "table" => $table,
+                "closing" => clienttranslate('Close'),
+            ]);
+            */
+            //Resend these datas to be readable in logs for turn based tables
+            $this->notify->all('tableWindowRecap', '${title}',[
+                "preserve" => ["tableWindowDatas","title","header"],
+                "i18n" => ["title"],
+                "title" => clienttranslate('Clan Scoring'),
+                "header" => clienttranslate('Details of the clan scoring'),
+                "tableWindowDatas" => $table,
+            ]);
+            $this->notify->all( 'simplePause', '', [ 'time' => 1500] ); // time is in milliseconds
+
             foreach ($cmax as $cname => $maxInfo) {
                 $clanId = $this->Clan_type_name[$cname];
                 if ($maxInfo["count"] > 0 && count($maxInfo["players"]) == 1) {
@@ -3354,15 +3374,6 @@ class Gangsta extends Table {
                     }
                 }
             }
-            /* Replace by a detailed scoring not in a popin
-            self::notifyAllPlayers('tableWindow', '', [
-                "id" => 'clanScoring',
-                "title" => clienttranslate('Clan Scoring'),
-                "header" => clienttranslate('Details of the clan scoring'),
-                "table" => $table,
-                "closing" => clienttranslate('Close'),
-            ]);
-            */
         }
 
         $max = ["count" => 0, "players" => []];
