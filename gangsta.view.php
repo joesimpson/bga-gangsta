@@ -56,8 +56,21 @@
                                                         "PLAYER_NAME" => $player['player_name'],
                                                         "PLAYER_COLOR" => $player['player_color'] ) );
         }
-        foreach( $players as $player_id => $player )
-        {
+
+        $counter = 0;
+        if($this->game->isSpectator()){
+            //count from first player 
+            $player_id = array_keys($players)[0];
+        }
+        else {
+            //count from second player 
+            $player_id = $current_player_id;
+            $player_id = $this->game->getPlayerAfter($player_id);
+        }
+        while($counter < count($players)) {
+        //foreach( $players as $player_id => $player )
+            $counter++;
+            $player = [ 'player_id' => $player_id, 'player_name'=>$this->game->getPlayerNameById($player_id), 'player_color'=>$this->game->getPlayerColorById($player_id), ];
             if( $player_id != $current_player_id )
             {
                 $this->page->insert_block( "player", array( "PLAYER_ID" => $player['player_id'],
@@ -65,6 +78,7 @@
                                                             "PLAYER_NAME" => $player['player_name'],
                                                             "PLAYER_COLOR" => $player['player_color'] ) );
             }
+            $player_id = $this->game->getPlayerAfter($player_id);
         }
         /*********** Do not change anything below this line  ************/
   	}
