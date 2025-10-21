@@ -1487,6 +1487,12 @@ define([
                 }
             },
 
+
+            scrollToHeists: function(player_id){
+                debug("scrollToHeists",player_id);
+                let div = document.getElementById(`performed_heists_${player_id}`);
+                if(div) div.scrollIntoView({block: "center", inline: "nearest"});
+            },
             
             prepareEndScoreCounter(endScoreDatas, playerId, divId, counterName, arrayKeyName, arrayKey2 = undefined){
                 if(!arrayKey2){
@@ -1565,7 +1571,7 @@ define([
                     let formattedName = `<span class='button_player_name' style='color:#${player.color};'>${player.name}</span>`;
                     playersNames +=`<th>${formattedName}</th>`;
                     playersTeamScore +=`<td><div id='recap_teamScore_${player.id}' class="counter_empty"></div></td>`;
-                    playersHeists +=`<td><div id='recap_heists_${player.id}' class="counter_empty"></div></td>`;
+                    playersHeists +=`<td><div id='recap_heists_${player.id}' class="counter_empty"></div><button id='view_heists_${player.id}' class="view_heists_link" onclick="gameui.scrollToHeists(${player.id});"><i class="fa6 fa6-eye"></i></button></td>`;
                     playersResources += `<td><div id='recap_resources_${player.id}' class="counter_empty"></div></td>`;
                     playersMostMoney += `<td><div id='recap_mostMoney_${player.id}' class="counter_empty"></div></td>`;
                     playersMostGangsters += `<td><div id='recap_mostGangsters_${player.id}' class="counter_empty"></div></td>`;
@@ -1581,7 +1587,7 @@ define([
                                 <th>${_('Team Points')}</th>
                                 ${playersTeamScore}
                             </tr>
-                            <tr>
+                            <tr class="row_recap_heists">
                                 <th>${_('Heist Points')}</div></th>
                                 ${playersHeists}
                             </tr>

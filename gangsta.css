@@ -1429,6 +1429,23 @@ body[data-resources_variant="1"] .player_points_resources_separator {
   background-color:  rgb(243,156,18);
   font-weight: bold;
 }
+.row_recap_heists td{
+    /*
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap; 
+    */
+}
+.row_recap_heists td div{
+    flex-grow: 1;
+}
+.row_recap_heists td button{
+    width: 1em;
+    font-size: large;
+    background-color: inherit;
+    color: inherit;
+    cursor: pointer;
+}
 body[data-resources_variant="1"] .row_recap_resources{
     display: none;
 }
