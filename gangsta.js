@@ -266,6 +266,7 @@ define([
                 }
 
                 this.displayAvailableHeists(this.gamedatas.avheists);
+                this.displayPlayerHeists(this.gamedatas.playerheists);
 
                 for (let i in this.gamedatas.activesnitch) {
                     var s = this.gamedatas.activesnitch[i];
@@ -997,6 +998,18 @@ define([
                 }
                 this.avheists.updateDisplay();
             },
+            /**
+             * 
+             * @param {*} datas these datas should be received at the end when performed heists are public information
+             */
+            displayPlayerHeists: function (datas) {
+                debug("displayPlayerHeists",datas);
+                for (let i in datas) {
+                    let heist = datas[i];
+                    let pid = heist.location_arg;
+                    this.addHeist(pid, heist, `performed_heists_${pid}`,true);
+                }
+            },
             displayAvailableGangsters: function (datas) {
                 debug("displayAvailableGangsters",datas);
                 for (let i in datas) {
@@ -1279,17 +1292,19 @@ define([
                 if(targetHeistDiv) targetHeistDiv.classList.remove('selected');
             },
 
-            addHeist: function (player_id, heistDatas, targetPlace ) {
-                debug("addHeist",player_id, heistDatas, targetPlace);
+            addHeist: function (player_id, heistDatas, targetPlace, considerAllChapters = false ) {
+                debug("addHeist",player_id, heistDatas, targetPlace,considerAllChapters);
                 let cardTypeId = heistDatas.type;
                 let chapter_phase = this.gamedatas.activePhaseName;
-                //if (this.gamedatas.genesis_type[cardTypeId]) {
-                //    chapter_phase = this.gamedatas.genesis_type[cardTypeId].chapter;
-                //} else  if (this.gamedatas.gangwars_type[cardTypeId]) {
-                //    chapter_phase = this.gamedatas.gangwars_type[cardTypeId].chapter;
-                //} else  if (this.gamedatas.domination_type[cardTypeId]) {
-                //    chapter_phase = this.gamedatas.domination_type[cardTypeId].chapter;
-                //}
+                if(considerAllChapters) {
+                    if (this.gamedatas.genesis_type[cardTypeId]) {
+                        chapter_phase = this.gamedatas.constants.gamePhases[0];
+                    } else  if (this.gamedatas.gangwars_type[cardTypeId]) {
+                        chapter_phase = this.gamedatas.constants.gamePhases[1];
+                    } else  if (this.gamedatas.domination_type[cardTypeId]) {
+                        chapter_phase = this.gamedatas.constants.gamePhases[2];
+                    }
+                }
                 let tpl = {
                     id: heistDatas.id,
                     type: cardTypeId,
@@ -2250,6 +2265,8 @@ define([
                 dojo.subscribe('vaultUpdate', this, "notif_vaultUpdate");
                 this.notifqueue.setSynchronous('vaultUpdate', 300);
                 
+                dojo.subscribe('revealPlayerHeists', this, "notif_revealPlayerHeists");
+                this.notifqueue.setSynchronous('revealPlayerHeists', 1000);
                 dojo.subscribe('computeFinalScore', this, "notif_computeFinalScore");
                 this.notifqueue.setSynchronous('computeFinalScore', 1000);
                 
@@ -2322,6 +2339,11 @@ define([
                 this.displayFinalScoringTable(datas);
             },
 
+            notif_revealPlayerHeists: function (notif) {
+                debug('notif_revealPlayerHeists', notif);
+                this.gamedatas.playerheists = notif.args.playerheists;
+                this.displayPlayerHeists(this.gamedatas.playerheists);
+            },
             notif_nothing: function (notif) {
                 //console.log( 'notif_nothing' );
                 //console.log( notif );

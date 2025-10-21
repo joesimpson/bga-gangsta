@@ -51,6 +51,7 @@
           <div id="recruited_gangsters_{PLAYER_ID}" class="cardlist_wrapper"></div>
       </div>
       <div id="dead_gangsters_{PLAYER_ID}" class="dead_gangsters cardlist_wrapper"></div>
+      <div id="performed_heists_{PLAYER_ID}" class="performed_heists cardlist_wrapper"></div>
 
       <div class="clear"></div>
     </div>

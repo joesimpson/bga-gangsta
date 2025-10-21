@@ -350,6 +350,21 @@ div.tableWindow table {
     /* same margin as hospital card */
     margin-left: 10px;
 }
+.performed_heists{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+.performed_heists .heist{
+    position: relative;
+}
+.performed_heists .heist_wrap {
+    position: relative;
+    display: inline-block;
+    margin-right: 5px;
+    margin-left: 5px;
+    margin-top: 5px;
+}
 
 .player_resource_cards{
     flex-shrink: 1;

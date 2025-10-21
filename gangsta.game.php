@@ -362,6 +362,11 @@ class Gangsta extends Table {
         $result['counters'] = $this->getCounters();
         
         $result['endScoring'] = $this->globals->get(GLOBAL_END_SCORING,[]);
+        $result['playerheists'] = [];
+        if(count($result['endScoring'])>0){
+            //if scoring happened, display heists to all
+            $result['playerheists'] = $this->cards->getCardsInLocation('performed');
+        }
 
         return $result;
     }
@@ -3199,6 +3204,9 @@ class Gangsta extends Table {
             ];
             if($this->isResources) $endScoringDatas[$pid]['SCORING_RESOURCE'] = $this->getStat('scoreFromResource', $pid);
         }
+        $this->notify->all('revealPlayerHeists', '',[
+            'playerheists' => $this->cards->getCardsInLocation('performed'),
+        ]);
         $this->notify->all('computeFinalScore', clienttranslate('Computing final score...'),[
             'datas' => $endScoringDatas,
         ]);
