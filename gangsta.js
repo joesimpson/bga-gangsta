@@ -863,7 +863,12 @@ define([
                             break;
                         case 'playerMobilize':
                             this.addActionButton('confMob_button', _('Confirm'), 'onMobilize');
-                            this.addActionButton('skMob_button,', _('Skip'), 'onSkip');
+                            this.statusBar.addActionButton( _('Skip'), () => {
+                                    dojo.query('.selected').addClass('mobilized');
+                                    this.onSkip();
+                                },
+                                {id:'skMob_button',destination:$('customActions')}
+                            );
                             break;
                         case 'snitch':
                             this.enteringSnitch(args);
