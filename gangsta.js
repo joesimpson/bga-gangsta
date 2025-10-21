@@ -2227,7 +2227,7 @@ define([
                 this.notifqueue.setSynchronous('setupAvailableCards', 500);
 
                 dojo.subscribe('recruitGangster', this, "notif_recruitGangster");
-                this.notifqueue.setSynchronous('recruitGangster', 500);
+                this.notifqueue.setSynchronous('recruitGangster', 1000);
                 dojo.subscribe('recoverGangsters', this, "notif_recoverGangsters");
                 this.notifqueue.setSynchronous('recoverGangsters', 1200);
                 //this.notifqueue.setSynchronous( 'recruitGangster', 1000 );
@@ -2419,6 +2419,8 @@ define([
                 //     } );
                 //     anim.play();
                 // }
+                let player_id = notif.args.player_id;
+                let player_color = this.gamedatas.players[player_id].color;
 
                 this.changePlayerMoney(notif.args.player_id, notif.args.new_money);
                 this.changePlayerScore(notif.args.player_id, notif.args.new_influence);
@@ -2439,6 +2441,7 @@ define([
                     this.avgangsters.removeFromStockById(notif.args.gangster_id);
                 }
                 this.addGangster(notif.args.player_id, notif.args.gangster_type, notif.args.gangster_id, "0", {'skill': "0"});
+                //this.displayScoring(`gangster_${notif.args.gangster_id}`, player_color, notif.args.influence);
                 this.addToTableau(notif.args.gangster_type, notif.args.gangster_id, 0, notif.args.player_id, notif.args.order);
             },
             notif_recoverGangsters: async function (notif) {

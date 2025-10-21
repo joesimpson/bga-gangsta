@@ -150,7 +150,8 @@ trait DebugTrait
     $money = 0;//we need 3 and we will earn 3 with big heist -> we must be able to buy a gangster and not notif 'cannot recruit a gangster'
     $this->globals->set('vault_money',intval($money));
 
-    self::DbQuery("UPDATE `card` set card_location ='hdiscard' where card_location ='avheists' ");
+    $phase = self::getGameStateValue('activePhase');
+    self::DbQuery("UPDATE `card` set card_location ='hdiscard', card_location_arg=$phase where card_location ='avheists' ");
     // cards "Inmate transfer" can reward recruits : 
     self::DbQuery("UPDATE `card` set card_location ='avheists' where card_type in (207,208,209) ");
     //Several gangsters are needed to attack
@@ -180,11 +181,18 @@ trait DebugTrait
 
     $this->notify->all( 'reloadPage', "/!\ : Refresh page to see gangsters...", []);
   }
-  function debug_EmptyDeck(){
+  function debug_EmptyDeck(bool $gangstersDeck = true, bool $heistDeck = true){
     $playerId = $this->getCurrentPlayerId();
     
     //empty players'hand to continue playing...
-    self::DbQuery("UPDATE `card` set card_location ='gdiscard',card_state =0,card_location_arg=0 where card_location ='deckgangsters'"); 
+    if($gangstersDeck){
+      self::DbQuery("UPDATE `card` set card_location ='gdiscard',card_state =0,card_location_arg=0 where card_location ='deckgangsters'"); 
+    }
+    if($heistDeck){
+      self::DbQuery("UPDATE `card` set card_location ='hdiscard', card_location_arg=0 where card_location in('deckgenesis')"); 
+      self::DbQuery("UPDATE `card` set card_location ='hdiscard', card_location_arg=1 where card_location in('deckgangwars')"); 
+      self::DbQuery("UPDATE `card` set card_location ='hdiscard', card_location_arg=2 where card_location in('deckdomination')"); 
+    }
     $this->gamestate->jumpToState(3);
 
     $this->notify->all( 'reloadPage', "/!\ : Refresh page to see gangsters...", []);
@@ -354,5 +362,41 @@ trait DebugTrait
     $playerId = $this->getCurrentPlayerId();
     $state = $this->gamestate->state();
     $this->zombieTurn($state,$playerId);
+  }
+
+  /* Test BGA shuffle
+  */
+  function debug_shuffleDeck(){
+    $bossCardsOrder = [];
+    $players = self::loadPlayersBasicInfos();
+
+    //Clean setup of boss and restart setup of bosses
+    $this->DbQuery("UPDATE `card` set card_location = 'deckboss' where card_type_arg = 1 and card_location = 'hand'");
+    $this->cards->shuffle("deckboss");
+
+    foreach ($players as $player_id => $player) {
+      $bosscard = $this->cards->pickCard('deckboss', $player_id);
+      $bossCardsOrder[] = $bosscard['type'];
+      //$this->cards->moveCard($bosscard['id'],'deckboss');
+    }
+    $this->notify->all("debug_shuffleDeck","bossCardsOrder=".json_encode($bossCardsOrder));
+
+    /* 21/10/2025 2players : normal results after clicking 15 times 
+      bossCardsOrder=["103","101"]
+      bossCardsOrder=["103","102"]
+      bossCardsOrder=["104","102"]
+      bossCardsOrder=["105","104"]
+      bossCardsOrder=["103","105"]
+      bossCardsOrder=["104","102"]
+      bossCardsOrder=["104","101"]
+      bossCardsOrder=["104","105"]
+      bossCardsOrder=["101","104"]
+      bossCardsOrder=["104","105"]
+      bossCardsOrder=["102","103"]
+      bossCardsOrder=["102","105"]
+      bossCardsOrder=["102","101"]
+      bossCardsOrder=["101","105"]
+      bossCardsOrder=["104","103"]
+    */
   }
 }
