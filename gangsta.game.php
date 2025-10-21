@@ -2831,6 +2831,20 @@ class Gangsta extends Table {
                         $skillCount[$pid], $bonuscash];
         }
 
+        self::notifyAllPlayers('tableWindow', '', [
+            "id" => 'genesisRevenue',
+            "title" => clienttranslate('Chapter has ended'),
+            "table" => $table,
+            "closing" => clienttranslate('Close'),
+        ]);
+        //Resend these datas to be readable in logs for turn based tables
+        $this->notify->all('tableWindowRecap', '${title}',[
+            "preserve" => ["tableWindowDatas","title","header"],
+            "i18n" => ["title"],
+            "title" => clienttranslate('Chapter has ended'),
+            "tableWindowDatas" => $table,
+        ]);
+        
         //change avdecks
         $this->cards->moveAllCardsInLocation('avheists', 'deckgenesis');
         $newcards = 0;
@@ -2853,12 +2867,6 @@ class Gangsta extends Table {
             'heists' => $this->cards->getCardsInLocation('avheists'),
         ]);
 
-        self::notifyAllPlayers('tableWindow', '', [
-            "id" => 'genesisRevenue',
-            "title" => clienttranslate('Chapter has ended'),
-            "table" => $table,
-            "closing" => clienttranslate('Close'),
-        ]);
 
         $this->gamestate->nextState('nextPlayer');
     }
@@ -3075,6 +3083,14 @@ class Gangsta extends Table {
             "header" => clienttranslate('The gangs have gone at war with each other, everyone <br>will discard a gangster except the player with <br>the most mercernary skill (if there is one)'),
             "table" => $table,
             "closing" => clienttranslate('Close'),
+        ]);
+        //Resend these datas to be readable in logs for turn based tables
+        $this->notify->all('tableWindowRecap', '${title}',[
+            "preserve" => ["tableWindowDatas","title","header"],
+            "i18n" => ["title"],
+            "title" => clienttranslate('Chapter has ended'),
+            "header" => clienttranslate('The gangs have gone at war with each other, everyone <br>will discard a gangster except the player with <br>the most mercernary skill (if there is one)'),
+            "tableWindowDatas" => $table,
         ]);
 
         //Find and CHANGE STATE of counterfeit_printing after chap gang war :

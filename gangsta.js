@@ -949,6 +949,12 @@ define([
                             args.clan = _(args.clan) + this.formatIconClan(args.clan_id);
                         }
 
+                        if('tableWindowDatas' in args){
+                            //we store it in title in order to have at least a title in game logs before opening the game replay
+                            args['title'] = this.formatTableWindowDatasForLogs(args);
+                        }
+                            
+
                     }
                 } catch (e) {
                     console.error(log,args,"Exception thrown", e.stack);
@@ -1097,6 +1103,54 @@ define([
                 } else {
                     this.setMainTitle(title);
                 }
+            },
+            
+            /**
+             * try to do what is done by framework displayTableWindow(), but the table will be kept in the log text
+             * 
+             * @returns string html content
+             * */
+            formatTableWindowDatasForLogs(args){
+                debug("formatTableWindowDatasForLogs() : reformat tableWindow datas to display here a table", args);
+                let formattedHeader = "";
+                formattedHeader += (args['title'] ) ? "<div class='tableWindowRecap_title'>"+_(args['title']) + "</div><hr>" : "";
+                formattedHeader += (args['header'] ) ? "<div class='tableWindowRecap_header'>"+ _(args['header']) +"</div><hr>" : "";
+                let formattedTable = "<table class='tableWindowRecap'>";
+                Object.values(args.tableWindowDatas).forEach((row) => {
+                    formattedTable += "<tr>";
+                    Object.values(row).forEach((col) => {
+                        let cellType =  "td";
+                        let cellContent = "";
+                        if ("object" == typeof col) {
+                            if(col['type'] == 'header') cellType = "th";
+                            //Special arg treatment for player_names
+                            Object.entries(col['args']).forEach(([key,value]) => { 
+                                if(key.startsWith("player_name")){
+                                    col['args'][key] = this.formatColoredPlayerNameByName(value); 
+                                }
+                            }); 
+
+                            cellContent = (col['str'] ) ? this.format_string(_(col['str']), col['args']) : col;
+                        }
+                        else {
+                            cellContent = col;
+                        }
+                        formattedTable += `<${cellType}>${cellContent}</${cellType}>`;
+                    });
+                    formattedTable += "</tr>";
+                });
+                formattedTable += "</table>";
+
+                return formattedHeader + formattedTable;
+            },
+
+            formatColoredPlayerNameByName(player_name){
+                const player = Object.values(this.gamedatas.players).find((player) => player.name == player_name);
+                if (player == undefined) return player_name;
+
+                const color = player.color;
+                const color_bg = player.color_back ? 'background-color:#' + player.color_back + ';' : '';
+                return `<!--PNS--><span class="playername playername_wrapper_${color}" style="color:#${color};${color_bg}">${player_name}</span><!--PNE-->`;
             },
 
             addAllPlayerButtons: function (args) {
