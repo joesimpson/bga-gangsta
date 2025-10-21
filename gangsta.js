@@ -1520,6 +1520,9 @@ define([
                     Object.values([1,2,3,4,5]).forEach((clanId) =>{
                         this.prepareEndScoreCounter(endScoreDatas,pId,`recap_clanInfluence_${clanId}_${pId}`,'clans','SCORING_CLANS', clanId);
                     });
+
+                    //update player heists score (in case of previously private info or not sync info)
+                    this.changePlayerHeistScore(player.id, this._counters[player.id].scoringRecap.heists.getValue());
                 });
             },
             tplFinalScoringTable(){
@@ -2315,7 +2318,8 @@ define([
             
             notif_computeFinalScore(notif) {
                 debug('notif_computeFinalScore', notif);
-                this.displayFinalScoringTable(notif.args.datas);
+                let datas = notif.args.datas;
+                this.displayFinalScoringTable(datas);
             },
 
             notif_nothing: function (notif) {
