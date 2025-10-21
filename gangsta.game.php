@@ -312,10 +312,11 @@ class Gangsta extends Table {
         $result['public_variant'] = $this->isPublic;
         $result['resources_variant'] = self::getGameStateValue( 'resourcevariant', 1 );
 
-        $current_player_id = self::getCurrentPlayerId();    // !! We must only return informations visible by this player !!
+        // !! We must only return informations visible by this player !!
+        $current_player_id = !self::isSpectator() && !self::isCurrentPlayerZombie() ? self::getCurrentPlayerId() : null;
 
         $result['private_score'] = 0;
-        if (!self::isSpectator() && !self::isCurrentPlayerZombie()) {
+        if (isset($current_player_id)) {
             $result['private_score'] = self::getUniqueValueFromDB("SELECT player_score FROM player WHERE player_id='$current_player_id'");
             //$result['heist_score'] = self::getUniqueValueFromDB("SELECT CAST(player_scoe AS SIGNED) - CAST(public_score AS SIGNED) FROM player WHERE player_id='$current_player_id'");
             $result['heist_score'] = self::getStat('scoreFromHeist', $current_player_id);
@@ -328,7 +329,7 @@ class Gangsta extends Table {
             $sql = "SELECT player_id id, player_score score, player_score private_score, player_money money FROM player ";
         }
         $result['players'] = self::getCollectionFromDb($sql);
-        if (!self::isSpectator() && !self::isCurrentPlayerZombie()) {
+        if (isset($current_player_id)) {
             $result['players'][$current_player_id]['score'] = $result['private_score'];
         }
 
@@ -2607,10 +2608,6 @@ class Gangsta extends Table {
     }
 
     function stCheckSynchro() {
-        if (self::isCurrentPlayerZombie()) {
-            $this->gamestate->nextState("zombiePass");
-            //TODO RETURN ?
-        }
 
         $player_id = self::getActivePlayerId();
 
