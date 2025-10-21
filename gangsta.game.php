@@ -1729,17 +1729,21 @@ class Gangsta extends Table {
 
         $this->gamestate->nextState('checkPhase');
     }
-
-    function passForMoney() {
-        self::checkAction('pass');
+    /**
+     * Game action "Pass for money"
+     * @param bool $readOnly : when true, we don't change datas after computation but return added money
+     */
+    function passForMoney(bool $readOnly = false) : int {
+        if(!$readOnly) self::checkAction('pass');
 
         $player_id = self::getActivePlayerId();
-        $this->trace("passForMoney($player_id) ");
+        $this->trace("passForMoney($player_id,$readOnly) ");
 
         $nextState = 'discard';
 
+        $deltaMoney = 0;
         $gangstersInTeam = $this->getCardsForPlayer($player_id);
-        self::incStat(1, 'passedForMoney', $player_id);
+        if(!$readOnly) self::incStat(1, 'passedForMoney', $player_id);
         $leaderComps = 0;
         foreach ($gangstersInTeam as $gid => $gCard) {
             if ($gCard['skill'] == 1) {
@@ -1754,15 +1758,16 @@ class Gangsta extends Table {
         }
 
         $current_money += $leaderComps;
-        self::DbQuery("UPDATE player SET player_money='$current_money' WHERE player_id='$player_id'");
+        $deltaMoney += $leaderComps;
+        if(!$readOnly) self::DbQuery("UPDATE player SET player_money='$current_money' WHERE player_id='$player_id'");
 
-        self::notifyAllPlayers('pass', clienttranslate('${player_name} passes and receive $${money}'), [
+        if(!$readOnly) self::notifyAllPlayers('pass', clienttranslate('${player_name} passes and receive $${money}'), [
             'player_id' => $player_id,
             'player_name' => self::getActivePlayerName(),
             'new_money' => $current_money,
             'money' => $leaderComps,
         ]);
-        $this->updatePlayerVault($player_id);
+        if(!$readOnly) $this->updatePlayerVault($player_id);
         
         $resource = $this->getHandResourceCard($player_id);
         if( isset($resource) && $resource['state'] == CARD_RESOURCE_STATE_ACTIVE 
@@ -1770,27 +1775,34 @@ class Gangsta extends Table {
             if( $resource['ability'] == 'black_market' ){
                 $blackMarketMoney = 2;
                 $current_money += $blackMarketMoney;
-                self::DbQuery("UPDATE player SET player_money='$current_money' WHERE player_id='$player_id'");
-                $this->notify->all('pass', clienttranslate('${player_name} receives $${money} with the resource card ${resource_name}'), [
-                    'i18n' => ['resource_name'],
-                    'player_id' => $player_id,
-                    'player_name' => self::getActivePlayerName(),
-                    'new_money' => $current_money,
-                    'money' => $blackMarketMoney,
-                    'resource_name'=> $resource['name'],
-                ]);
+                $deltaMoney += $blackMarketMoney;
+                if(!$readOnly){
+                    self::DbQuery("UPDATE player SET player_money='$current_money' WHERE player_id='$player_id'");
+                    $this->notify->all('pass', clienttranslate('${player_name} receives $${money} with the resource card ${resource_name}'), [
+                        'i18n' => ['resource_name'],
+                        'player_id' => $player_id,
+                        'player_name' => self::getActivePlayerName(),
+                        'new_money' => $current_money,
+                        'money' => $blackMarketMoney,
+                        'resource_name'=> $resource['name'],
+                    ]);
+                }
 
             }
             else if( $resource['ability'] == 'hospital' ){
                 if($this->cards->countCardInLocation('wounded')>0){
                     $nextState = 'recovering';
-                    $this->giveExtraTime($player_id);
+                    if(!$readOnly) {
+                        $this->giveExtraTime($player_id);
+                    }
 
                 }
             }
         }
 
-        $this->gamestate->nextState($nextState);
+        if(!$readOnly) $this->gamestate->nextState($nextState);
+
+        return $deltaMoney;
     }
 
     function performHeist($heist_id,
@@ -2280,6 +2292,7 @@ class Gangsta extends Table {
         $args = [
             'pHeists' => $possible_heists,
             'pRecruits' => $possible_recruits,
+            'passMoney' => $this->passForMoney(true),
             '_private' => [
                 $player_id => [ 
                     'top_deck' => [

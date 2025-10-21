@@ -1500,6 +1500,13 @@ table.tableWindowRecap td {
 }
 
 
+#customActions .custom_icon{
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 1px;
+    margin-right: 1px;
+}
+
 /* -------------------- MOBILE -------------------- */
 
 @media only screen and (max-width: 1440px) {

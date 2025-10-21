@@ -154,7 +154,7 @@
     {
       self::setAjaxMode();
 
-      $this->game->passForMoney();
+      $this->game->passForMoney(false);
       self::ajaxResponse();
     }
 

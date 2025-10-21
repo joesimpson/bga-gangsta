@@ -829,7 +829,7 @@ define([
                             break;
                         case 'playerAction':
                             this.addActionButton('confRecruit_button', _('Recruit'), 'onConfRecruit');
-                            this.addActionButton('pass_button', _('Pass for Money'), 'onPassForMoney');
+                            this.statusBar.addActionButton( "<span>"+_('Pass for Money')+"</span>"+`<i class='fa6 fa-arrow-right'></i> <span>${args.passMoney}</span> ${this.formatIconMoney()}`,  () => this.onPassForMoney(),{id:'pass_button',destination:$('customActions')});
                             dojo.addClass('confRecruit_button', 'disabled');
                             break;
                         case 'discard':
@@ -1162,7 +1162,7 @@ define([
                         let formattedName = `<span class='button_player_name' style='color:#${player_color};'>${name}</span>`;
                         let money = args.player_money[player_id].money;
                         if (money >= 0) {
-                            this.addActionButton('st_Button' + player_id, formattedName + ' (' + money + ')', dojo.hitch(this, "onSteal", player_id));
+                            this.statusBar.addActionButton( "<span>"+formattedName+"</span>"+` ( <span>${money}</span> ${this.formatIconMoney()} )`,  () => dojo.hitch(this, "onSteal", player_id),{id:'st_Button' + player_id,destination:$('customActions')});
                         }
                     }
                 }
@@ -1229,8 +1229,8 @@ define([
                 delete this.gamedatas.tableau[cardid];
             },
 
-            formatIconMoney: function(){
-                return `<span class="custom_icon money largeIcon"></span>`;
+            formatIconMoney: function(iconSize = ''){
+                return `<span class="custom_icon money ${iconSize}Icon"></span>`;
             },
             formatIconTeam: function(){
                 return `<span class="custom_icon team largeIcon"></span>`;
@@ -1627,7 +1627,7 @@ define([
                         ${playersClansInfluence}
                     </tr>`;
                 });
-                let moneyIcon = this.formatIconMoney();
+                let moneyIcon = this.formatIconMoney('large');
                 let teamIcon = this.formatIconTeam();
                 Object.values(this.gamedatas.players).forEach((player) => {//LOOP PLAYERS
                     let formattedName = `<span class='button_player_name' style='color:#${player.color};'>${player.name}</span>`;
