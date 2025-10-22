@@ -363,7 +363,7 @@ $machinestates = array(
 
     98 => array(
         "name" => "endOfGame",
-        "description" => '',
+        "description" => clienttranslate('Computing final score...'),
         "type" => "game",
         "action" => "stEndOfGame",
         "updateGameProgression" => true,

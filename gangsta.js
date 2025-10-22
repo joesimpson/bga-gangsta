@@ -361,7 +361,7 @@ define([
                     });
                 }
 
-                if( Object.keys(this.gamedatas.endScoring).length ) this.displayFinalScoringTable(this.gamedatas.endScoring);
+                if( this.gamedatas.endScoring && Object.keys(this.gamedatas.endScoring).length ) this.displayFinalScoringTable(this.gamedatas.endScoring);
 
                 // Setup game notifications to handle (see "setupNotifications" method below)
                 this.setupNotifications();
@@ -1167,7 +1167,7 @@ define([
                         let formattedName = `<span class='button_player_name' style='color:#${player_color};'>${name}</span>`;
                         let money = args.player_money[player_id].money;
                         if (money >= 0) {
-                            this.statusBar.addActionButton( "<span>"+formattedName+"</span>"+` ( <span>${money}</span> ${this.formatIconMoney()} )`,  () => dojo.hitch(this, "onSteal", player_id),{id:'st_Button' + player_id,destination:$('customActions')});
+                            this.statusBar.addActionButton( "<span>"+formattedName+"</span>"+` ( <span>${money}</span> ${this.formatIconMoney()} )`,  () => this.onSteal(player_id),{id:'st_Button' + player_id,destination:$('customActions')});
                         }
                     }
                 }

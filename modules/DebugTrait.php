@@ -2,6 +2,7 @@
 namespace Bga\Games\gansgta;
 
 use Bga\GameFramework\Actions\Types\IntParam;
+use BgaVisibleSystemException;
 
 /**
  * Debugging functions to be called in chat/debug window in BGA Studio
@@ -100,11 +101,37 @@ trait DebugTrait
   }
 
   //Test  all resource cards images and tooltips
-  function debug_allResourcesInDraft(){
+  function debug_reshuffleResourcesInDraft(){
     $playerId = $this->getCurrentPlayerId();
-    self::DbQuery("UPDATE `card` set card_location ='rc_draft', card_location_arg ='$playerId' where card_location ='rc_deck' ");
+
+    $state = $this->gamestate->getCurrentMainState();
+    if($state->name != "resourcesSelection"){
+      throw new BgaVisibleSystemException("To be run before selecting resource cards !");
+    }
     
-    $this->notify->player($playerId,'reloadPage', "/!\ : Refresh page to see cards...", []);
+    self::DbQuery("UPDATE `card` set card_location ='rc_deck', card_location_arg =0 where card_location in ('rc_draft','rc_discard')");
+    $this->cards->shuffle('rc_deck');
+
+    $players = self::loadPlayersBasicInfos();
+    /*
+    $n = $this->cards->countCardInLocation('rc_draft');
+    while($n < 12){
+      self::DbQuery("UPDATE `card` set card_location ='rc_draft', card_location_arg ='$playerId' where card_location ='rc_deck' 
+      order by card_location_arg
+      LIMIT 1");
+      if( self::DbAffectedRow() <1 ) break;
+      $playerId = $this->getPlayerAfter($playerId);
+      $n = $this->cards->countCardInLocation('rc_draft');
+    }
+    */
+
+    foreach ($players as $pid => $player) {
+      $this->cards->pickCardsForLocation(12/count($players),'rc_deck','rc_draft',$pid);
+    }
+    
+    //$this->notify->player($playerId,'reloadPage', "/!\ : Refresh page to see cards...", []);
+    
+    $this->gamestate->jumpToState(31);
   }
 
   function debug_actSelectResource(int $cardId = 0){
