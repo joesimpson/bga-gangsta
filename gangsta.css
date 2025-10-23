@@ -637,6 +637,13 @@ body[data-resources_variant="2"] .chapters_separator {
   text-shadow: 2px 0px 2px white, 0px 2px 2px white, -2px 0px 2px white, 0px -2px 2px white;
 }
 
+#customActions .custom_icon{
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 1px;
+    margin-right: 1px;
+}
+
 #confTeach_button{
 }
 #confTeach_button .skill{
@@ -1497,14 +1504,6 @@ table.tableWindowRecap th,
 table.tableWindowRecap td {
     text-align: center;
     vertical-align: middle;
-}
-
-
-#customActions .custom_icon{
-    display: inline-block;
-    vertical-align: middle;
-    margin-left: 1px;
-    margin-right: 1px;
 }
 
 /* -------------------- MOBILE -------------------- */
