@@ -86,6 +86,7 @@ $stats_type = array(
                     "type" => "int" ),
         "scoreFromGangster" => array(   "id"=> 18,
                     "name" => totranslate("Influence from Gangsters"),
+                    "type" => "int" ),
         "scoreFromResource" => array(   "id"=> 28,
                     "name" => totranslate("Influence from Resource card"),
                     "type" => "int" ),
