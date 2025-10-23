@@ -97,17 +97,17 @@ $game_options = [
     ],
 
     103 => [
-        'name' => 'Resources',
+        'name' => totranslate('Resources'),
         'values' => [
             1 => [
-                'name' => 'Disabled', 
+                'name' => totranslate('Disabled'), 
                 'tmdisplay' => '',
-                'description' => 'Resource cards are not dealt to players.'
+                'description' => totranslate('Resource cards are not dealt to players.'),
             ],
             2 => [
-                'name' => 'Resources choice', 
-                'tmdisplay' => 'Resources choice',
-                'description' => ('Players randomly receive two Resource Cards, selecting only one and discarding the other. Each Resource Card give a unique ability during the game.'),
+                'name' => totranslate('Resources choice'), 
+                'tmdisplay' => totranslate('Resources choice'),
+                'description' => totranslate('Players randomly receive two Resource Cards, selecting only one and discarding the other. Each Resource Card give a unique ability during the game.'),
                 'nobeginner' => true,
                 'beta' => true, //TODO JSA REMOVE BETA OPTION When OK
             ],
