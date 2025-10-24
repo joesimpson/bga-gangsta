@@ -91,7 +91,7 @@ $game_options = [
         'values' => [
             1 => [
                 'name' => totranslate('private'), 'description' => totranslate('Influence gained from heists is only visible to you')],
-            2 => ['name' => totranslate('public'), 'tmdisplay' => 'public','description' => totranslate('Influence gained from heists is added to you public total')],
+            2 => ['name' => totranslate('public'), 'tmdisplay' => totranslate('public'),'description' => totranslate('Influence gained from heists is added to you public total')],
         ],
         'default' => 1,
     ],
