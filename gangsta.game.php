@@ -2674,6 +2674,17 @@ class Gangsta extends Table {
         $this->gamestate->nextState($nextState);
     }
 
+    function stRewardSkill(){
+        $this->trace("stRewardSkill");
+        $args = $this->argRewardSkill();
+        $selectable = $args['selectable'];
+        if(count($selectable) <1){
+            //AUTO SKIP STATE 
+            $this->trace("stRewardSkill -> auto skip state because 0 possible action");
+            $this->skip(true);
+        }
+    }
+
     function stRevealCards() {
         $snitch = false;
         $new_gangster = ['id' => 0];

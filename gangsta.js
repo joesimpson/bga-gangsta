@@ -733,9 +733,10 @@ define([
                         dojo.addClass($('gangster_' + gangster), 'selectable');
                     }
                 }
-                if (this.possibleTargets.length == 0) {
-                    this.onSkip(true);
-                }
+                //Replaced by server side control
+                //if (this.possibleTargets.length == 0) {
+                //    this.onSkip(true);
+                //}
             },
 
             enteringSnitch: function (args) { //this is called from UpdateActionButtons.

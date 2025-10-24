@@ -229,7 +229,8 @@ $machinestates = array(
         "type" => "activeplayer",
         "possibleactions" => array( "teach", "skip" ),
         "transitions" => array( "checkPhase" => 25, "skip" => 25, "zombiePass" => 25 ),
-        "args" => "argRewardSkill"
+        "args" => "argRewardSkill",
+        "action" => "stRewardSkill",
     ),
 
     12 => array(
