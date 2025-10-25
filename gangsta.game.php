@@ -1614,6 +1614,7 @@ class Gangsta extends Table {
         self::notifyAllPlayers('teach',
                                clienttranslate('${player_name} teaches ${skill_name} to one of their gangster'), [
                                    'i18n' => ['skill_name'],
+                                    'preserve' => ['skill'],
                                    'player_id' => $player_id,
                                    'player_name' => self::getActivePlayerName(),
                                    'skill' => $skill_id,
@@ -2111,7 +2112,7 @@ class Gangsta extends Table {
 
         $message = clienttranslate('${player_name} chooses to skip');
         if ($forced) {
-            $message = clienttranslate('${player_name} cannot apply the reward');
+            $message = '';
         }
 
         self::notifyAllPlayers('skip', $message, [
@@ -2677,10 +2678,29 @@ class Gangsta extends Table {
     function stRewardSkill(){
         $this->trace("stRewardSkill");
         $args = $this->argRewardSkill();
+        $player_id = self::getActivePlayerId();
         $selectable = $args['selectable'];
         if(count($selectable) <1){
             //AUTO SKIP STATE 
             $this->trace("stRewardSkill -> auto skip state because 0 possible action");
+
+            $message = clienttranslate('${player_name} cannot apply the reward');
+            //2025 : I don't translate the next message : I use recursive notification in order to keep using old (already translated) message and concatenate icon
+            $this->notify->all('skipSkill', ('${skill_name} : ${message}'),
+                [
+                    'i18n' => ['skill_name'],
+                    'preserve' => ['skill'],
+                    'skill' => $args['skill_id'],
+                    'skill_name' => $this->_($args['skill_name']),
+                    'message' => [
+                        'log' => $message,
+                        'args'=> [
+                            'player_id' => $player_id,
+                            'player_name' => $this->getPlayerNameById($player_id),
+                        ],
+                    ],
+                ]
+            );
             $this->skip(true);
         }
     }

@@ -954,6 +954,13 @@ define([
                         if(clan in args && clan_id in args) {
                             args.clan = _(args.clan) + this.formatIconClan(args.clan_id);
                         }
+                        
+                        if('skill_id' in args && 'skill_name' in args) {
+                            args.skill_name = _(args.skill_name) + this.formatIconSkill(args.skill_id);
+                        }
+                        else if('skill' in args && 'skill_name' in args) {
+                            args.skill_name = _(args.skill_name) + this.formatIconSkill(args.skill);
+                        }
 
                         if('tableWindowDatas' in args){
                             //we store it in title in order to have at least a title in game logs before opening the game replay

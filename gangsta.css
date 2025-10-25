@@ -637,6 +637,7 @@ body[data-resources_variant="2"] .chapters_separator {
   text-shadow: 2px 0px 2px white, 0px 2px 2px white, -2px 0px 2px white, 0px -2px 2px white;
 }
 
+#pagemaintitletext .custom_icon,
 #customActions .custom_icon{
     display: inline-block;
     vertical-align: middle;
@@ -753,6 +754,8 @@ body[data-resources_variant="2"] .chapters_separator {
     background-image: url('img/sprite_rewards.png');
     background-size: 300px 180px;
     position: relative;
+}
+.required_skill .skill{
     top: 8px;
 }
 .skill[data-type="1"],
