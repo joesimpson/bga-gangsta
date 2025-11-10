@@ -1507,7 +1507,30 @@ table.tableWindowRecap th,
 table.tableWindowRecap td {
     text-align: center;
     vertical-align: middle;
+    word-wrap: anywhere;
 }
+
+.tableWindowRecap[data-nbCols="2"] td ,
+.tableWindowRecap[data-nbCols="2"] th {
+    width: 50%;
+}
+.tableWindowRecap[data-nbCols="3"] td ,
+.tableWindowRecap[data-nbCols="3"] th {
+    width: 30%;
+}
+.tableWindowRecap[data-nbCols="4"] td ,
+.tableWindowRecap[data-nbCols="4"] th {
+    width: 24%;
+}
+.tableWindowRecap tr[data-row="1"] th[data-type="playerName"] {
+    /* all player names on the same line (different columns) can lead to less readability (eg. 4 players with long names) */
+    font-size: 0.7em;
+}
+.tableWindowRecap tr:not([data-row="1"]) th[data-type="playerName"] {
+    /* give priority for playername readability when given in lines */
+    width: 50%;
+}
+
 
 /* -------------------- MOBILE -------------------- */
 

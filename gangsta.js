@@ -1128,17 +1128,21 @@ define([
                 let formattedHeader = "";
                 formattedHeader += (args['title'] ) ? "<div class='tableWindowRecap_title'>"+_(args['title']) + "</div><hr>" : "";
                 formattedHeader += (args['header'] ) ? "<div class='tableWindowRecap_header'>"+ _(args['header']) +"</div><hr>" : "";
-                let formattedTable = "<table class='tableWindowRecap'>";
+                let nbColumns = args.tableWindowDatas[0] ? args.tableWindowDatas[0].length : 0;
+                let formattedTable = `<table class='tableWindowRecap' data-nbCols='${nbColumns}'>`;
+                let rowIndex = 1;
                 Object.values(args.tableWindowDatas).forEach((row) => {
-                    formattedTable += "<tr>";
+                    formattedTable += `<tr data-row='${rowIndex}'>`;
                     Object.values(row).forEach((col) => {
                         let cellType =  "td";
+                        let dataType =  "";
                         let cellContent = "";
                         if ("object" == typeof col) {
                             if(col['type'] == 'header') cellType = "th";
                             //Special arg treatment for player_names
                             Object.entries(col['args']).forEach(([key,value]) => { 
                                 if(key.startsWith("player_name")){
+                                    dataType = 'playerName';
                                     col['args'][key] = this.formatColoredPlayerNameByName(value); 
                                 }
                             }); 
@@ -1148,9 +1152,10 @@ define([
                         else {
                             cellContent = col;
                         }
-                        formattedTable += `<${cellType}>${cellContent}</${cellType}>`;
+                        formattedTable += `<${cellType} data-type="${dataType}">${cellContent}</${cellType}>`;
                     });
                     formattedTable += "</tr>";
+                    rowIndex++;
                 });
                 formattedTable += "</table>";
 
