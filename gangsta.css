@@ -1424,6 +1424,7 @@ body[data-resources_variant="1"] .player_points_resources_separator {
   vertical-align: middle;
   font-size: 20px;
   padding: 0 5px;
+    word-wrap: anywhere;
 }
 #end_score_recap table th div {
   display: inline-block;
