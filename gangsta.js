@@ -830,7 +830,7 @@ define([
                             break;
                         case 'playerAction':
                             this.addActionButton('confRecruit_button', _('Recruit'), 'onConfRecruit');
-                            this.statusBar.addActionButton( "<span>"+_('Pass for Money')+"</span>"+`<i class='fa6 fa-arrow-right'></i> <span>${args.passMoney}</span> ${this.formatIconMoney()}`,  () => this.onPassForMoney(),{id:'pass_button',destination:$('customActions')});
+                            this.statusBar.addActionButton( "<span>"+_('Pass for Money')+"</span>"+` <i class='fa6 fa-arrow-right'></i> <span>${args.passMoney}</span> ${this.formatIconMoney()}`,  () => this.onPassForMoney(),{id:'pass_button',destination:$('customActions')});
                             dojo.addClass('confRecruit_button', 'disabled');
                             break;
                         case 'discard':
