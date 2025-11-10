@@ -109,7 +109,6 @@ $game_options = [
                 'tmdisplay' => totranslate('Resources choice'),
                 'description' => totranslate('Players randomly receive two Resource Cards, selecting only one and discarding the other. Each Resource Card give a unique ability during the game.'),
                 'nobeginner' => true,
-                'beta' => true, //TODO JSA REMOVE BETA OPTION When OK
             ],
             //We may add 3 => 'Automatic choice' 
         ],
