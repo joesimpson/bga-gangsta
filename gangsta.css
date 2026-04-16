@@ -170,15 +170,15 @@ div.tableWindow table {
     border-radius: 6px;
 }
 .heist.genesis {
-    background: url('img/heist_sprite_chap1.jpg');
+    background: url('img/theme1/heist_sprite_chap1.jpg');
     background-size: 990px 616px;
 }
 .heist.gangwars {
-    background: url('img/heist_sprite_chap2.jpg');
+    background: url('img/theme1/heist_sprite_chap2.jpg');
     background-size: 990px 770px;
 }
 .heist.domination  {
-    background: url('img/heist_sprite_chap3.jpg');
+    background: url('img/theme1/heist_sprite_chap3.jpg');
     background-size: 990px 616px; 
 }
 #av_resources .card_wrap{
@@ -374,25 +374,25 @@ body[data-resources_variant="1"] .player_resource_cards {
 
 .gtip{
     background-size:1760px 1848px;
-    background-image: url('img/gangsters_sprite.jpg');
+    background-image: url('img/theme1/gangsters_sprite.jpg');
 }
 .htip.genesis {
-    background: url('img/heist_sprite_chap1.jpg');
+    background: url('img/theme1/heist_sprite_chap1.jpg');
     background-size:1980px 1232px;    
 }
 .htip.gangwars {
-    background: url('img/heist_sprite_chap2.jpg');
+    background: url('img/theme1/heist_sprite_chap2.jpg');
     background-size:1980px 1540px;    
 }
 .htip.domination {
-    background: url('img/heist_sprite_chap3.jpg');
+    background: url('img/theme1/heist_sprite_chap3.jpg');
     background-size:1980px 1232px;    
 }
 .gangster {
     position: absolute;
     top: 0;
     left: 0;
-    background-image: url('img/gangsters_sprite.jpg');
+    background-image: url('img/theme1/gangsters_sprite.jpg');
     background-size: 880px 924px;    
     border-radius: 6px;
 }
@@ -568,7 +568,7 @@ body[data-resources_variant="2"] .chapters_separator {
     margin-left: 10px;
 }*/
 #gangstersdeck {
-    background-image: url(img/gangsters_sprite.jpg);
+    background-image: url(img/theme1/gangsters_sprite.jpg);
     background-size: 880px 924px;
     background-position: -110px 0px;
 }
@@ -655,15 +655,15 @@ body[data-resources_variant="2"] .chapters_separator {
 }
 
 .genesis .deck {
-    background: url('img/heist_sprite_chap1.jpg');
+    background: url('img/theme1/heist_sprite_chap1.jpg');
     background-size: 990px 616px;
 }
 .gangwar .deck {
-    background: url('img/heist_sprite_chap2.jpg');
+    background: url('img/theme1/heist_sprite_chap2.jpg');
     background-size: 990px 770px;
 }
 .domination .deck {
-    background: url('img/heist_sprite_chap3.jpg');
+    background: url('img/theme1/heist_sprite_chap3.jpg');
     background-size: 990px 616px;
 }
 .deck {
