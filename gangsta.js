@@ -216,6 +216,29 @@ define([
                     }
                 }
 
+                this.cards_artwork_theme = gamedatas.cards_artwork;
+                if(!this.cards_artwork_theme) this.cards_artwork_theme = 1;
+                document.getElementById('gangstainterface').dataset.cards_artwork = this.cards_artwork_theme;
+                switch(this.cards_artwork_theme){
+                    case 2:
+                        this.bga.images.preloadImages([
+                            'theme2/gangsters_sprite.jpg', 
+                            'theme2/heist_sprite_chap1.jpg', 
+                            'theme2/heist_sprite_chap2.jpg', 
+                            'theme2/heist_sprite_chap3.jpg'
+                        ]);
+                        break;
+                    case 1:
+                    default:
+                        this.bga.images.preloadImages([
+                            'theme1/gangsters_sprite.jpg', 
+                            'theme1/heist_sprite_chap1.jpg', 
+                            'theme1/heist_sprite_chap2.jpg', 
+                            'theme1/heist_sprite_chap3.jpg'
+                        ]);
+                        break;
+                }
+
                 this.updateCounters(this.gamedatas.counters);
                 this.addTooltipToClass('player_vault',_('Bank vault'),'');
 
@@ -248,20 +271,21 @@ define([
                 //console.log('Adding available Heists');
                 for (var heist_genesis_type in this.gamedatas.genesis_type) {
                     var card_type_id = this.getHeistUniqueId(heist_genesis_type);
-                    this.avheists.addItemType(heist_genesis_type, 1, g_gamethemeurl + 'img/theme1/heist_sprite_chap1.jpg', card_type_id);
+                    // img/theme1 or img/theme2
+                    this.avheists.addItemType(heist_genesis_type, 1, g_gamethemeurl + 'img/theme'+this.cards_artwork_theme+'/heist_sprite_chap1.jpg', card_type_id);
                 }
                 for (var heist_gangwar_type in this.gamedatas.gangwars_type) {
                     var card_type_id = this.getHeistUniqueId(heist_gangwar_type);
-                    this.avheists.addItemType(heist_gangwar_type, 1, g_gamethemeurl + 'img/theme1/heist_sprite_chap2.jpg', card_type_id);
+                    this.avheists.addItemType(heist_gangwar_type, 1, g_gamethemeurl + 'img/theme'+this.cards_artwork_theme+'/heist_sprite_chap2.jpg', card_type_id);
                     if (this.gamedatas.gangwars_type[heist_gangwar_type].type == "snitch") {
-                        this.snitchlist.addItemType(heist_gangwar_type, 1, g_gamethemeurl + 'img/theme1/heist_sprite_chap2.jpg', card_type_id);
+                        this.snitchlist.addItemType(heist_gangwar_type, 1, g_gamethemeurl + 'img/theme'+this.cards_artwork_theme+'/heist_sprite_chap2.jpg', card_type_id);
                     }
                 }
                 for (var heist_domination_type in this.gamedatas.domination_type) {
                     var card_type_id = this.getHeistUniqueId(heist_domination_type);
-                    this.avheists.addItemType(heist_domination_type, 1, g_gamethemeurl + 'img/theme1/heist_sprite_chap3.jpg', card_type_id);
+                    this.avheists.addItemType(heist_domination_type, 1, g_gamethemeurl + 'img/theme'+this.cards_artwork_theme+'/heist_sprite_chap3.jpg', card_type_id);
                     if (this.gamedatas.domination_type[heist_domination_type].type == "snitch") {
-                        this.snitchlist.addItemType(heist_domination_type, 1, g_gamethemeurl + 'img/theme1/heist_sprite_chap3.jpg', card_type_id);
+                        this.snitchlist.addItemType(heist_domination_type, 1, g_gamethemeurl + 'img/theme'+this.cards_artwork_theme+'/heist_sprite_chap3.jpg', card_type_id);
                     }
                 }
 
@@ -285,7 +309,7 @@ define([
 
                 for (var gangster_type in this.gamedatas.gangster_type) {
                     var card_type_id = this.getGangsterUniqueId(gangster_type);
-                    this.avgangsters.addItemType(gangster_type, 1, g_gamethemeurl + 'img/theme1/gangsters_sprite.jpg', card_type_id);
+                    this.avgangsters.addItemType(gangster_type, 1, g_gamethemeurl + 'img/theme'+this.cards_artwork_theme+'/gangsters_sprite.jpg', card_type_id);
                 }
 
                 this.displayAvailableGangsters(this.gamedatas.avgangsters);
@@ -978,13 +1002,14 @@ define([
             addGangstaTip: function (cardTypeId, type, divId) {
                 //this.addGangstaTip(gangster.type, 'gangster',this.avgangsters.getItemDivId(gangster.id));
                 var phaseId = this.gamedatas.activePhaseId + 1;
-                var imgurl = g_themeurl + "img/theme1/heist_sprite_chap" + phaseId;
+                var imgurl = g_themeurl + 'img/theme'+this.cards_artwork_theme+"/heist_sprite_chap" + phaseId;
                 var imgsize = "1980px 1232px";
                 var tpl = {
                     classes: "htip " + this.gamedatas.activePhaseName,
                     backx: this.getHeistHorizontalOffset(cardTypeId) * 100,
                     backy: this.getHeistVerticalOffset(cardTypeId) * 100,
                     title: "",
+                    cards_artwork: this.cards_artwork_theme,
                 };
 
                 if (type === 'gangster') {

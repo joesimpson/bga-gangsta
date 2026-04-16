@@ -88,6 +88,7 @@ class Gangsta extends Table {
                                       "passvariant" => 101,
                                       "publicvariant" => 102,
                                       "resourcevariant" => 103,
+                                      "cards_artwork"   => 104,
                                   ]);
 
 
@@ -122,6 +123,11 @@ class Gangsta extends Table {
             case 2: return true;
             default: return false;
         }
+    }
+
+    function getCardsArtwork() : int
+    { 
+        return intval($this->getGameStateValue( 'cards_artwork', 1 ));
     }
 
     protected function getGameName() {
@@ -311,6 +317,7 @@ class Gangsta extends Table {
         $result['starting_dollars_variant'] = $this->isStartingDollarSetups;
         $result['public_variant'] = $this->isPublic;
         $result['resources_variant'] = self::getGameStateValue( 'resourcevariant', 1 );
+        $result['cards_artwork'] = $this->getCardsArtwork();
 
         // !! We must only return informations visible by this player !!
         $current_player_id = !self::isSpectator() && !self::isCurrentPlayerZombie() ? self::getCurrentPlayerId() : null;

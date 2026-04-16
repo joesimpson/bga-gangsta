@@ -181,6 +181,16 @@ div.tableWindow table {
     background: url('img/theme1/heist_sprite_chap3.jpg');
     background-size: 990px 616px; 
 }
+#gangstainterface[data-cards_artwork="2"] .heist.genesis {
+        background-image: url('img/theme2/heist_sprite_chap1.jpg');
+    }
+#gangstainterface[data-cards_artwork="2"] .heist.gangwars {
+        background-image: url('img/theme2/heist_sprite_chap2.jpg');
+    }
+#gangstainterface[data-cards_artwork="2"] .heist.domination  {
+        background-image: url('img/theme2/heist_sprite_chap3.jpg');
+    }
+
 #av_resources .card_wrap{
     margin-bottom: 10px;
     margin-top: 10px;
@@ -396,6 +406,22 @@ body[data-resources_variant="1"] .player_resource_cards {
     background-size: 880px 924px;    
     border-radius: 6px;
 }
+.card_tooltip[data-cards_artwork="2"] .gtip{
+        background-image: url('img/theme2/gangsters_sprite.jpg');
+    }
+.card_tooltip[data-cards_artwork="2"] .htip.genesis {
+        background-image: url('img/theme2/heist_sprite_chap1.jpg');
+    }
+.card_tooltip[data-cards_artwork="2"] .htip.gangwars {
+        background-image: url('img/theme2/heist_sprite_chap2.jpg');
+    }
+.card_tooltip[data-cards_artwork="2"] .htip.domination {
+        background-image: url('img/theme2/heist_sprite_chap3.jpg');
+    }
+#gangstainterface[data-cards_artwork="2"] .gangster {
+        background-image: url('img/theme2/gangsters_sprite.jpg');
+    }
+
 .gangster.selectable {
     animation: animateSelected 2s ease infinite;
 }
@@ -572,6 +598,9 @@ body[data-resources_variant="2"] .chapters_separator {
     background-size: 880px 924px;
     background-position: -110px 0px;
 }
+#gangstainterface[data-cards_artwork="2"] #gangstersdeck {
+        background-image: url("img/theme2/gangsters_sprite.jpg");
+    }
 .deck_topcard{
     top: 30px;
     left: -20px;
@@ -666,6 +695,16 @@ body[data-resources_variant="2"] .chapters_separator {
     background: url('img/theme1/heist_sprite_chap3.jpg');
     background-size: 990px 616px;
 }
+#gangstainterface[data-cards_artwork="2"] .genesis .deck {
+        background-image: url('img/theme2/heist_sprite_chap1.jpg');
+    }
+#gangstainterface[data-cards_artwork="2"] .gangwar .deck {
+        background-image: url('img/theme2/heist_sprite_chap2.jpg');
+    }
+#gangstainterface[data-cards_artwork="2"] .domination .deck {
+        background-image: url('img/theme2/heist_sprite_chap3.jpg');
+    }
+
 .deck {
     float: left;
     width: 110px;

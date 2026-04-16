@@ -114,6 +114,22 @@ $game_options = [
         ],
         'default' => 1,
     ],
+    
+    104 => [
+        'name' => totranslate('Cards artwork'),
+        'values' => [
+            1 => [
+                'name' => '2019', 
+                'description' => totranslate(''),
+            ],
+            2 => [
+                'name' => '2026', 
+                'tmdisplay' => '2026',
+                'description' => totranslate(''),
+            ],
+        ],
+        'default' => 1,
+    ],
 
 ];
 

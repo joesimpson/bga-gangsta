@@ -12,7 +12,7 @@ trait DebugTrait
  
   ////////////////////////////////////////////////////
 
-  function debug_ReSetup(bool $draft = true,bool $visibleHeistScore = true){
+  function debug_ReSetup(bool $draft = true,bool $visibleHeistScore = true, int $theme = 1 ){
     $this->trace("debug_ReSetup - START ////////////////////////////////////////////////////");
     $players = self::loadPlayersBasicInfos();
     
@@ -21,6 +21,7 @@ trait DebugTrait
       101 => 2,
       102 => ($visibleHeistScore ? 2 :1) ,
       103 => ($draft ? 2 :1) ,
+      104 => $theme,
     ];
     //CLEAR DATAS
     // self::DbQuery("UPDATE `stats` set stats_value = 0 where stats_type >= 10 ");

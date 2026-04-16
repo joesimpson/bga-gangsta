@@ -119,7 +119,7 @@
       </div>\
     </div>\
     </div>';
-  var jstpl_tooltip = '<div class="card_tooltip">\
+  var jstpl_tooltip = '<div class="card_tooltip" data-cards_artwork="${cards_artwork}">\
       <h1 class="card_title">${title}</h1>\
       <div class="cardTip ${classes}" style="background-position: -${backx}% -${backy}%;"></div>\
     </div>';
