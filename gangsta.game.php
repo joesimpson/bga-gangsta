@@ -791,7 +791,9 @@ class Gangsta extends Table {
             });
         }
         foreach ($notmygangsters as $cardid => $gCard) {
-            $scount = 0 + $gCard['skill'];
+            //skills count
+            $scount = 0;
+            if($gCard['skill'] > 0) $scount ++;
             for ($i = 1; $i < 7; $i++) {
                 $scount += $this->gangster_type[$gCard['type']]['stats'][$i];
             }
@@ -1476,7 +1478,8 @@ class Gangsta extends Table {
             throw new feException("It must be one of your gangsters");
         }
 
-        $scount = 0 + $gangster['skill'];
+        $scount = 0;
+        if($gangster['skill'] > 0) $scount ++;
         for ($i = 1; $i < 7; $i++) {
             $scount += $this->gangster_type[$gangster['type']]['stats'][$i];
         }
